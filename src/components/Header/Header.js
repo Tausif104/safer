@@ -1,3 +1,4 @@
+'use client'
 import Image from 'next/image'
 import React from 'react'
 import SearchIcon from '@/assets/images/search-icon.svg'
@@ -10,11 +11,13 @@ import {
 } from "@/components/ui/popover"
 import { LiaAngleDownSolid } from "react-icons/lia";
 import { HiOutlineBars3 } from "react-icons/hi2";
+import { useRootContext } from '@/provider/context'
 
 const Header = () => {
+  const{handleToggle} = useRootContext();
   return (
     <>
-      <header className='sm:bg-white py-[20px] sm:py-[15px] px-[20px] rounded-[12px] sm:shadow-[6px_16px_50px_6px_rgba(38,57,136,0.06)] grid sm:grid-cols-[5fr_7fr] gap-[20px] sm:gap-0 items-center sm:mb-[30px]'>
+      <header className='bg-[#F8FEE6] sm:bg-white py-[20px] sm:py-[15px] px-[20px] rounded-[12px] sm:shadow-[6px_16px_50px_6px_rgba(38,57,136,0.06)] grid sm:grid-cols-[5fr_7fr] gap-[20px] sm:gap-0 items-center mx-[-20px] sm:mx-0 sm:mb-[30px]'>
         <div className='flex sm:justify-end justify-between gap-[15px] sm:order-2'>
           <div className='sm:order-2'>
             <Popover>
@@ -64,7 +67,7 @@ const Header = () => {
                 </div>
               </PopoverContent>
             </Popover>
-            <div className='h-[48px] w-[48px] border bg-white border-[#E7FBBD] sm:border-[#DAECFF] flex justify-center items-center rounded-full cursor-pointer text-[#262262] text-[24px] lg:hidden'>
+            <div onClick={handleToggle} className='h-[48px] w-[48px] border bg-white border-[#E7FBBD] sm:border-[#DAECFF] flex justify-center items-center rounded-full cursor-pointer text-[#262262] text-[24px] lg:hidden'>
               <HiOutlineBars3 />
             </div>
           </div>

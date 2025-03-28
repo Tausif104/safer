@@ -15,8 +15,8 @@ export default function Pricing() {
   const [plan, setPlan] = useState("monthly");
 
   return (
-    <section className="pricing-area">
-      <div className="flex justify-between items-center gap-4 mb-[30px]">
+    <section className="pt-[20px] sm:pt0">
+      <div className="flex justify-center  sm:justify-between items-center flex-wrap sm:flex-nowrap gap-4 mb-[30px]">
         <div className="flex items-center gap-4">
           <Link
             href=""
@@ -24,7 +24,7 @@ export default function Pricing() {
           >
             <GoArrowLeft />
           </Link>
-          <h3 className="text-[32px]">Pricing Plan</h3>
+          <h3 className="text-[18px] md:text-[24px] 2xl:text-[32px]">Pricing Plan</h3>
         </div>
         <div className="flex justify-center">
           <div className="relative inline-flex p-2 border border-[#99C729] rounded-full bg-white">
@@ -46,7 +46,7 @@ export default function Pricing() {
             />
             <label
               htmlFor="monthly"
-              className={`relative z-10 w-32 text-center font-medium cursor-pointer py-2 rounded-full transition-colors ${
+              className={`relative z-10 w-32 text-center font-medium cursor-pointer py-2 rounded-full transition-colors text-[14px] 2xl:text-[18px] ${
                 plan === "monthly" ? "text-white bg-[#99C729]" : "text-gray-700"
               }`}
             >
@@ -54,7 +54,7 @@ export default function Pricing() {
             </label>
             <label
               htmlFor="yearly"
-              className={`relative z-10 w-32 text-center font-medium cursor-pointer py-2 rounded-full transition-colors ${
+              className={`relative z-10 w-32 text-center font-medium cursor-pointer py-2 rounded-full transition-colors text-[14px] 2xl:text-[18px] ${
                 plan === "yearly" ? "text-white bg-[#99C729]" : "text-gray-700"
               }`}
             >
@@ -69,12 +69,12 @@ export default function Pricing() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
         {pricingData.map((planData, index) => (
-          <div key={index} className="bg-white p-[30px] rounded-[14px]">
+          <div key={index} className="bg-white p-[16px] 2xlp-[30px] rounded-[14px]">
             <div className="mb-4 pb-4 border-b border-[#DAECFF]">
               <div className="flex items-center justify-between mb-[10px]">
-                <h3 className="text-[32px]">
+                <h3 className="text-[24px] 2xl:text-[32px]">
                   {plan === "monthly"
                     ? typeof planData.monthlyPrice === "number"
                       ? `$${planData.monthlyPrice}`
@@ -108,11 +108,11 @@ export default function Pricing() {
 
             <Dialog>
               <DialogTrigger asChild>
-                <button className="primary-btn !bg-transparent border border-[#99C729] !text-[#99C729] cursor-pointer w-full hover:!bg-[#99C729] hover:!text-white">
+                <button className="primary-btn !bg-transparent border !border-[#99C729] !text-[#99C729] cursor-pointer w-full hover:!bg-[#99C729] hover:!text-white">
                   Choose This Plan
                 </button>
               </DialogTrigger>
-              <DialogContent className="md:max-w-[566px] bg-white p-[40px]">
+              <DialogContent className="md:max-w-[566px] bg-white px-[16px] pt-[40px] sm:p-[40px]">
                 <Image className="mx-auto mb-[30px]" src={Card} alt="card" />
                 <div className="flex flex-col gap-5">
                   <div>
@@ -169,8 +169,8 @@ export default function Pricing() {
           </div>
         ))}
       </div>
-      <div className="text-right mt-auto">
-        <Link href="/" className="primary-btn w-[390px] !absolute bottom-[50px] right-[30px]">Login</Link>
+      <div className="text-right mt-[30px] sm:mt-[50px] 2xl:mt-0">
+        <Link href="/" className="primary-btn w-full sm:w-[390px] 2xl:!absolute 2xl:bottom-[50px] 2xl:right-[30px]">Login</Link>
       </div>
     </section>
   );

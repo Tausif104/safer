@@ -7,7 +7,7 @@ import Pencil from "@/assets/images/pencil.svg";
 const RecentIncidents = () => {
   return (
     <>
-        <section className='grid 2xl:grid-cols-2 gap-10 bg-[#F7F8FA] sm:bg-white rounded-[16px] p-[20px] sm:p-[30px] pt-0 sm:pt-[30px]'>
+        <section className='grid 2xl:grid-cols-2 gap-10 bg-[#F7F8FA] sm:bg-white rounded-[16px] px-0 p-[20px] sm:p-[30px] pt-0 sm:pt-[30px]'>
             <div>
                 <div className='flex justify-between flex-wrap gap-4 mb-5'>
                     <h4 className='text-[16px] sm:text-[25px]'>Recent Incidents</h4>

@@ -56,7 +56,7 @@ const CounterItem = ({ endValue, label, format, icon, iconBgColor }) => {
 
 const ErrorsCounter = () => {
   return (
-    <section className="grid 2xl:grid-cols-[7fr_6fr] gap-[30px] sm:mb-[30px] py-[25px] sm:py-0 bg-[#F8F9FB] sm:bg-transparent px-[20px] sm:px-0">
+    <section className="grid 2xl:grid-cols-[7fr_6fr] gap-[30px] sm:mb-[30px] py-[25px] sm:py-0 bg-[#F8F9FB] sm:bg-transparent">
       <div className="grid sm:grid-cols-2 sm:gap-6 gap-5">
         {/* Counter Items with Custom Formatting */}
         <CounterItem endValue={2500} label="Total Report Generated" format="k" icon={ReportIcon} iconBgColor="#3B82F6" />

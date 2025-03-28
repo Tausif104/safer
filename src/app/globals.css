@@ -87,7 +87,7 @@
 }
 
 .primary-btn {
-  @apply text-white transition-all duration-300 bg-[#99C729] py-[13px] px-[30px] rounded-full text-[16px] font-medium inline-block relative overflow-hidden text-center;
+  @apply text-white transition-all duration-300 bg-[#99C729] py-[13px] px-[30px] rounded-full text-[16px] font-medium relative overflow-hidden text-center inline-flex items-center justify-center gap-2.5 border border-transparent;
 }
 
 .primary-btn:before {
@@ -152,7 +152,13 @@
     @apply text-heading font-semibold leading-[1.2];
   }
   input {
-    @apply w-full border border-[#DAECFF] rounded-[8px] leading-[50px] sm:leading-[56px] text-[16px] px-[17px] focus:border-[#99C729] focus:outline-none focus:shadow-none placeholder:text-[#707B8A] placeholder:text-[16px];
+    @apply w-full border border-[#DAECFF] rounded-[8px] leading-[50px] sm:leading-[56px] text-[14px] sm:text-[16px] px-[17px] focus:border-[#99C729] focus:outline-none focus:shadow-none placeholder:text-[#707B8A] placeholder:text-[14px] placeholder:sm:text-[16px];
+  }
+}
+
+@media(max-width:640px) {
+  body {
+    @apply bg-[#F8F9FB];
   }
 }
 
@@ -175,4 +181,8 @@
 
 .hide {
   display: none;
+}
+
+.step-item.active {
+  @apply bg-[#99C729] text-white;
 }
