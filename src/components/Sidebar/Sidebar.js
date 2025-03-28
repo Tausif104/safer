@@ -11,13 +11,15 @@ import User from "@/assets/images/user.svg";
 import Settings from "@/assets/images/settings.svg";
 import Payment from "@/assets/images/payment.svg";
 import { useRootContext } from '@/provider/context';
+import { BsArrowBarLeft } from "react-icons/bs";
+
 
 const Sidebar = () => {
     const {isExpanded, handleToggle} = useRootContext();
   return (
     <div className={`Sidebar bg-[#262262] h-screen w-[280] lg:w-[320px] fixed ${isExpanded ? 'left-0': 'left-[-280px]'} lg:left-0 top-0 transition-all duration-500 overflow-y-auto p-[15px] lg:p-[30px] pt-[30px] lg:pt-[40px] z-20`}>
-        <div onClick={handleToggle} className='absolute right-0 top-0 bg-amber-300 h-[40px] w-[40px] z-30'>
-            <Image className='mx-auto w-[180px] lg:w-[220px]' src={User} alt='' />
+        <div onClick={handleToggle} className='absolute right-0 top-0 bg-[#99C729] h-[30px] w-[30px] flex items-center justify-center text-white z-30 lg:hidden'>
+        <BsArrowBarLeft />
         </div>
         {/* logo part  */}
         <div className='logo mb-[45px]'>
