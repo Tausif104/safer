@@ -20,12 +20,6 @@ const MobileNav = () => {
             </li>
             <li>
                 <Link href="/" className='text-center flex flex-col gap-1.5 justify-center'>
-                    <Image className='mx-auto' src={AddIcon} alt="Home" />
-                    <span>Add Pharmacy</span>
-                </Link>
-            </li>
-            <li>
-                <Link href="/" className='text-center flex flex-col gap-1.5 justify-center'>
                     <Image className='mx-auto' src={Settings} alt="Home" />
                     <span>Setting</span>
                 </Link>

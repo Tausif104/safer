@@ -59,9 +59,9 @@ const ErrorsCounter = () => {
     <section className="grid 2xl:grid-cols-[7fr_6fr] gap-[30px] sm:mb-[30px] py-[25px] sm:py-0 bg-[#F8F9FB] sm:bg-transparent">
       <div className="grid sm:grid-cols-2 sm:gap-6 gap-5">
         {/* Counter Items with Custom Formatting */}
-        <CounterItem endValue={2500} label="Total Report Generated" format="k" icon={ReportIcon} iconBgColor="#3B82F6" />
-        <CounterItem endValue={250} label="Type of Error Detected" format="+" icon={ErrorDetected} iconBgColor="#A855F7" />
-        <CounterItem endValue={1500} label="Total Medication Dispensing Errors" format="k" icon={MedicationError} iconBgColor="#F97316" />
+        <CounterItem endValue={2500} label="Report Generated" format="k" icon={ReportIcon} iconBgColor="#3B82F6" />
+        <CounterItem endValue={250} label="Error Detected" format="+" icon={ErrorDetected} iconBgColor="#A855F7" />
+        <CounterItem endValue={1500} label="Medication Dispensing Errors" format="k" icon={MedicationError} iconBgColor="#F97316" />
         <CounterItem endValue={65} label="Monthly Error Logged" format="+" icon={ErrorLogged} iconBgColor="#00D0FF" />
       </div>
 

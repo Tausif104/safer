@@ -31,7 +31,7 @@ const [ReshowPassword, reSetShowPassword] = useState(false);
             </div>
             <div className='relative mb-[20px]'>
                 <span className='absolute left-[17px] top-[18px] sm:top-[20px]'><RiLockPasswordLine /></span>
-                <input type="text" name="ods" id="ods" placeholder="ODS Code" className='pl-[45px]'/>
+                <input type="text" name="gphc" id="gphc" placeholder="GPHC code" className='pl-[45px]'/>
             </div>
             <div className='relative mb-[30px]'>
                 <span className='absolute left-[17px] top-[18px] sm:top-[20px]'><LuLockKeyhole /></span>

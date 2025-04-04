@@ -82,8 +82,7 @@
 }
 
 .menu-link.active {
-  background: #99C729;
-  opacity: 1;
+  @apply bg-[#99c729] text-white;
 }
 
 .primary-btn {
