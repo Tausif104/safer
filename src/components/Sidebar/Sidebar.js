@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import HeaderLogo from "@/assets/images/logo.svg";
 import DashboardIcon from "@/assets/images/dashboard.svg";
@@ -21,6 +21,13 @@ const Sidebar = () => {
   const [isIncidentOpen, setIsIncidentOpen] = useState(false);
   const pathname = usePathname();
   console.log(pathname, "pathname");
+  useEffect(() => {
+    if (pathname.includes("/incident")) {
+      setIsIncidentOpen(true);
+    } else {
+      setIsIncidentOpen(false);
+    }
+  }, [pathname]);
 
   return (
     <div
