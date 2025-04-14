@@ -139,11 +139,11 @@ const DashboardNotificationTable = () => {
                       {pharmacy.time}
                     </TableCell>
                     <TableCell className='py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]'>
-                      <div>
-                        <button className='px-[16px] py-[8px] rounded-full border border-[#F60000] text-[14px] text-[#F60000]'>
+                      <div className='flex gap-2'>
+                        <button className='px-[16px] py-[8px] rounded-full border border-[#F60000] text-[14px] text-[#F60000] hover:bg-[#F60000] hover:text-[#fff]'>
                           Reject
                         </button>
-                        <button className='px-[16px] py-[8px] rounded-full border border-[#3B8D0B] text-[14px] text-[#3B8D0B] hover:bg-[#3B8D0B]'>
+                        <button className='px-[16px] py-[8px] rounded-full border border-[#3B8D0B] text-[14px] text-[#3B8D0B] hover:bg-[#3B8D0B] hover:text-[#fff]'>
                           Approve
                         </button>
                       </div>
