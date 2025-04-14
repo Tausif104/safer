@@ -52,7 +52,9 @@ const Sidebar = () => {
           <li>
             <Link
               href='/'
-              className='menu-link active flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
+              className={`${
+                pathname === "/" ? "active" : ""
+              } menu-link  flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
             >
               <Image
                 className='brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0'
@@ -115,7 +117,11 @@ const Sidebar = () => {
               <li>
                 <Link
                   href='/incident/prescribing-intervention'
-                  className='block mb-4 text-[#D4D3E0] hover:text-[#99C729] transition-all duration-300'
+                  className={`${
+                    pathname === "/incident/prescribing-intervention"
+                      ? "active py-[12px] rounded-full px-[12px]"
+                      : ""
+                  } menu-link text-[14px] block mb-4 text-[#D4D3E0] hover:text-[#99C729] transition-all duration-300 `}
                 >
                   Prescribing Intervention
                 </Link>
@@ -123,7 +129,11 @@ const Sidebar = () => {
               <li>
                 <Link
                   href='/incident/patient-safety-event'
-                  className='block text-[#D4D3E0] hover:text-[#99C729] transition-all duration-300 mb-4'
+                  className={`${
+                    pathname === "/incident/patient-safety-event"
+                      ? "active py-[12px] rounded-full px-[12px]"
+                      : ""
+                  } menu-link text-[14px] block mb-4 text-[#D4D3E0] hover:text-[#99C729] transition-all duration-300 `}
                 >
                   Patient Safety Event
                 </Link>
@@ -131,7 +141,11 @@ const Sidebar = () => {
               <li>
                 <Link
                   href='/incident/near-miss'
-                  className='block text-[#D4D3E0] hover:text-[#99C729] transition-all duration-300 mb-4'
+                  className={`${
+                    pathname === "/incident/near-miss"
+                      ? "active py-[12px] rounded-full px-[12px]"
+                      : ""
+                  } menu-link text-[14px] block mb-4 text-[#D4D3E0] hover:text-[#99C729] transition-all duration-300 `}
                 >
                   Near Miss
                 </Link>
@@ -139,7 +153,11 @@ const Sidebar = () => {
               <li>
                 <Link
                   href='/incident/faulty-medication'
-                  className='block text-[#D4D3E0] hover:text-[#99C729] transition-all duration-300'
+                  className={`${
+                    pathname === "/incident/faulty-medication"
+                      ? "active py-[12px] rounded-full px-[12px]"
+                      : ""
+                  } menu-link text-[14px] block mb-4 text-[#D4D3E0] hover:text-[#99C729] transition-all duration-300 `}
                 >
                   Faulty Medication
                 </Link>
