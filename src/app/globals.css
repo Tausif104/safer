@@ -10,8 +10,9 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: #99C729;
+  --primary: #99c729;
   --primary-foreground: oklch(0.985 0 0);
+  --primary-02: #3b8d0b;
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
@@ -35,8 +36,8 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
-  --background: #F8FEE6;
-  --foreground: #4F515A;
+  --background: #f8fee6;
+  --foreground: #4f515a;
   --heading: #262262;
 }
 
@@ -98,8 +99,8 @@
   background: #fff;
   content: "";
   transform: skew(-45deg);
-  opacity: .4;
-  transition: .5s;
+  opacity: 0.4;
+  transition: 0.5s;
 }
 
 .primary-btn:hover:before {
@@ -147,7 +148,12 @@
   body {
     @apply bg-background text-foreground font-inter text-[16px] sm:text-[18px] leading-[1.6];
   }
-  h1,h2,h3,h4,h5,h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply text-heading font-semibold leading-[1.2];
   }
   input {
@@ -155,28 +161,27 @@
   }
 }
 
-@media(max-width:640px) {
+@media (max-width: 640px) {
   body {
     @apply bg-[#F8F9FB];
   }
 }
 
-@media (max-width:485px) {
+@media (max-width: 485px) {
   .bg-shape {
-    @apply text-white
+    @apply text-white;
   }
   .bg-shape p a {
-    @apply text-[#3B82F6] block
+    @apply text-[#3B82F6] block;
   }
   .bg-shape::before {
     @apply absolute left-1/2 top-0 h-[325px] w-[485px] bg-[#262262] content-[''] -z-10 rounded-[52%] transform -translate-x-1/2 sm:content-none;
   }
-  
+
   .bg-shape::after {
     @apply absolute left-0 bottom-0 h-1/2 w-full bg-[#262262] content-[''] -z-10 sm:content-none;
   }
 }
-
 
 .hide {
   display: none;
@@ -184,4 +189,12 @@
 
 .step-item.active {
   @apply bg-[#99C729] text-white;
+}
+
+.data-\[state\=checked\]\:bg-primary[data-state="checked"] {
+  background-color: var(--primary-02);
+}
+
+.data-\[state\=checked\]\:border-primary[data-state="checked"] {
+  border-color: var(--primary-02);
 }
