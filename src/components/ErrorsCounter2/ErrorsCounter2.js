@@ -16,6 +16,29 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+// Example data for each month
+const monthlyData = {
+  January: [
+    { name: "M", Paid: 2000, Pending: 2400, Unpaid: 8000 },
+    { name: "T", Paid: 3000, Pending: 1398, Unpaid: 5000 },
+    { name: "W", Paid: 5000, Pending: 3800, Unpaid: 3000 },
+    { name: "T", Paid: 2780, Pending: 3908, Unpaid: 2000 },
+    { name: "F", Paid: 3890, Pending: 800, Unpaid: 2400 },
+    { name: "S", Paid: 2390, Pending: 3800, Unpaid: 2300 },
+    { name: "S", Paid: 9490, Pending: 4300, Unpaid: 1300 },
+  ],
+  February: [
+    { name: "M", Paid: 1500, Pending: 2000, Unpaid: 7000 },
+    { name: "T", Paid: 2500, Pending: 1400, Unpaid: 6000 },
+    { name: "W", Paid: 4000, Pending: 3200, Unpaid: 2500 },
+    { name: "T", Paid: 2000, Pending: 3500, Unpaid: 1500 },
+    { name: "F", Paid: 3100, Pending: 500, Unpaid: 2000 },
+    { name: "S", Paid: 2000, Pending: 3000, Unpaid: 1700 },
+    { name: "S", Paid: 8600, Pending: 3500, Unpaid: 1200 },
+  ],
+  // Add other months data here...
+};
+
 const CounterItem = ({ endValue, label, format, icon, iconBgColor }) => {
   const [count, setCount] = useState(0);
 
@@ -50,76 +73,129 @@ const CounterItem = ({ endValue, label, format, icon, iconBgColor }) => {
   };
 
   return (
-    <div className="bg-white rounded-[14px] flex justify-between items-center p-[20px] gap-3">
+    <div className='bg-white rounded-[14px] flex justify-between items-center p-[20px] gap-3'>
       <div>
-        <h3 className="counter text-[30px] mb-1 gap-2.5">
+        <h3 className='counter text-[30px] mb-1 gap-2.5'>
           {formatNumber(count)}
         </h3>
-        <p className="text-[16px]">{label}</p>
+        <p className='text-[16px]'>{label}</p>
       </div>
       <div
-        className="h-[68px] w-[68px] min-w-[68px] flex items-center justify-center rounded-[10px]"
+        className='h-[68px] w-[68px] min-w-[68px] flex items-center justify-center rounded-[10px]'
         style={{ backgroundColor: iconBgColor }}
       >
-        <Image width={40} height={40} src={icon} alt="report-icon" />
+        <Image width={40} height={40} src={icon} alt='report-icon' />
       </div>
     </div>
   );
 };
 
-const data = [
-  { name: "M", Paid: 2000, Pending: 2400, Unpaid:8000 },
-  { name: "T", Paid: 3000, Pending: 1398, Unpaid:5000 },
-  { name: "W", Paid: 5000, Pending: 3800, Unpaid:3000 },
-  { name: "T", Paid: 2780, Pending: 3908, Unpaid:2000 },
-  { name: "F", Paid: 3890, Pending: 800, Unpaid:2400 },
-  { name: "S", Paid: 2390, Pending: 3800, Unpaid:2300 },
-  { name: "S", Paid: 9490, Pending: 4300, Unpaid:1300 },
-];
-
 const RoundedTopBar = function (props) {
-    const { x, y, width, height, fill } = props;
-    const radius = 10;
-    const r = Math.min(radius, height);
-  
-    const path = `
-      M${x},${y + height} 
-      V${y + r} 
-      Q${x},${y} ${x + r},${y}
-      H${x + width - r} 
-      Q${x + width},${y} ${x + width},${y + r} 
-      V${y + height} 
-      Z
-    `;
-  
-    return React.createElement("path", { d: path, fill });
-  };
+  const { x, y, width, height, fill } = props;
+  const radius = 10;
+  const r = Math.min(radius, height);
+
+  const path = `
+    M${x},${y + height} 
+    V${y + r} 
+    Q${x},${y} ${x + r},${y}
+    H${x + width - r} 
+    Q${x + width},${y} ${x + width},${y + r} 
+    V${y + height} 
+    Z
+  `;
+
+  return React.createElement("path", { d: path, fill });
+};
 
 const ErrorsCounter = () => {
+  const [selectedMonthIndex, setSelectedMonthIndex] = useState(8); // Initial month set to September
+  const [data, setData] = useState(monthlyData["September"]);
+
+  const months = Object.keys(monthlyData); // Get month names (January, February, etc.)
+
+  const handleMonthChange = (direction) => {
+    let newMonthIndex = selectedMonthIndex + direction;
+    if (newMonthIndex < 0) newMonthIndex = months.length - 1; // Loop to last month if going backwards
+    if (newMonthIndex >= months.length) newMonthIndex = 0; // Loop to first month if going forwards
+
+    setSelectedMonthIndex(newMonthIndex);
+    setData(monthlyData[months[newMonthIndex]]);
+  };
+
   return (
-    <section className="grid 2xl:grid-cols-[7fr_6fr] gap-[30px] sm:mb-[30px] py-[25px] sm:py-0 bg-[#F8F9FB] sm:bg-transparent">
-      <div className="grid sm:grid-cols-2 sm:gap-6 gap-5">
-        <CounterItem endValue={2500} label="Report Generated" format="k" icon={ReportIcon} iconBgColor="#3B82F6" />
-        <CounterItem endValue={250} label="Error Detected" format="+" icon={ErrorDetected} iconBgColor="#A855F7" />
-        <CounterItem endValue={1500} label="Medication Dispensing Errors" format="k" icon={MedicationError} iconBgColor="#F97316" />
-        <CounterItem endValue={65} label="Monthly Error Logged" format="+" icon={ErrorLogged} iconBgColor="#00D0FF" />
+    <section className='grid 2xl:grid-cols-[7fr_6fr] gap-[30px] sm:mb-[30px] py-[25px] sm:py-0 bg-[#F8F9FB] sm:bg-transparent'>
+      {/* Month Navigation with Next and Previous Buttons */}
+      <div className='flex justify-between items-center mb-4'>
+        <button
+          onClick={() => handleMonthChange(-1)}
+          className='text-[20px] text-blue-500 p-2 rounded-full'
+        >
+          &lt;
+        </button>
+
+        <h3 className='text-center text-[20px] font-semibold'>
+          {months[selectedMonthIndex]} 2025
+        </h3>
+
+        <button
+          onClick={() => handleMonthChange(1)}
+          className='text-[20px] text-blue-500 p-2 rounded-full'
+        >
+          &gt;
+        </button>
       </div>
 
-      <div className="p-[16px] sm:p-[20px] rounded-[10px] bg-white">
-        <h4 className="text-[16px] sm:text-[20px] mb-4">Errors in Medication Dispensing</h4>
-        <ResponsiveContainer width="100%" height={300}>
+      <div className='grid sm:grid-cols-2 sm:gap-6 gap-5'>
+        <CounterItem
+          endValue={2500}
+          label='Report Generated'
+          format='k'
+          icon={ReportIcon}
+          iconBgColor='#3B82F6'
+        />
+        <CounterItem
+          endValue={250}
+          label='Error Detected'
+          format='+'
+          icon={ErrorDetected}
+          iconBgColor='#A855F7'
+        />
+        <CounterItem
+          endValue={1500}
+          label='Medication Dispensing Errors'
+          format='k'
+          icon={MedicationError}
+          iconBgColor='#F97316'
+        />
+        <CounterItem
+          endValue={65}
+          label='Monthly Error Logged'
+          format='+'
+          icon={ErrorLogged}
+          iconBgColor='#00D0FF'
+        />
+      </div>
+
+      <div className='p-[16px] sm:p-[20px] rounded-[10px] bg-white'>
+        <h4 className='text-[16px] sm:text-[20px] mb-4'>
+          Errors in Medication Dispensing for {months[selectedMonthIndex]} 2025
+        </h4>
+        <ResponsiveContainer width='100%' height={300}>
           <BarChart
             data={data}
             margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
           >
-            {/* <CartesianGrid strokeDasharray="3 3" /> */}
-            {/* <XAxis dataKey="name" /> */}
-            {/* <YAxis /> */}
             <Tooltip />
             <Legend />
-            <Bar dataKey="Paid" stackId="a" fill="#99C729" />
-            <Bar dataKey="Pending" stackId="a" fill="#3B82F6" />
-            <Bar dataKey="Unpaid" stackId="a" fill="#F60000" shape={React.createElement(RoundedTopBar)} />
+            <Bar dataKey='Paid' stackId='a' fill='#99C729' />
+            <Bar dataKey='Pending' stackId='a' fill='#3B82F6' />
+            <Bar
+              dataKey='Unpaid'
+              stackId='a'
+              fill='#F60000'
+              shape={React.createElement(RoundedTopBar)}
+            />
           </BarChart>
         </ResponsiveContainer>
       </div>
