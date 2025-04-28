@@ -38,9 +38,9 @@ const NearMiss = () => {
     { id: "m", label: "M = Missing item" },
     { id: "q", label: "Q = incorrect Quantity" },
     { id: "p", label: "P = misread prescription" },
+    { id: "other", label: "other" },
     { id: "s", label: "S = incorrect strength" },
-    { id: "mds", label: "MDS = monitored dosage system" },
-    { id: "other", label: "Other" },
+    { id: "msd", label:"MSD = monitored dosage system" },
   ];
   const riskCheckbox = [
     { id: "controlled-drug", label: "Controlled Drug" },

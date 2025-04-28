@@ -208,7 +208,7 @@ const PatientSaftyEvent = () => {
                 <hr className='bg-[#DAECFF] my-[16px]' />
                 <Input
                   type='text'
-                  placeholder='If yes, please state what one:'
+                  placeholder='Please describe the incident step-by-step'
                   className=' bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]'
                 />
               </div>
@@ -243,11 +243,6 @@ const PatientSaftyEvent = () => {
                       </div>
                     ))}
                   </RadioGroup>
-                  <Input
-                    type='text'
-                    placeholder='If yes, please state what one:'
-                    className=' bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]'
-                  />
                   <label
                     htmlFor=''
                     className='text-[#262262] text-base font-semibold mb-[14px]'
