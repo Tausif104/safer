@@ -20,7 +20,7 @@ const [showPassword, setShowPassword] = useState(false);
                 <Image className='mx-auto w-[180px] lg:w-[180px]' src={LogoBlack} alt='' />
             </Link>
         </div>
-        <SectionTitle alignment="center" title="Let’s sign you in." description="Welcome Back! Please Enter Your Details."/>
+        <SectionTitle alignment="center" title="Sign In as Pharmacy (Premises)" description="Welcome Back! Please Enter Your Details."/>
         <form action="#">
             <div className='relative mb-[20px]'>
                 <span className='absolute left-[17px] top-[18px] sm:top-[20px]'><HiOutlineEnvelope /></span>
