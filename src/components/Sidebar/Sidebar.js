@@ -189,7 +189,7 @@ const Sidebar = () => {
 
           <li>
             <Link
-              href='/'
+              href='/report'
               className='menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
             >
               <Image
@@ -204,7 +204,7 @@ const Sidebar = () => {
 
           <li>
             <Link
-              href='/'
+              href='/pricing'
               className='menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
             >
               <Image
