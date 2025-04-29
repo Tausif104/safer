@@ -100,7 +100,7 @@ const PrescribingIntervention = () => {
                 </div>
               </div>
               <div>
-                <h5 className='text-[18px]'>Action Taken</h5>
+                <h5 className='text-[18px]'>Action</h5>
                 <hr className='bg-[#DAECFF] my-[16px]' />
                 <div className='flex flex-col space-y-4'>
                   {actionCheckbox.map((option) => (
@@ -123,7 +123,7 @@ const PrescribingIntervention = () => {
                 </div>
               </div>
               <div>
-                <h5 className='text-[18px]'>Prescription type</h5>
+                <h5 className='text-[18px]'>Action</h5>
                 <hr className='bg-[#DAECFF] my-[16px]' />
                 <div className='flex flex-col space-y-4'>
                   {prescriptionsCheckbox.map((option) => (
@@ -146,7 +146,7 @@ const PrescribingIntervention = () => {
                 </div>
               </div>
               <div>
-                <h5 className='text-[18px]'>Patients age</h5>
+                <h5 className='text-[18px]'>Action</h5>
                 <hr className='bg-[#DAECFF] my-[16px]' />
                 <div className='flex flex-col space-y-4'>
                   <RadioGroup defaultValue='12-18'>

@@ -113,7 +113,7 @@ export default function Pricing() {
                 </button>
               </DialogTrigger>
               <DialogContent className="md:max-w-[566px] bg-white px-[16px] pt-[40px] sm:p-[40px]">
-                <Image className="mx-auto mb-[30px]" src={Card} alt="card" />
+                <h4 className="md:text-[24px] text-[20px] mb-[20px]">Add your payment method</h4>
                 <div className="flex flex-col gap-5">
                   <div>
                     <label className="text-[12px] text-[#707B8A] mb-2.5 block">

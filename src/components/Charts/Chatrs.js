@@ -1,10 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
-import ReportIcon from "@/assets/images/total-report-icon.svg";
-import ErrorDetected from "@/assets/images/error-detected.png";
-import MedicationError from "@/assets/images/medication-error.svg";
-import ErrorLogged from "@/assets/images/error-logged.svg";
 import {
   BarChart,
   Bar,
@@ -15,6 +10,8 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  LineChart,
+  Line,
 } from "recharts";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
@@ -59,57 +56,6 @@ const monthlyData = {
   // Add other months data here...
 };
 
-const CounterItem = ({ endValue, label, format, icon, iconBgColor }) => {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    let start = 0;
-    const duration = 2000;
-    const steps = 60;
-    const increment = endValue / steps;
-    let currentStep = 0;
-
-    const updateCounter = () => {
-      if (currentStep < steps) {
-        start += increment;
-        setCount(start);
-        currentStep++;
-        requestAnimationFrame(updateCounter);
-      } else {
-        setCount(endValue);
-      }
-    };
-
-    updateCounter();
-  }, [endValue]);
-
-  const formatNumber = (num) => {
-    if (format === "k" && num >= 1000) {
-      return (num / 1000).toFixed(1).replace(/\.0$/, "") + "k";
-    } else if (format === "+") {
-      return Math.floor(num) + "+";
-    }
-    return Math.floor(num);
-  };
-
-  return (
-    <div className='bg-white rounded-[14px] flex justify-between items-center p-[20px] gap-3'>
-      <div>
-        <h3 className='counter text-[30px] mb-1 gap-2.5'>
-          {formatNumber(count)}
-        </h3>
-        <p className='text-[16px]'>{label}</p>
-      </div>
-      <div
-        className='h-[68px] w-[68px] min-w-[68px] flex items-center justify-center rounded-[10px]'
-        style={{ backgroundColor: iconBgColor }}
-      >
-        <Image width={40} height={40} src={icon} alt='report-icon' />
-      </div>
-    </div>
-  );
-};
-
 const RoundedTopBar = function (props) {
   const { x, y, width, height, fill } = props;
   const radius = 15;
@@ -127,6 +73,7 @@ const RoundedTopBar = function (props) {
 
   return React.createElement("path", { d: path, fill });
 };
+
 const CustomLegend = (props) => {
   const { payload } = props;
 
@@ -149,7 +96,39 @@ const CustomLegend = (props) => {
   );
 };
 
-const ErrorsCounter = () => {
+// line chart 
+const lineData  = [
+  {
+    name: 'Saturday',
+    pv: 5000,
+  },
+  {
+    name: 'Sunday',
+    pv: 3500,
+  },
+  {
+    name: 'Monday',
+    pv: 7000,
+  },
+  {
+    name: 'Tuesday',
+    pv: 5500,
+  },
+  {
+    name: 'Wednesday',
+    pv: 3500,
+  },
+  {
+    name: 'Thursday',
+    pv: 3000,
+  },
+  {
+    name: 'Friday',
+    pv: 5000,
+  },
+];
+
+const Charts = () => {
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(0); // Initial month set to January (0th index)
   const [data, setData] = useState(monthlyData["January"]); // Default data for January
 
@@ -165,38 +144,32 @@ const ErrorsCounter = () => {
   };
 
   return (
-    <section className='grid 2xl:grid-cols-[7fr_6fr] gap-[30px] sm:mb-[30px] py-[25px] sm:py-0 bg-[#F8F9FB] sm:bg-transparent'>
-      {/* Month Navigation with Next and Previous Buttons */}
+    <section className='grid 2xl:grid-cols-[8fr_4fr] xl:grid-cols-[7fr_5fr] gap-[30px] sm:mb-[30px] py-[25px] sm:py-0 bg-[#F8F9FB] sm:bg-transparent'>
+      <div className='p-[16px] sm:p-[20px] rounded-[10px] bg-white'>
+        <div className="flex justify-between items-center mb-4">
+          <h4 className='text-[16px] sm:text-[20px] mb-4 text-center'>
+            Revenue Report
+          </h4>
+        </div>
 
-      <div className='grid sm:grid-cols-2 sm:gap-6 gap-5'>
-        <CounterItem
-          endValue={2500}
-          label='Report Generated'
-          format='k'
-          icon={ReportIcon}
-          iconBgColor='#3B82F6'
-        />
-        <CounterItem
-          endValue={250}
-          label='Error Detected'
-          format='+'
-          icon={ErrorDetected}
-          iconBgColor='#A855F7'
-        />
-        <CounterItem
-          endValue={1500}
-          label='Medication Dispensing Errors'
-          format='k'
-          icon={MedicationError}
-          iconBgColor='#F97316'
-        />
-        <CounterItem
-          endValue={65}
-          label='Monthly Error Logged'
-          format='+'
-          icon={ErrorLogged}
-          iconBgColor='#00D0FF'
-        />
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart
+            data={lineData}
+            margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Line
+              type="monotone"
+              dataKey="pv"
+              stroke="#3B82F6"
+              activeDot={{ r: 8 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
 
       <div className='p-[16px] sm:p-[20px] rounded-[10px] bg-white'>
@@ -251,4 +224,4 @@ const ErrorsCounter = () => {
   );
 };
 
-export default ErrorsCounter;
+export default Charts;

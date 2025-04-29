@@ -31,7 +31,7 @@ const [ReshowPassword, reSetShowPassword] = useState(false);
             </div>
             <div className='relative mb-[20px]'>
                 <span className='absolute left-[17px] top-[18px] sm:top-[20px]'><RiLockPasswordLine /></span>
-                <input type="text" name="gphc" id="gphc" placeholder="ODS Code" className='pl-[45px]'/>
+                <input type="text" name="gphc" id="gphc" placeholder="GPHC code" className='pl-[45px]'/>
             </div>
             <div className='relative mb-[30px]'>
                 <span className='absolute left-[17px] top-[18px] sm:top-[20px]'><LuLockKeyhole /></span>
@@ -71,7 +71,7 @@ const [ReshowPassword, reSetShowPassword] = useState(false);
                     <li><Link href="#" className="bg-[#F3F4F6] flex items-center h-[40px] w-[40px] rounded-full"><Image className='mx-auto w-[20px]' src={Google} alt='' /></Link></li>
                     <li><Link href="#" className="bg-[#F3F4F6] flex items-center h-[40px] w-[40px] rounded-full"><Image className='mx-auto w-[20px]' src={Facebook} alt='' /></Link></li>
                 </ul>
-                <p>By signing up you agree to our <Link href="#" className="text-[#2563EB]">Terms & Conditions of Use</Link></p>
+                <p>By signing in you agree to our <Link href="#" className="text-[#2563EB]">Terms & Conditions of Use</Link></p>
             </div>
         </form>
     </div>

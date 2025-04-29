@@ -37,36 +37,50 @@ const pharmaciest = [
     name: "Wrong Medication Dispensed",
     date: "28/10/2012",
     time: "11:23 pm",
+    chacked: "Jerome Bell (GPHC NO: 23615)",
+    dispenser: "Guy Hawkins",
+  },
+  {
+    name: "Incorrect Dosage Given",
+    date: "07/05/2016",
+    time: "02:34 am",
+    chacked: "Cameron Williamson (GPHC NO: 23615)",
+    dispenser: "Annette Black",
+  },
+  {
+    name: "Drug Interaction Error",
+    date: "16/08/2013",
+    time: "04:02 am",
+    chacked: "Jenny Wilson (GPHC NO: 23615)",
+    dispenser: "Darrell Steward",
   },
   {
     name: "Wrong Medication Dispensed",
-    date: "28/10/2012",
-    time: "11:23 pm",
+    date: "18/09/2016",
+    time: "02:30 pm",
+    chacked: "Darrell Steward (GPHC NO: 23615)",
+    dispenser: "Robert Fox",
+  },
+  {
+    name: "Incorrect Dosage Given",
+    date: "15/08/2017",
+    time: "05:36 pm",
+    chacked: "Wade Warren (GPHC NO: 23615)",
+    dispenser: "Dianne Russell",
+  },
+  {
+    name: "Drug Interaction Error",
+    date: "15/08/2017",
+    time: "06:32 pm",
+    chacked: "Eleanor Pena (GPHC NO: 23615)",
+    dispenser: "Marvin McKinney",
   },
   {
     name: "Wrong Medication Dispensed",
-    date: "28/10/2012",
-    time: "11:23 pm",
-  },
-  {
-    name: "Wrong Medication Dispensed",
-    date: "28/10/2012",
-    time: "11:23 pm",
-  },
-  {
-    name: "Wrong Medication Dispensed",
-    date: "28/10/2012",
-    time: "11:23 pm",
-  },
-  {
-    name: "Wrong Medication Dispensed",
-    date: "28/10/2012",
-    time: "11:23 pm",
-  },
-  {
-    name: "Wrong Medication Dispensed",
-    date: "28/10/2012",
-    time: "11:23 pm",
+    date: "12/06/2020",
+    time: "01:08 pm",
+    chacked: "Leslie Alexander (GPHC NO: 23615)",
+    dispenser: "Theresa Webb",
   },
 ];
 
@@ -74,7 +88,7 @@ const RecentIncedientsLogged = () => {
   return (
     <section className='bg-white rounded-[16px] px-0 p-[20px] sm:p-[30px] pt-0 sm:pt-[30px] mt-[30px]'>
       <div>
-        <div className='flex justify-between flex-wrap gap-4 mb-5'>
+        <div className='flex justify-between flex-wrap gap-4 sm:mb-5 sm:p-0 p-[15px]'>
           <h4 className='text-[16px] sm:text-[25px]'>
             Recent Incidents Logged
           </h4>
@@ -95,7 +109,12 @@ const RecentIncedientsLogged = () => {
                 <TableHead className='text-black font-semibold p-[20px]'>
                   Time
                 </TableHead>
-
+                <TableHead className='text-black font-semibold p-[20px]'>
+                  Checked By 
+                </TableHead>
+                <TableHead className='text-black font-semibold p-[20px]'>
+                  Dispenser Name 
+                </TableHead>
                 <TableHead className='text-black font-semibold p-[20px]'></TableHead>
               </TableRow>
             </TableHeader>
@@ -126,6 +145,12 @@ const RecentIncedientsLogged = () => {
 
                     <TableCell className='py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]'>
                       {pharmacy.time}
+                    </TableCell>
+                    <TableCell className='py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]'>
+                      {pharmacy.chacked}
+                    </TableCell>
+                    <TableCell className='py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]'>
+                      {pharmacy.dispenser}
                     </TableCell>
                     <TableCell className='text-right py-[8px] px-[20px] border-b border-[#DAECFF]'>
                       <DropdownMenu>

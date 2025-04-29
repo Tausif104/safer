@@ -86,6 +86,14 @@
   @apply bg-[#99c729] text-white;
 }
 
+.menu-link:hover.active img {
+  @apply brightness-0 invert-100;
+}
+
+.admin-dashboard-menu .menu-link.active img {
+  @apply brightness-0 invert-100;
+}
+
 .primary-btn {
   @apply text-white transition-all duration-300 bg-[#99C729] py-[13px] px-[30px] rounded-full text-[16px] font-medium relative overflow-hidden text-center inline-flex items-center justify-center gap-2.5 border border-transparent;
 }

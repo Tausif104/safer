@@ -61,7 +61,7 @@ const Sidebar = () => {
               href='/'
               className={`${
                 pathname === "/" ? "active" : ""
-              } menu-link  flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
+              } active menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
             >
               <Image
                 className='brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0'
@@ -69,7 +69,7 @@ const Sidebar = () => {
                 src={DashboardIcon}
                 alt=''
               />
-              Patient Safety
+              Dashboard
             </Link>
           </li>
           <li>
@@ -83,7 +83,7 @@ const Sidebar = () => {
                 src={AddCircle}
                 alt=''
               />
-              Add Pharmacy
+              Add Pharmacist
             </Link>
           </li>
 
@@ -180,10 +180,54 @@ const Sidebar = () => {
               <Image
                 className='brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0'
                 width={26}
+                src={AddCircle}
+                alt=''
+              />
+              Add Dispenser
+            </Link>
+          </li>
+
+          <li>
+            <Link
+              href='/'
+              className='menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
+            >
+              <Image
+                className='brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0'
+                width={26}
+                src={AddCircle}
+                alt=''
+              />
+              Reports
+            </Link>
+          </li>
+
+          <li>
+            <Link
+              href='/'
+              className='menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
+            >
+              <Image
+                className='brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0'
+                width={26}
                 src={Pricing}
                 alt=''
               />
               Pricing Plan
+            </Link>
+          </li>
+          <li>
+            <Link
+              href='/'
+              className='menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
+            >
+              <Image
+                className='brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0'
+                width={26}
+                src={Pricing}
+                alt=''
+              />
+              <span>New Features <span className='text-[#99C729] text-[14px]'>(coming soon)</span></span>
             </Link>
           </li>
         </ul>

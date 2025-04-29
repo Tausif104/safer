@@ -38,7 +38,7 @@ const Otp = () => {
       </div>
 
       {/* Title */}
-      <FormSectionTitle alignment="center" title="OTP Verification" description="We will send you an one time password on this Email" />
+      <FormSectionTitle alignment="center" title="OTP Verification" description="Enter the 4-digit code sent to your email" />
 
       <form action="#">
         {/* OTP Inputs */}
