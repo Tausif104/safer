@@ -40,7 +40,7 @@ const NearMiss = () => {
     { id: "p", label: "P = misread prescription" },
     { id: "other", label: "other" },
     { id: "s", label: "S = incorrect strength" },
-    { id: "msd", label:"MSD = monitored dosage system" },
+    { id: "msd", label: "MSD = monitored dosage system" },
   ];
   const riskCheckbox = [
     { id: "controlled-drug", label: "Controlled Drug" },
@@ -52,7 +52,7 @@ const NearMiss = () => {
   ];
 
   return (
-    <section className='mb-[30px] lg:mb-0'>
+    <section className='mb-[50px] lg:mb-0'>
       <div className='flex md:hidden items-center pt-[25px]'>
         <Link
           href='/'
@@ -60,8 +60,8 @@ const NearMiss = () => {
         >
           <ArrowLeft />
         </Link>
-        <h4 className='text-[24px] sm:text-[25px]  pl-[30px] flex'>
-          Near Miss Log
+        <h4 className='text-[22px] sm:text-[25px] sm:pl-[30px] pl-[15px] flex'>
+          Near Miss
         </h4>
       </div>
 
@@ -74,7 +74,7 @@ const NearMiss = () => {
         </Link>
         <div className='flex justify-between flex-wrap gap-4 mb-5'>
           <h4 className='text-[16px] sm:text-[25px] px-0  pt-0 sm:pt-[30px] pl-[30px] hidden md:flex'>
-            Near Miss Log
+            Near Miss
           </h4>
         </div>
         <hr className='bg-[#DAECFF] my-[16px] hidden md:flex' />
@@ -207,7 +207,7 @@ const NearMiss = () => {
                       htmlFor=''
                       className='text-[#262262] text-base font-semibold mb-[14px]'
                     >
-                      Action Taken 
+                      Action Taken
                     </label>
                     <Input
                       type='text'
@@ -218,8 +218,8 @@ const NearMiss = () => {
                 </div>
               </div>
             </div>
-            <div className='grid grid-cols-3 gap-8 mt-[30px]'>
-              <div className='lg:col-span-2 '>
+            <div className='grid gap-8 mt-[30px]'>
+              <div className=''>
                 <p
                   htmlFor='answer'
                   className='text-[#262262] text-[18px] mb-[10px] font-semibold'
@@ -238,8 +238,9 @@ const NearMiss = () => {
                   />
                 </label>
               </div>
-              <div className='flex items-end'>
-                <Button className='flex items-center gap-[16px] text-[#fff] transition-all duration-300  hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group  w-full text-[18px]'>
+              <div className='flex justify-end flex-wrap gap-4 mb-5 items-end'>
+                <Button className="primary-btn !bg-transparent !border-[#262262] !text-[#262262] !py-[24px] max-w-[365px] w-full sm:!text-[18px] !text-[16px] cursor-pointer">save draft</Button>
+                <Button className='flex items-center gap-[16px] text-[#fff] transition-all duration-300  hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group max-w-[365px] w-full text-[18px] cursor-pointer'>
                   Submit Incident
                 </Button>
               </div>

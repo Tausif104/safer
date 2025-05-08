@@ -56,7 +56,7 @@ const PatientSaftyEvent = () => {
   ];
 
   return (
-    <section className='mb-[30px] lg:mb-0'>
+    <section className='mb-[50px] lg:mb-0'>
       <div className='flex md:hidden items-center pt-[25px]'>
         <Link
           href='/'
@@ -64,7 +64,7 @@ const PatientSaftyEvent = () => {
         >
           <ArrowLeft />
         </Link>
-        <h4 className='text-[24px] sm:text-[25px]  pl-[30px] flex'>
+        <h4 className='text-[22px] sm:text-[25px] sm:pl-[30px] pl-[15px] flex'>
           Patient Safety Event
         </h4>
       </div>
@@ -564,9 +564,9 @@ const PatientSaftyEvent = () => {
                 </div>
               </div>
             </div>
-            <div className='flex justify-between flex-wrap gap-4 mb-5 mt-[30px] items-end'>
-              <div></div>
-              <Button className='flex items-center gap-[16px] text-[#fff] transition-all duration-300  hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group max-w-[365px] w-full text-[18px]'>
+            <div className='flex justify-end flex-wrap gap-4 mb-5 mt-[30px] items-end'>
+              <Button className="primary-btn !bg-transparent !border-[#262262] !text-[#262262] !py-[24px] max-w-[365px] w-full sm:!text-[18px] !text-[16px] cursor-pointer">save draft</Button>
+              <Button className='flex items-center gap-[16px] text-[#fff] transition-all duration-300  hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group max-w-[365px] w-full text-[18px] cursor-pointer'>
                 Submit Incident
               </Button>
             </div>

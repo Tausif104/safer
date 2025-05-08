@@ -31,9 +31,8 @@ const Sidebar = () => {
 
   return (
     <div
-      className={`Sidebar bg-[#262262] h-screen w-[280px] lg:w-[320px] fixed ${
-        isExpanded ? "left-0" : "left-[-280px]"
-      } lg:left-0 top-0 transition-all duration-500 overflow-y-auto p-[15px] lg:p-[30px] pt-[30px] lg:pt-[40px] z-20`}
+      className={`Sidebar bg-[#262262] h-screen w-[280px] lg:w-[320px] fixed ${isExpanded ? "left-0" : "left-[-280px]"
+        } lg:left-0 top-0 transition-all duration-500 overflow-y-auto p-[15px] pt-[20px] lg:pt-[30px] z-20`}
     >
       <div
         onClick={handleToggle}
@@ -59,9 +58,8 @@ const Sidebar = () => {
           <li>
             <Link
               href='/'
-              className={`${
-                pathname === "/" ? "active" : ""
-              } active menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
+              className={`${pathname === "/" ? "active" : ""
+                } active menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
             >
               <Image
                 className='brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0'
@@ -72,34 +70,18 @@ const Sidebar = () => {
               Dashboard
             </Link>
           </li>
-          <li>
-            <Link
-              href='/'
-              className='menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
-            >
-              <Image
-                className='brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0'
-                width={26}
-                src={AddCircle}
-                alt=''
-              />
-              Add Pharmacist
-            </Link>
-          </li>
 
           {/* Add Incident Dropdown */}
           <li>
             <button
               onClick={() => setIsIncidentOpen(!isIncidentOpen)}
-              className={`menu-link flex items-center justify-between gap-[16px] w-full text-[#D4D3E0] transition-all duration-300 cursor-pointer hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group ${
-                isIncidentOpen ? "!text-[#99C729]" : ""
-              }`}
+              className={`menu-link flex items-center justify-between gap-[16px] w-full text-[#D4D3E0] transition-all duration-300 cursor-pointer hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group ${isIncidentOpen ? "!text-[#99C729]" : ""
+                }`}
             >
               <div className='flex items-center gap-[16px]'>
                 <Image
-                  className={`brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0 transition-all duration-300 ${
-                    isIncidentOpen ? "!brightness-100 !invert-0" : ""
-                  }`}
+                  className={`brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0 transition-all duration-300 ${isIncidentOpen ? "!brightness-100 !invert-0" : ""
+                    }`}
                   width={26}
                   src={AddSquare}
                   alt=''
@@ -107,28 +89,25 @@ const Sidebar = () => {
                 Add Incident
               </div>
               <FaChevronDown
-                className={`transition-transform duration-300 ${
-                  isIncidentOpen ? "rotate-180" : ""
-                }`}
+                className={`transition-transform duration-300 ${isIncidentOpen ? "rotate-180" : ""
+                  }`}
               />
             </button>
 
             {/* Dropdown Menu */}
             <ul
-              className={`overflow-hidden transition-all duration-300 pl-[28px] border-l border-[#454178] ml-[33px] ${
-                isIncidentOpen
-                  ? "max-h-[200px] opacity-100"
-                  : "max-h-0 opacity-0"
-              }`}
+              className={`dropdown-menu overflow-hidden transition-all duration-300 pl-[28px] border-l border-[#454178] ml-[33px] ${isIncidentOpen
+                ? "max-h-[200px] opacity-100"
+                : "max-h-0 opacity-0"
+                }`}
             >
               <li>
                 <Link
                   href='/incident/prescribing-intervention'
-                  className={`${
-                    pathname === "/incident/prescribing-intervention"
-                      ? "active py-[12px] rounded-full px-[12px]"
-                      : ""
-                  } menu-link text-[14px] block mb-4 text-[#D4D3E0] hover:text-[#99C729] transition-all duration-300 `}
+                  className={`${pathname === "/incident/prescribing-intervention"
+                    ? "active py-[12px] rounded-full px-[12px]"
+                    : ""
+                    } menu-link text-[14px] block mb-4 text-[#D4D3E0] hover:text-[#99C729] transition-all duration-300 `}
                 >
                   Prescribing Intervention
                 </Link>
@@ -136,11 +115,10 @@ const Sidebar = () => {
               <li>
                 <Link
                   href='/incident/patient-safety-event'
-                  className={`${
-                    pathname === "/incident/patient-safety-event"
-                      ? "active py-[12px] rounded-full px-[12px]"
-                      : ""
-                  } menu-link text-[14px] block mb-4 text-[#D4D3E0] hover:text-[#99C729] transition-all duration-300 `}
+                  className={`${pathname === "/incident/patient-safety-event"
+                    ? "active py-[12px] rounded-full px-[12px]"
+                    : ""
+                    } menu-link text-[14px] block mb-4 text-[#D4D3E0] hover:text-[#99C729] transition-all duration-300 `}
                 >
                   Patient Safety Event
                 </Link>
@@ -148,11 +126,10 @@ const Sidebar = () => {
               <li>
                 <Link
                   href='/incident/near-miss'
-                  className={`${
-                    pathname === "/incident/near-miss"
-                      ? "active py-[12px] rounded-full px-[12px]"
-                      : ""
-                  } menu-link text-[14px] block mb-4 text-[#D4D3E0] hover:text-[#99C729] transition-all duration-300 `}
+                  className={`${pathname === "/incident/near-miss"
+                    ? "active py-[12px] rounded-full px-[12px]"
+                    : ""
+                    } menu-link text-[14px] block mb-4 text-[#D4D3E0] hover:text-[#99C729] transition-all duration-300 `}
                 >
                   Near Miss
                 </Link>
@@ -160,31 +137,15 @@ const Sidebar = () => {
               <li>
                 <Link
                   href='/incident/faulty-medication'
-                  className={`${
-                    pathname === "/incident/faulty-medication"
-                      ? "active py-[12px] rounded-full px-[12px]"
-                      : ""
-                  } menu-link text-[14px] block mb-4 text-[#D4D3E0] hover:text-[#99C729] transition-all duration-300 `}
+                  className={`${pathname === "/incident/faulty-medication"
+                    ? "active py-[12px] rounded-full px-[12px]"
+                    : ""
+                    } menu-link text-[14px] block mb-4 text-[#D4D3E0] hover:text-[#99C729] transition-all duration-300 `}
                 >
                   Faulty Medication
                 </Link>
               </li>
             </ul>
-          </li>
-
-          <li>
-            <Link
-              href='/'
-              className='menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
-            >
-              <Image
-                className='brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0'
-                width={26}
-                src={AddCircle}
-                alt=''
-              />
-              Add Dispenser
-            </Link>
           </li>
 
           <li>
@@ -204,6 +165,55 @@ const Sidebar = () => {
 
           <li>
             <Link
+              href='/'
+              className='menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
+            >
+              <Image
+                className='brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0'
+                width={26}
+                src={Pricing}
+                alt=''
+              />
+              <span>New Features <sup className='text-[#99C729] text-[10px]'>(coming soon)</sup></span>
+            </Link>
+          </li>
+        </ul>
+
+        {/* User Portal Section */}
+        <h4 className='text-[14px] uppercase font-medium pb-[16px] mb-[15px] lg:mb-[30px] border-b-1 border-b-white/20 text-[#D4D3E0] pl-[20px]'>
+          User Portal
+        </h4>
+        <ul className='flex flex-col gap-[5px] mb-[20px] lg:mb-[40px] text-[16px]'>
+          <li>
+            <Link
+              href='/'
+              className='menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
+            >
+              <Image
+                className='brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0'
+                width={26}
+                src={AddCircle}
+                alt=''
+              />
+              Add Dispenser
+            </Link>
+          </li>
+          <li>
+            <Link
+              href='/'
+              className='menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
+            >
+              <Image
+                className='brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0'
+                width={26}
+                src={AddCircle}
+                alt=''
+              />
+              Add Pharmacist
+            </Link>
+          </li>
+          <li>
+            <Link
               href='/pricing'
               className='menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
             >
@@ -216,27 +226,6 @@ const Sidebar = () => {
               Pricing Plan
             </Link>
           </li>
-          <li>
-            <Link
-              href='/'
-              className='menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
-            >
-              <Image
-                className='brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0'
-                width={26}
-                src={Pricing}
-                alt=''
-              />
-              <span>New Features <span className='text-[#99C729] text-[14px]'>(coming soon)</span></span>
-            </Link>
-          </li>
-        </ul>
-
-        {/* User Portal Section */}
-        <h4 className='text-[14px] uppercase font-medium pb-[16px] mb-[15px] lg:mb-[30px] border-b-1 border-b-white/20 text-[#D4D3E0] pl-[20px]'>
-          User Portal
-        </h4>
-        <ul className='flex flex-col gap-[5px] mb-[20px] lg:mb-[40px] text-[16px]'>
           <li>
             <Link
               href='/'

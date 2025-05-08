@@ -47,7 +47,7 @@ const PrescribingIntervention = () => {
   ];
 
   return (
-    <section className='mb-[30px] lg:mb-0'>
+    <section className='mb-[50px] lg:mb-0'>
       <div className='flex md:hidden items-center pt-[25px]'>
         <Link
           href='/'
@@ -55,7 +55,7 @@ const PrescribingIntervention = () => {
         >
           <ArrowLeft />
         </Link>
-        <h4 className='text-[24px] sm:text-[25px]  pl-[30px] flex'>
+        <h4 className='text-[22px] sm:text-[25px] sm:pl-[30px] pl-[15px] flex'>
           Prescribing Intervention
         </h4>
       </div>
@@ -248,9 +248,13 @@ const PrescribingIntervention = () => {
                   className='mt-[10px] bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]'
                 />
               </div>
-              <Button className='flex items-center gap-[16px] text-[#fff] transition-all duration-300  hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group max-w-[365px] w-full text-[18px]'>
-                Submit Incident
-              </Button>
+              <div className="flex items-center flex-wrap gap-[15px] sm:w-auto w-full">
+                <Button className="primary-btn !bg-transparent !border-[#262262] !text-[#262262] !py-[24px] max-w-[365px] w-full sm:w-auto sm:!text-[18px] !text-[16px] cursor-pointer">save draft</Button>
+                <Button className='flex items-center gap-[16px] text-[#fff] transition-all duration-300  hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group w-full sm:w-auto sm:!text-[18px] !text-[16px] cursor-pointer'>
+                  Submit Incident
+                </Button>
+              </div>
+
             </div>
           </form>
         </div>

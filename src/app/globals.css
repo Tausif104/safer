@@ -86,6 +86,10 @@
   @apply bg-[#99c729] text-white;
 }
 
+.dropdown-menu .menu-link.active {
+  @apply bg-transparent text-[#99C729] p-0;
+}
+
 .menu-link:hover.active img {
   @apply brightness-0 invert-100;
 }
@@ -153,9 +157,11 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground font-inter text-[16px] sm:text-[18px] leading-[1.6];
   }
+
   h1,
   h2,
   h3,
@@ -164,6 +170,7 @@
   h6 {
     @apply text-heading font-semibold leading-[1.2];
   }
+
   input {
     @apply w-full border border-[#DAECFF] rounded-[8px] leading-[50px] sm:leading-[56px] text-[14px] sm:text-[16px] px-[17px] focus:border-[#99C729] focus:outline-none focus:shadow-none placeholder:text-[#707B8A] placeholder:text-[14px] placeholder:sm:text-[16px];
   }
@@ -179,9 +186,11 @@
   .bg-shape {
     @apply text-white;
   }
+
   .bg-shape p a {
     @apply text-[#3B82F6] block;
   }
+
   .bg-shape::before {
     @apply absolute left-1/2 top-0 h-[325px] w-[485px] bg-[#262262] content-[''] -z-10 rounded-[52%] transform -translate-x-1/2 sm:content-none;
   }

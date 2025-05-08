@@ -28,11 +28,11 @@ const WrongOtp = () => {
 
   return (
     <div>
-        <div className="h-[77px] w-[77px] bg-[#F74850] rounded-full text-white flex justify-center items-center text-[50px] mx-auto mb-[30px]">
-            <FaTimes />
-        </div>
-        <SectionTitle alignment="center" title="Wrong OTP" description="You entered wrong OTP. Pleae try again" />
-        <button type="submit" className="primary-btn cursor-pointer w-full">Try Again</button>
+      <div className="h-[77px] w-[77px] bg-[#F74850] rounded-full text-white flex justify-center items-center text-[50px] mx-auto mb-[30px]">
+        <FaTimes />
+      </div>
+      <SectionTitle alignment="center" title="Wrong OTP" description="You entered wrong OTP. Pleae try again" />
+      <button type="submit" className="primary-btn cursor-pointer w-full">Try Again</button>
     </div>
   );
 };
