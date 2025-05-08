@@ -25,12 +25,12 @@ import { Button } from "@/components/ui/button";
 import { HiDotsVertical } from "react-icons/hi";
 import { IoPrintOutline } from "react-icons/io5";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-  } from "@/components/ui/select";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { MdOutlineFileDownload } from "react-icons/md";
 
 
@@ -126,13 +126,13 @@ const RecentIncedientsLogged = () => {
           <div className="flex items-center gap-[8px]">
             <span className="h-[38px] w-[38px] min-w-[38px] border border-[#DAECFF] rounded-full flex items-center justify-center"><IoPrintOutline /></span>
             <Select className=''>
-                <SelectTrigger className='w-full bg-white p-[16px] !h-[36px] border rounded-[1000px] flex items-center gap-[10px] text-[14px] font-normal leading-[160%] text-[#262262] placeholder:text-[#262262] placeholder:font-normal placeholder:text-[16px] focus:outline-0 focus:shadow-none'>
-                    <SelectValue placeholder='Monthly Report' />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value='mr1'>Yearly Report</SelectItem>
-                    <SelectItem value='mr2'>Weekly Report</SelectItem>
-                </SelectContent>
+              <SelectTrigger className='w-full bg-white p-[16px] !h-[36px] border rounded-[1000px] flex items-center gap-[10px] text-[14px] font-normal leading-[160%] text-[#262262] placeholder:text-[#262262] placeholder:font-normal placeholder:text-[16px] focus:outline-0 focus:shadow-none'>
+                <SelectValue placeholder='Monthly Report' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='mr1'>Yearly Report</SelectItem>
+                <SelectItem value='mr2'>Weekly Report</SelectItem>
+              </SelectContent>
             </Select>
           </div>
         </div>
@@ -142,7 +142,7 @@ const RecentIncedientsLogged = () => {
               {pharmaciest.map((pharmacy, index) => {
                 return (
                   <TableRow key={index}>
-                    <TableCell className='py-[8px] px-[20px] border-b border-[#DAECFF]'>
+                    <TableCell className='py-[8px] px-[20px] border-b border-[#DAECFF] whitespace-normal sm:min-w-[300px] min-w-[250px]'>
                       <div className='flex items-center gap-3.5'>
                         <Image
                           src={Icon}
@@ -171,7 +171,7 @@ const RecentIncedientsLogged = () => {
                       {pharmacy.dispenser}
                     </TableCell>
                     <TableCell className='text-right py-[8px] px-[20px] border-b border-[#DAECFF]'>
-                        <button type="submit" className="primary-btn w-full cursor-pointer !border-[#99C729] !bg-transparent !text-[#99C729] !px-[20px]"><MdOutlineFileDownload /> Download</button>
+                      <button type="submit" className="primary-btn w-full cursor-pointer !border-[#99C729] !bg-transparent !text-[#99C729] !px-[20px]"><MdOutlineFileDownload /> Download</button>
                     </TableCell>
                   </TableRow>
                 );

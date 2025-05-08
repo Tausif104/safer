@@ -110,10 +110,10 @@ const RecentIncedientsLogged = () => {
                   Time
                 </TableHead>
                 <TableHead className='text-black font-semibold p-[20px]'>
-                  Checked By 
+                  Checked By
                 </TableHead>
                 <TableHead className='text-black font-semibold p-[20px]'>
-                  Dispenser Name 
+                  Dispenser Name
                 </TableHead>
                 <TableHead className='text-black font-semibold p-[20px]'></TableHead>
               </TableRow>
@@ -122,7 +122,7 @@ const RecentIncedientsLogged = () => {
               {pharmaciest.map((pharmacy, index) => {
                 return (
                   <TableRow key={index}>
-                    <TableCell className='py-[8px] px-[20px] border-b border-[#DAECFF]'>
+                    <TableCell className='py-[8px] px-[20px] border-b border-[#DAECFF] whitespace-normal sm:min-w-[300px] min-w-[250px]'>
                       <div className='flex items-center gap-3.5'>
                         <Image
                           src={Icon}
