@@ -64,7 +64,7 @@ const MainSidebar = () => {
             <Link
               href='/'
               className={`${pathname === "/" ? "active" : ""
-                } active menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
+                } menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
             >
               <Image
                 className='brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0'
@@ -128,7 +128,8 @@ const MainSidebar = () => {
           <li>
             <Link
               href='/report'
-              className='menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
+              className={`${pathname === "/report" ? "active" : ""
+                } menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
             >
               <Image
                 className='brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0'
@@ -143,7 +144,8 @@ const MainSidebar = () => {
           <li>
             <Link
               href='/'
-              className='menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
+              className={`${pathname === "/features" ? "active" : ""
+                } menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
             >
               <Image
                 className='brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0'
@@ -164,7 +166,8 @@ const MainSidebar = () => {
           <li>
             <Link
               href='/'
-              className='menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
+              className={`${pathname === "/dispenser" ? "active" : ""
+                } menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
             >
               <Image
                 className='brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0'
@@ -178,7 +181,8 @@ const MainSidebar = () => {
           <li>
             <Link
               href='/'
-              className='menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
+              className={`${pathname === "/pharmacist" ? "active" : ""
+                } menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
             >
               <Image
                 className='brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0'
@@ -192,7 +196,8 @@ const MainSidebar = () => {
           <li>
             <Link
               href='/pricing'
-              className='menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
+              className={`${pathname === "/pricing" ? "active" : ""
+                } menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
             >
               <Image
                 className='brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0'
@@ -206,7 +211,8 @@ const MainSidebar = () => {
           <li>
             <Link
               href='/'
-              className='menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
+              className={`${pathname === "/profile" ? "active" : ""
+                } menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
             >
               <Image
                 className='brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0'
@@ -220,7 +226,8 @@ const MainSidebar = () => {
           <li>
             <Link
               href='/'
-              className='menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
+              className={`${pathname === "/setting" ? "active" : ""
+                } menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
             >
               <Image
                 className='brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0'
@@ -234,7 +241,8 @@ const MainSidebar = () => {
           <li>
             <Link
               href='/'
-              className='menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
+              className={`${pathname === "/payment" ? "active" : ""
+                } menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
             >
               <Image
                 className='brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0'

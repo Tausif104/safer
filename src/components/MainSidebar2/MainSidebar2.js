@@ -62,8 +62,8 @@ const MainSidebar2 = () => {
           <li>
             <Link
               href='/'
-              className={`${pathname === "/" ? "active" : ""
-                } active menu-link flex items-center gap-[16px] text-[#4B5563] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
+              className={`${pathname === "/dashboard-admin" ? "active" : ""
+                } menu-link flex items-center gap-[16px] text-[#4B5563] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
             >
               <Image
                 className='group-hover:brightness-100 group-hover:invert-0'
@@ -78,7 +78,8 @@ const MainSidebar2 = () => {
           <li>
             <Link
               href='/'
-              className='menu-link flex items-center gap-[16px] text-[#4B5563] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
+              className={`${pathname === "/pharmacists-ap" ? "active" : ""
+                } menu-link flex items-center gap-[16px] text-[#4B5563] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
             >
               <Image
                 className='group-hover:brightness-100 group-hover:invert-0'
@@ -94,7 +95,8 @@ const MainSidebar2 = () => {
           <li>
             <Link
               href='/'
-              className='menu-link flex items-center gap-[16px] text-[#4B5563] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
+              className={`${pathname === "/pharmacies" ? "active" : ""
+                } menu-link flex items-center gap-[16px] text-[#4B5563] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
             >
               <Image
                 className='group-hover:brightness-100 group-hover:grayscale-0 group-hover:invert-0'
@@ -109,7 +111,8 @@ const MainSidebar2 = () => {
           <li>
             <Link
               href='/'
-              className='menu-link flex items-center gap-[16px] text-[#4B5563] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
+              className={`${pathname === "/pharmacists" ? "active" : ""
+                } menu-link flex items-center gap-[16px] text-[#4B5563] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
             >
               <Image
                 className='group-hover:brightness-100 group-hover:grayscale-0 group-hover:invert-0'
@@ -124,7 +127,8 @@ const MainSidebar2 = () => {
           <li>
             <Link
               href='/'
-              className='menu-link flex items-center gap-[16px] text-[#4B5563] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
+              className={`${pathname === "/revenue" ? "active" : ""
+                } menu-link flex items-center gap-[16px] text-[#4B5563] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
             >
               <Image
                 className='group-hover:brightness-100 group-hover:grayscale-0 group-hover:invert-0'
@@ -193,7 +197,8 @@ const MainSidebar2 = () => {
           <li>
             <Link
               href='/'
-              className='menu-link flex items-center gap-[16px] text-[#4B5563] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
+              className={`${pathname === "/profile" ? "active" : ""
+                } menu-link flex items-center gap-[16px] text-[#4B5563] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
             >
               <Image
                 className='group-hover:brightness-100 group-hover:invert-0'
@@ -207,7 +212,8 @@ const MainSidebar2 = () => {
           <li>
             <Link
               href='/'
-              className='menu-link flex items-center gap-[16px] text-[#4B5563] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group'
+              className={`${pathname === "/settings" ? "active" : ""
+                } menu-link flex items-center gap-[16px] text-[#4B5563] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
             >
               <Image
                 className='group-hover:brightness-100 group-hover:invert-0'

@@ -27,17 +27,13 @@ const SignUp = () => {
             <form action="#">
                 <div className='relative mb-[20px]'>
                     <span className='absolute left-[17px] top-[18px] sm:top-[20px]'><HiOutlineEnvelope /></span>
-                    <input type="email" name="email" id="email" placeholder="Your Email" className='pl-[45px]' />
-                </div>
-                <div className='relative mb-[20px]'>
-                    <span className='absolute left-[17px] top-[18px] sm:top-[20px]'><HiOutlineEnvelope /></span>
                     <input type="email" name="p_email" id="p_email" placeholder="Pharmacy Email" className='pl-[45px]' />
                 </div>
                 <div className='relative mb-[20px]'>
                     <span className='absolute left-[17px] top-[18px] sm:top-[20px]'><RiLockPasswordLine /></span>
                     <input type="text" name="gphc" id="gphc" placeholder="ODS Code" className='pl-[45px]' />
                 </div>
-                <div className='relative mb-[30px]'>
+                <div className='relative mb-[20px]'>
                     <span className='absolute left-[17px] top-[18px] sm:top-[20px]'><LuLockKeyhole /></span>
                     <input type={showPassword ? "text" : "password"} name="password" id="password" placeholder="Password" className='pl-[45px]' />
                     {/* Show/Hide Password Icon */}
