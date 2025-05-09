@@ -215,3 +215,12 @@
 .data-\[state\=checked\]\:border-primary[data-state="checked"] {
   border-color: var(--primary-02);
 }
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
