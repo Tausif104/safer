@@ -15,8 +15,18 @@ import { useRootContext } from "@/provider/context";
 import { BsArrowBarLeft } from "react-icons/bs";
 import { FaChevronDown } from "react-icons/fa";
 import { usePathname } from "next/navigation";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar"
 
-const Sidebar = () => {
+const MainSidebar = () => {
   const { isExpanded, handleToggle } = useRootContext();
   const [isIncidentOpen, setIsIncidentOpen] = useState(false);
   const pathname = usePathname();
@@ -177,6 +187,20 @@ const Sidebar = () => {
               <span>New Features <sup className='text-[#99C729] text-[10px]'>(coming soon)</sup></span>
             </Link>
           </li>
+          <SidebarMenu>
+            <Collapsible defaultOpen className="group/collapsible">
+              <SidebarMenuItem>
+                <CollapsibleTrigger asChild>
+                  <SidebarMenuButton />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarMenuSub>
+                    <SidebarMenuSubItem />
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              </SidebarMenuItem>
+            </Collapsible>
+          </SidebarMenu>
         </ul>
 
         {/* User Portal Section */}
@@ -284,4 +308,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default MainSidebar;
