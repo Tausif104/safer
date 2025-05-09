@@ -12,7 +12,7 @@ import AdminMenuIcon5 from "@/assets/images/admin-menu-icon5.svg";
 import AdminMenuIcon6 from "@/assets/images/admin-menu-icon6.svg";
 import { useRootContext } from "@/provider/context";
 import { BsArrowBarLeft } from "react-icons/bs";
-import { FaChevronDown } from "react-icons/fa";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { usePathname } from "next/navigation";
 import {
   Collapsible,
@@ -137,30 +137,34 @@ const MainSidebar2 = () => {
           </li>
           {/* Add Incident Dropdown */}
           <li>
-            <Collapsible open={isIncidentOpen} onOpenChange={setIsIncidentOpen}>
+            <Collapsible open={isIncidentOpen} onOpenChange={(open) => setIsIncidentOpen(open)}>
               <CollapsibleTrigger asChild>
                 <button
-                  className={`menu-link flex items-center justify-between gap-[16px] w-full text-[#4B5563] transition-all duration-300 cursor-pointer hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group ${isIncidentOpen ? "!text-[#99C729]" : ""
-                    }`}
+                  onClick={() => setIsIncidentOpen(!isIncidentOpen)} // <-- Ensure toggle happens here only
+                  className={`menu-link flex items-center justify-between gap-[16px] w-full text-[#4B5563] transition-all duration-300 cursor-pointer hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group ${isIncidentOpen ? "!text-[#99C729]" : ""}`}
                 >
                   <div className="flex items-center gap-[16px]">
                     <Image
-                      className={`group-hover:brightness-100 group-hover:invert-0 transition-all duration-300 ${isIncidentOpen ? "!brightness-100 !invert-0" : ""
-                        }`}
+                      className={`group-hover:brightness-100 group-hover:invert-0 transition-all duration-300 ${isIncidentOpen ? "!brightness-100 !invert-0" : ""}`}
                       width={26}
                       src={AdminMenuIcon4}
                       alt=''
                     />
                     Dropdown Demo
                   </div>
-                  <FaChevronDown
-                    className={`transition-transform duration-300 ${isIncidentOpen ? "rotate-180" : ""
-                      }`}
-                  />
+                  {/* Show different icons based on state */}
+                  {isIncidentOpen ? (
+                    <FaChevronUp className="transition duration-300" />
+                  ) : (
+                    <FaChevronDown className="transition duration-300" />
+                  )}
                 </button>
               </CollapsibleTrigger>
 
-              <CollapsibleContent className="dropdown-menu pl-[28px] border-l border-[#454178] ml-[33px] space-y-4 mt-2">
+              <CollapsibleContent
+                className="dropdown-menu pl-[28px] border-l border-[#454178] ml-[33px] space-y-4 mt-2"
+                onClick={(e) => e.stopPropagation()} // Prevent collapsing on internal clicks
+              >
                 {[
                   { href: "/incident/prescribing-intervention", label: "Prescribing Intervention" },
                   { href: "/incident/patient-safety-event", label: "Patient Safety Event" },
@@ -170,10 +174,7 @@ const MainSidebar2 = () => {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`${pathname === item.href
-                      ? "active py-[12px] rounded-full px-[12px]"
-                      : ""
-                      } menu-link text-[14px] block text-[#D4D3E0] hover:text-[#99C729] transition-all duration-300`}
+                    className={`${pathname === item.href ? "active py-[12px] rounded-full px-[12px]" : ""} menu-link text-[14px] block text-[#D4D3E0] hover:text-[#99C729] transition-all duration-300`}
                   >
                     {item.label}
                   </Link>

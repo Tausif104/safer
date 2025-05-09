@@ -13,7 +13,7 @@ import Settings from "@/assets/images/settings.svg";
 import Payment from "@/assets/images/payment.svg";
 import { useRootContext } from "@/provider/context";
 import { BsArrowBarLeft } from "react-icons/bs";
-import { FaChevronDown } from "react-icons/fa";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { usePathname } from "next/navigation";
 import {
   Collapsible,
@@ -94,10 +94,12 @@ const MainSidebar = () => {
                     />
                     Add Incident
                   </div>
-                  <FaChevronDown
-                    className={`transition-transform duration-300 ${isIncidentOpen ? "rotate-180" : ""
-                      }`}
-                  />
+                  {/* Show different icons based on state */}
+                  {isIncidentOpen ? (
+                    <FaChevronUp className="transition duration-300" />
+                  ) : (
+                    <FaChevronDown className="transition duration-300" />
+                  )}
                 </button>
               </CollapsibleTrigger>
 
