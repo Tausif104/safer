@@ -171,7 +171,7 @@ const RecentIncedientsLogged = () => {
                       {pharmacy.dispenser}
                     </TableCell>
                     <TableCell className='text-right py-[8px] px-[20px] border-b border-[#DAECFF]'>
-                      <button type="submit" className="primary-btn w-full cursor-pointer !border-[#99C729] !bg-transparent !text-[#99C729] !px-[20px]"><MdOutlineFileDownload /> Download</button>
+                      <button type="submit" className="primary-btn w-full cursor-pointer !border-[#99C729] !bg-transparent !text-[#99C729] !px-[20px] capitalize hover:!bg-[#99C729] hover:!text-white hover:!border-[#99C729]"><MdOutlineFileDownload /> Download</button>
                     </TableCell>
                   </TableRow>
                 );

@@ -249,7 +249,7 @@ const PrescribingIntervention = () => {
                 />
               </div>
               <div className="flex items-center flex-wrap gap-[15px] sm:w-auto w-full">
-                <Button className="primary-btn !bg-transparent !border-[#262262] !text-[#262262] !py-[24px] max-w-[365px] w-full sm:w-auto sm:!text-[18px] !text-[16px] cursor-pointer">save draft</Button>
+                <Button className="primary-btn !bg-transparent !border-[#262262] !text-[#262262] !py-[24px] max-w-[365px] w-full sm:w-auto sm:!text-[18px] !text-[16px] cursor-pointer capitalize hover:!bg-[#99C729] hover:!text-white hover:!border-[#99C729]">save draft</Button>
                 <Button className='flex items-center gap-[16px] text-[#fff] transition-all duration-300  hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group w-full sm:w-auto sm:!text-[18px] !text-[16px] cursor-pointer'>
                   Submit Incident
                 </Button>

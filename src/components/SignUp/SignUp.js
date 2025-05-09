@@ -27,7 +27,11 @@ const SignUp = () => {
             <form action="#">
                 <div className='relative mb-[20px]'>
                     <span className='absolute left-[17px] top-[18px] sm:top-[20px]'><HiOutlineEnvelope /></span>
-                    <input type="email" name="email" id="email" placeholder="Your email" className='pl-[45px]' />
+                    <input type="email" name="email" id="email" placeholder="Your Email" className='pl-[45px]' />
+                </div>
+                <div className='relative mb-[20px]'>
+                    <span className='absolute left-[17px] top-[18px] sm:top-[20px]'><HiOutlineEnvelope /></span>
+                    <input type="email" name="p_email" id="p_email" placeholder="Pharmacy Email" className='pl-[45px]' />
                 </div>
                 <div className='relative mb-[20px]'>
                     <span className='absolute left-[17px] top-[18px] sm:top-[20px]'><RiLockPasswordLine /></span>
