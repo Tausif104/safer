@@ -16,15 +16,10 @@ import { BsArrowBarLeft } from "react-icons/bs";
 import { FaChevronDown } from "react-icons/fa";
 import { usePathname } from "next/navigation";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar"
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"; // adjust path based on your setup
 
 const MainSidebar = () => {
   const { isExpanded, handleToggle } = useRootContext();
@@ -37,7 +32,7 @@ const MainSidebar = () => {
     } else {
       setIsIncidentOpen(false);
     }
-  }, [pathname]);
+  }, []);
 
   return (
     <div
@@ -83,79 +78,49 @@ const MainSidebar = () => {
 
           {/* Add Incident Dropdown */}
           <li>
-            <button
-              onClick={() => setIsIncidentOpen(!isIncidentOpen)}
-              className={`menu-link flex items-center justify-between gap-[16px] w-full text-[#D4D3E0] transition-all duration-300 cursor-pointer hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group ${isIncidentOpen ? "!text-[#99C729]" : ""
-                }`}
-            >
-              <div className='flex items-center gap-[16px]'>
-                <Image
-                  className={`brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0 transition-all duration-300 ${isIncidentOpen ? "!brightness-100 !invert-0" : ""
+            <Collapsible open={isIncidentOpen} onOpenChange={setIsIncidentOpen}>
+              <CollapsibleTrigger asChild>
+                <button
+                  className={`menu-link flex items-center justify-between gap-[16px] w-full text-[#D4D3E0] transition-all duration-300 cursor-pointer hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group ${isIncidentOpen ? "!text-[#99C729]" : ""
                     }`}
-                  width={26}
-                  src={AddSquare}
-                  alt=''
-                />
-                Add Incident
-              </div>
-              <FaChevronDown
-                className={`transition-transform duration-300 ${isIncidentOpen ? "rotate-180" : ""
-                  }`}
-              />
-            </button>
+                >
+                  <div className="flex items-center gap-[16px]">
+                    <Image
+                      className={`brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0 transition-all duration-300 ${isIncidentOpen ? "!brightness-100 !invert-0" : ""
+                        }`}
+                      width={26}
+                      src={AddSquare}
+                      alt=""
+                    />
+                    Add Incident
+                  </div>
+                  <FaChevronDown
+                    className={`transition-transform duration-300 ${isIncidentOpen ? "rotate-180" : ""
+                      }`}
+                  />
+                </button>
+              </CollapsibleTrigger>
 
-            {/* Dropdown Menu */}
-            <ul
-              className={`dropdown-menu overflow-hidden transition-all duration-300 pl-[28px] border-l border-[#454178] ml-[33px] ${isIncidentOpen
-                ? "max-h-[200px] opacity-100"
-                : "max-h-0 opacity-0"
-                }`}
-            >
-              <li>
-                <Link
-                  href='/incident/prescribing-intervention'
-                  className={`${pathname === "/incident/prescribing-intervention"
-                    ? "active py-[12px] rounded-full px-[12px]"
-                    : ""
-                    } menu-link text-[14px] block mb-4 text-[#D4D3E0] hover:text-[#99C729] transition-all duration-300 `}
-                >
-                  Prescribing Intervention
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href='/incident/patient-safety-event'
-                  className={`${pathname === "/incident/patient-safety-event"
-                    ? "active py-[12px] rounded-full px-[12px]"
-                    : ""
-                    } menu-link text-[14px] block mb-4 text-[#D4D3E0] hover:text-[#99C729] transition-all duration-300 `}
-                >
-                  Patient Safety Event
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href='/incident/near-miss'
-                  className={`${pathname === "/incident/near-miss"
-                    ? "active py-[12px] rounded-full px-[12px]"
-                    : ""
-                    } menu-link text-[14px] block mb-4 text-[#D4D3E0] hover:text-[#99C729] transition-all duration-300 `}
-                >
-                  Near Miss
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href='/incident/faulty-medication'
-                  className={`${pathname === "/incident/faulty-medication"
-                    ? "active py-[12px] rounded-full px-[12px]"
-                    : ""
-                    } menu-link text-[14px] block mb-4 text-[#D4D3E0] hover:text-[#99C729] transition-all duration-300 `}
-                >
-                  Faulty Medication
-                </Link>
-              </li>
-            </ul>
+              <CollapsibleContent className="dropdown-menu pl-[28px] border-l border-[#454178] ml-[33px] space-y-4 mt-2">
+                {[
+                  { href: "/incident/prescribing-intervention", label: "Prescribing Intervention" },
+                  { href: "/incident/patient-safety-event", label: "Patient Safety Event" },
+                  { href: "/incident/near-miss", label: "Near Miss" },
+                  { href: "/incident/faulty-medication", label: "Faulty Medication" },
+                ].map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`${pathname === item.href
+                      ? "active py-[12px] rounded-full px-[12px]"
+                      : ""
+                      } menu-link text-[14px] block text-[#D4D3E0] hover:text-[#99C729] transition-all duration-300`}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </CollapsibleContent>
+            </Collapsible>
           </li>
 
           <li>
@@ -187,20 +152,6 @@ const MainSidebar = () => {
               <span>New Features <sup className='text-[#99C729] text-[10px]'>(coming soon)</sup></span>
             </Link>
           </li>
-          <SidebarMenu>
-            <Collapsible defaultOpen className="group/collapsible">
-              <SidebarMenuItem>
-                <CollapsibleTrigger asChild>
-                  <SidebarMenuButton />
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <SidebarMenuSub>
-                    <SidebarMenuSubItem />
-                  </SidebarMenuSub>
-                </CollapsibleContent>
-              </SidebarMenuItem>
-            </Collapsible>
-          </SidebarMenu>
         </ul>
 
         {/* User Portal Section */}
