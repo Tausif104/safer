@@ -80,7 +80,7 @@ const NearMiss = () => {
         <hr className='bg-[#DAECFF] my-[16px] hidden md:flex' />
         <div className='px-[30px] pb-[20px] sm:pb-[30px] pt-0'>
           <form action=''>
-            <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8'>
+            <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8'>
               <div>
                 <h5 className='text-[18px]'>Type of Error</h5>
                 <hr className='bg-[#DAECFF] my-[16px]' />
@@ -176,7 +176,7 @@ const NearMiss = () => {
                   ))}
                 </div>
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[32px] mt-[30px]'>
-                  <div className='space-y-3 flex flex-col'>
+                  <div className='space-y-3 flex flex-col justify-between'>
                     <label
                       htmlFor=''
                       className='text-[#262262] text-base font-semibold mb-[14px]'
@@ -189,7 +189,7 @@ const NearMiss = () => {
                       className=' bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]'
                     />
                   </div>
-                  <div className='space-y-3 flex flex-col'>
+                  <div className='space-y-3 flex flex-col justify-between'>
                     <label
                       htmlFor=''
                       className='text-[#262262] text-base font-semibold mb-[14px]'
@@ -202,7 +202,7 @@ const NearMiss = () => {
                       className=' bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]'
                     />
                   </div>
-                  <div className='space-y-3 flex flex-col'>
+                  <div className='space-y-3 flex flex-col justify-between'>
                     <label
                       htmlFor=''
                       className='text-[#262262] text-base font-semibold mb-[14px]'
