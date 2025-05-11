@@ -7,7 +7,10 @@ const inter = Inter({
 
 export const metadata = {
   title: "SafeR-Premises Login",
-  description: "Dashboard Login"
+  description: "Dashboard Login",
+  icons: {
+    icon: "/custom-fav.svg",
+  },
 };
 
 export default function FormLayout({ children }) {
@@ -17,9 +20,9 @@ export default function FormLayout({ children }) {
         className={`${inter.variable} antialiased`}
       >
         <div className='min-h-screen flex justify-center items-center px-[20px] bg-[#F8F9FB] sm:bg-[#F9FFE7]'>
-            <div className='bg-[#F8F9FB] sm:bg-white w-[566px] sm:p-[40px] sm:rounded-[16px] mx-auto max-w-full md:my-8 mt-[30px] sm:mt-0'>
-                {children}
-            </div>
+          <div className='bg-[#F8F9FB] sm:bg-white w-[566px] sm:p-[40px] sm:rounded-[16px] mx-auto max-w-full md:my-8 mt-[30px] sm:mt-0'>
+            {children}
+          </div>
         </div>
       </body>
     </html>

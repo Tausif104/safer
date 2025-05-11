@@ -1,11 +1,11 @@
 import React from 'react'
-import Sidebar from '../Sidebar/Sidebar'
+import MainSidebar from '../MainSidebar/MainSidebar'
 
-const Layout = ({children}) => {
+const Layout = ({ children }) => {
   return (
     <>
-        <Sidebar/>
-        {children}
+      <MainSidebar />
+      {children}
     </>
   )
 }

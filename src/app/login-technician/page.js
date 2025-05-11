@@ -1,12 +1,12 @@
-import Login from '@/components/Login/Login'
+import TechnicianLoginForm from '@/components/TechnicianLoginForm/TechnicianLoginForm'
 import React from 'react'
 
-const LoginPremises = () => {
+const LoginTechnician = () => {
   return (
     <>
-      <Login/>
+      <TechnicianLoginForm />
     </>
   )
 }
 
-export default LoginPremises
+export default LoginTechnician

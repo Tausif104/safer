@@ -123,16 +123,16 @@ const FaultyMedication = () => {
   };
 
   return (
-    <section className="mb-[30px] lg:mb-0">
-      <div className="flex md:hidden items-center pt-[25px]">
+    <section className='mb-[50px] lg:mb-0'>
+      <div className='flex md:hidden items-center pt-[25px]'>
         <Link
           href="/"
           className="w-[38px] h-[38px] rounded-full border border-[#E7FBBD] bg-white  top-[27px] -left-4 flex items-center justify-center"
         >
           <ArrowLeft />
         </Link>
-        <h4 className="text-[24px] sm:text-[25px]  pl-[30px] flex">
-          Near Miss Log
+        <h4 className='text-[22px] sm:text-[25px] sm:pl-[30px] pl-[15px] flex'>
+          Faulty Medication
         </h4>
       </div>
       <p className="text-base text-[#4B5563]   md:hidden mt-[20px]">
@@ -147,9 +147,9 @@ const FaultyMedication = () => {
         >
           <ArrowLeft />
         </Link>
-        <div className="flex justify-between flex-col gap-4 mb-5 pl-[30px]">
-          <h4 className="text-[16px] sm:text-[25px] px-0  pt-0 sm:pt-[30px]  hidden md:flex">
-            Near Miss Log
+        <div className='flex justify-between flex-col gap-4 mb-5 pl-[30px]'>
+          <h4 className='text-[16px] sm:text-[25px] px-0  pt-0 sm:pt-[30px]  hidden md:flex'>
+            Faulty Medication
           </h4>
           <p className="text-base text-[#4B5563] hidden md:block">
             Please use this form to record any near misses. For dispensing
@@ -569,15 +569,11 @@ const FaultyMedication = () => {
                 </div>
               </div>
             </div>
-            <div className=" mt-[30px ] flex justify-end">
-              <div className="flex items-end">
-                <Button
-                  type="submit"
-                  className="flex items-center gap-[16px] text-[#fff] transition-all duration-300 min-w-[350px]  hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group  w-full text-[18px]"
-                >
-                  Submit Incident
-                </Button>
-              </div>
+            <div className='flex justify-end flex-wrap gap-4 mb-5 mt-[30px] items-end'>
+              <Button className="primary-btn !bg-transparent !border-[#262262] !text-[#262262] !py-[24px] max-w-[365px] w-full sm:!text-[18px] !text-[16px] cursor-pointer capitalize hover:!bg-[#99C729] hover:!text-white hover:!border-[#99C729]">save draft</Button>
+              <Button className='flex items-center gap-[16px] text-[#fff] transition-all duration-300  hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group max-w-[365px] w-full text-[18px] cursor-pointer'>
+                Submit Incident
+              </Button>
             </div>
           </form>
         </div>

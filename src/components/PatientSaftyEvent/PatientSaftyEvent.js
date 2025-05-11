@@ -210,15 +210,15 @@ const PatientSaftyEvent = () => {
   };
 
   return (
-    <section className="mb-[30px] lg:mb-0">
-      <div className="flex md:hidden items-center pt-[25px]">
+    <section className='mb-[50px] lg:mb-0'>
+      <div className='flex md:hidden items-center pt-[25px]'>
         <Link
           href="/"
           className="w-[38px] h-[38px] rounded-full border border-[#E7FBBD] bg-white  top-[27px] -left-4 flex items-center justify-center"
         >
           <ArrowLeft />
         </Link>
-        <h4 className="text-[24px] sm:text-[25px]  pl-[30px] flex">
+        <h4 className='text-[22px] sm:text-[25px] sm:pl-[30px] pl-[15px] flex'>
           Patient Safety Event
         </h4>
       </div>
@@ -380,10 +380,9 @@ const PatientSaftyEvent = () => {
                 <h5 className="text-[18px]">What exactly happened?</h5>
                 <hr className="bg-[#DAECFF] my-[16px]" />
                 <Input
-                  type="text"
-                  placeholder="If yes, please state what one:"
-                  className=" bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
-                  name="accidentDescription"
+                  type='text'
+                  placeholder='Please describe the incident step-by-step'
+                  className=' bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]'
                 />
               </div>
               <div>
@@ -422,12 +421,6 @@ const PatientSaftyEvent = () => {
                       </div>
                     ))}
                   </RadioGroup>
-                  <Input
-                    type="text"
-                    placeholder="If yes, please state what one:"
-                    className=" bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
-                    name="injuryType"
-                  />
                   <label
                     htmlFor=""
                     className="text-[#262262] text-base font-semibold mb-[14px]"
@@ -805,12 +798,9 @@ const PatientSaftyEvent = () => {
                 </div>
               </div>
             </div>
-            <div className="flex justify-between flex-wrap gap-4 mb-5 mt-[30px] items-end">
-              <div></div>
-              <Button
-                type="submit"
-                className="flex items-center gap-[16px] text-[#fff] transition-all duration-300 hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group max-w-[365px] w-full text-[18px]"
-              >
+            <div className='flex justify-end flex-wrap gap-4 mb-5 mt-[30px] items-end'>
+              <Button className="primary-btn !bg-transparent !border-[#262262] !text-[#262262] !py-[24px] max-w-[365px] w-full sm:!text-[18px] !text-[16px] cursor-pointer capitalize hover:!bg-[#99C729] hover:!text-white hover:!border-[#99C729]">save draft</Button>
+              <Button className='flex items-center gap-[16px] text-[#fff] transition-all duration-300  hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group max-w-[365px] w-full text-[18px] cursor-pointer'>
                 Submit Incident
               </Button>
             </div>

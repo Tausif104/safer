@@ -46,24 +46,21 @@ export default function Pricing() {
             />
             <label
               htmlFor="monthly"
-              className={`relative z-10 w-32 text-center font-medium cursor-pointer py-2 rounded-full transition-colors text-[14px] 2xl:text-[18px] ${
-                plan === "monthly" ? "text-white bg-[#99C729]" : "text-gray-700"
-              }`}
+              className={`relative z-10 w-32 text-center font-medium cursor-pointer py-2 rounded-full transition-colors text-[14px] 2xl:text-[18px] ${plan === "monthly" ? "text-white bg-[#99C729]" : "text-gray-700"
+                }`}
             >
               Monthly
             </label>
             <label
               htmlFor="yearly"
-              className={`relative z-10 w-32 text-center font-medium cursor-pointer py-2 rounded-full transition-colors text-[14px] 2xl:text-[18px] ${
-                plan === "yearly" ? "text-white bg-[#99C729]" : "text-gray-700"
-              }`}
+              className={`relative z-10 w-32 text-center font-medium cursor-pointer py-2 rounded-full transition-colors text-[14px] 2xl:text-[18px] ${plan === "yearly" ? "text-white bg-[#99C729]" : "text-gray-700"
+                }`}
             >
               Yearly
             </label>
             <span
-              className={`absolute top-2 left-2 w-[calc(50%-8px)] h-[calc(100%-16px)] bg-[#99C729] rounded-full transition-transform duration-300 ${
-                plan === "yearly" ? "translate-x-full" : ""
-              }`}
+              className={`absolute top-2 left-2 w-[calc(50%-8px)] h-[calc(100%-16px)] bg-[#99C729] rounded-full transition-transform duration-300 ${plan === "yearly" ? "translate-x-full" : ""
+                }`}
             ></span>
           </div>
         </div>
@@ -80,11 +77,12 @@ export default function Pricing() {
                       ? `$${planData.monthlyPrice}`
                       : planData.monthlyPrice
                     : typeof planData.yearlyPrice === "number"
-                    ? `$${planData.yearlyPrice}`
-                    : planData.yearlyPrice}
+                      ? `$${planData.yearlyPrice}`
+                      : planData.yearlyPrice}
                   <span className="text-[14px] text-[#707B8A] font-normal">
                     /{plan === "monthly" ? "Monthly" : "Yearly"}
                   </span>
+                  <button className="text-[12px] bg-[#99c7291c] text-[#99C729] px-[10px] py-[8px] rounded-full cursor-pointer ml-2">7 days free trial</button>
                 </h3>
                 <span className="text-[12px] font-medium text-[#3B82F6] uppercase bg-[#E3EDFD] inline-block py-[4px] px-[10px] rounded-full">
                   {planData.planType}
@@ -113,7 +111,7 @@ export default function Pricing() {
                 </button>
               </DialogTrigger>
               <DialogContent className="md:max-w-[566px] bg-white px-[16px] pt-[40px] sm:p-[40px]">
-                <Image className="mx-auto mb-[30px]" src={Card} alt="card" />
+                <h4 className="md:text-[24px] text-[20px] mb-[20px]">Add your payment method</h4>
                 <div className="flex flex-col gap-5">
                   <div>
                     <label className="text-[12px] text-[#707B8A] mb-2.5 block">
@@ -179,8 +177,8 @@ export default function Pricing() {
 const pricingData = [
   {
     title: "Basic",
-    monthlyPrice: "Free",
-    yearlyPrice: "Free",
+    monthlyPrice: 100,
+    yearlyPrice: 150,
     planType: "Basic Plan",
     planShortDesc: "What you get in this package",
     features: [

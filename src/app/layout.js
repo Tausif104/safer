@@ -10,7 +10,10 @@ const inter = Inter({
 
 export const metadata = {
   title: "SafeR",
-  description: "Dashboard"
+  description: "Dashboard",
+  icons: {
+    icon: "/custom-fav.svg",
+  },
 };
 
 export default function RootLayout({ children }) {

@@ -1,10 +1,10 @@
-import Login from '@/components/Login/Login'
+import PremisesLoginForm from '@/components/PremisesLoginForm/PremisesLoginForm'
 import React from 'react'
 
 const LoginPremises = () => {
   return (
     <>
-      <Login/>
+      <PremisesLoginForm />
     </>
   )
 }
