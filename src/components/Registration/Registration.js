@@ -4,11 +4,17 @@ import Link from "next/link"
 import { GoArrowLeft } from "react-icons/go";
 import { FaCircleCheck } from "react-icons/fa6";
 import { FaPlus } from "react-icons/fa6";
+import axios from "axios";
+import useAuthStore from "@/store/useAuthStore";
+import { useRouter } from "next/navigation";
+import { API_BASE_URL } from "@/config/constant";
 
 const Registration = () => {
   const [otp, setOtp] = useState(["", "", "", ""]);
     const inputRefs = useRef([]);
-  
+    const { user } = useAuthStore();
+    const router = useRouter();
+
     const handleChange = (index, value) => {
       if (!/^\d*$/.test(value)) return; // Only allow numbers
   
@@ -28,6 +34,28 @@ const Registration = () => {
       }
     };
 
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      const data = {
+        managersName: e.target.m_name.value,
+        managersPhone: e.target.m_phone.value,
+        managersNumber: e.target.m_number.value,
+        pin: e.target.pin.value
+      };
+
+      if (!user?.id) {
+        alert("User not found");
+        return;
+      }
+
+      axios.put(`${API_BASE_URL}/api/v1/users/${user.id}`, data).then((res) => {
+        router.push("/login-technician");
+      }).catch((err) => {
+        console.error(err);
+        alert("User was not updated");
+      });
+    };
+
   return (
     <section className='pt-[20px] sm:pt0'>
       <div className="flex justify-center sm:justify-between items-center flex-wrap sm:flex-nowrap gap-4 mb-[30px]">
@@ -42,7 +70,7 @@ const Registration = () => {
         </div>
       </div>
       <div className='bg-white p-[16px] sm:p-[30px] sm:pb-[75px] rounded-[14px] sm:rounded-[16px]'>
-        <form action="#">
+        <form onSubmit={handleSubmit}>
             <div className='relative mb-[16px] sm:mb-[20px]'>
                 <input type="text" name="m_name" id="m_name" placeholder="Superintendents/Manager's Name" className='bg-[#F8F9FB] text-[#262262] placeholder:text-[#262262]'/>
             </div>
@@ -54,21 +82,20 @@ const Registration = () => {
             </div>
             <div className='relative mb-[16px] sm:mb-[20px] mt-[30px]'>
                 <label className='text-[14px] md:text-[16px] text-[#262262] mb-2.5 block font-semibold'>Create a PIN for quick and secure login </label>
-                <input type="password" name="m_password" id="m_password" placeholder="Enter PIN" className='bg-[#F8F9FB] text-[#262262] placeholder:text-[#262262]'/>
+                <input type="password" name="pin" id="pin" placeholder="Enter PIN" className='bg-[#F8F9FB] text-[#262262] placeholder:text-[#262262]'/>
             </div>
             <div className='relative mb-[16px] sm:mb-[20px]'>
-            <input type="password" name="c_password" id="c_password" placeholder="Confirm PIN" className='bg-[#F8F9FB] text-[#262262] placeholder:text-[#262262]'/>
+            <input type="password" name="confirm_pin" id="confirm_pin" placeholder="Confirm PIN" className='bg-[#F8F9FB] text-[#262262] placeholder:text-[#262262]'/>
             </div>
             <div className='relative mb-[16px] sm:mb-[20px]'>
                 <label className='text-[14px] md:text-[16px] text-[#262262] mt-3 block'>Enter a 6 digit PIN </label>
             </div>
             <div className='flex md:justify-end'>
-                <Link href="/" className="primary-btn w-full sm:w-[50%] mb-[20px]">Login</Link>
+                <button type="submit" className="primary-btn w-full sm:w-[50%] mb-[20px]">Login</button>
             </div>
         </form>
       </div>
     </section>
   )
 }
-
 export default Registration

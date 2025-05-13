@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
+import { API_BASE_URL } from "@/config/constant";
 const PatientSaftyEvent = () => {
   const accidentCheckbox = [
     { id: "shop-floor", label: "Shop Floor" },
@@ -134,11 +134,9 @@ const PatientSaftyEvent = () => {
     };
 
     try {
-      const response = await fetch(
-        "https://saferx-api.onrender.com/api/v1/incidents",
-        {
-          method: "POST",
-          headers: {
+      const response = await fetch(`${API_BASE_URL}/api/v1/incidents`, {
+        method: "POST",
+        headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(payload),

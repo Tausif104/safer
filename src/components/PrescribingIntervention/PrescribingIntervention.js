@@ -8,7 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
-
+import { API_BASE_URL } from "@/config/constant";
 const PrescribingIntervention = () => {
   const queryCheckbox = [
     { id: "dose-direction", label: "Dose direction" },
@@ -90,11 +90,9 @@ const PrescribingIntervention = () => {
     };
 
     try {
-      const response = await fetch(
-        "https://saferx-api.onrender.com/api/v1/incidents",
-        {
-          method: "POST",
-          headers: {
+      const response = await fetch(`${API_BASE_URL}/api/v1/incidents`, {
+        method: "POST",
+        headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(payload),
