@@ -12,9 +12,9 @@ const CounterItem = ({ endValue, label, format, icon, iconBgColor }) => {
 
   useEffect(() => {
     let start = 0;
-    const duration = 2000; // Animation duration in ms
-    const steps = 60; // Number of animation steps
-    const increment = endValue / steps; // Increment per step
+    const duration = 2000;
+    const steps = 60;
+    const increment = endValue / steps;
     let currentStep = 0;
 
     const updateCounter = () => {
@@ -31,78 +31,158 @@ const CounterItem = ({ endValue, label, format, icon, iconBgColor }) => {
     updateCounter();
   }, [endValue]);
 
-  // Format number based on the provided format
   const formatNumber = (num) => {
     if (format === "k" && num >= 1000) {
       return (num / 1000).toFixed(1).replace(/\.0$/, "") + "k";
     } else if (format === "+") {
-      return Math.floor(num) + "+";
+      return Math.floor(num);
     }
-    return Math.floor(num); // Default (no format)
+    return Math.floor(num);
   };
 
   return (
     <div className="bg-white rounded-[14px] flex justify-between items-center p-[20px] gap-3">
       <div>
-        <h3 className="counter text-[30px] mb-1 gap-2.5">{formatNumber(count)}</h3>
+        <h3 className="counter text-[30px] mb-1 gap-2.5">
+          {formatNumber(count)}
+        </h3>
         <p className="text-[16px]">{label}</p>
       </div>
-      <div className="h-[68px] w-[68px] min-w-[68px] flex items-center justify-center rounded-[10px]" style={{ backgroundColor: iconBgColor }}>
+      <div
+        className="h-[68px] w-[68px] min-w-[68px] flex items-center justify-center rounded-[10px]"
+        style={{ backgroundColor: iconBgColor }}
+      >
         <Image width={40} height={40} src={icon} alt="report-icon" />
       </div>
     </div>
   );
 };
 
-const ErrorsCounter = () => {
+const ErrorsCounter = ({
+  nearMissErrorCodeStats = [],
+  incidentTypeCount = [],
+}) => {
+  const errorCodes = {
+    D: "Incorrect Drug (D)",
+    Q: "Incorrect Quantity (Q)",
+    S: "Incorrect Strength (S)",
+    F: "Incorrect Form (F)",
+    none: "No Error Code",
+    directions: "Incorrect Directions",
+    labelling: "Labelling Error",
+  };
+
+  const errorPercentages = {};
+  nearMissErrorCodeStats.forEach((stat) => {
+    errorPercentages[stat.errorCode] = parseInt(stat.percentage) || 0;
+  });
+
+  const getPercentage = (code) => errorPercentages[code] || 0;
+
+  const incidentCounts = {};
+  incidentTypeCount.forEach((item) => {
+    incidentCounts[item.incidentType] = parseInt(item.count) || 0;
+  });
+
+  const getIncidentCount = (type) => incidentCounts[type] || 0;
+
   return (
     <section className="grid 2xl:grid-cols-[7fr_6fr] gap-[30px] sm:mb-[30px] py-[25px] sm:py-0 bg-[#F8F9FB] sm:bg-transparent">
       <div className="grid sm:grid-cols-2 sm:gap-6 gap-5">
-        {/* Counter Items with Custom Formatting */}
-        <CounterItem endValue={2500} label="Report Generated" format="k" icon={ReportIcon} iconBgColor="#3B82F6" />
-        <CounterItem endValue={250} label="Error Detected" format="+" icon={ErrorDetected} iconBgColor="#A855F7" />
-        <CounterItem endValue={1500} label="Medication Dispensing Errors" format="k" icon={MedicationError} iconBgColor="#F97316" />
-        <CounterItem endValue={65} label="Monthly Error Logged" format="+" icon={ErrorLogged} iconBgColor="#00D0FF" />
+        <CounterItem
+          endValue={getIncidentCount("Near Miss")}
+          label="Near Miss"
+          format="k"
+          icon={ReportIcon}
+          iconBgColor="#3B82F6"
+        />
+        <CounterItem
+          endValue={getIncidentCount("Patient Safety Event")}
+          label="Patient Safety Event"
+          format="+"
+          icon={ErrorDetected}
+          iconBgColor="#A855F7"
+        />
+        <CounterItem
+          endValue={getIncidentCount("Prescribing Intervention")}
+          label="Prescribing Intervention"
+          format="k"
+          icon={MedicationError}
+          iconBgColor="#F97316"
+        />
+        <CounterItem
+          endValue={getIncidentCount("Faulty Medication")}
+          label="Faulty Medication"
+          format="+"
+          icon={ErrorLogged}
+          iconBgColor="#00D0FF"
+        />
       </div>
 
-      {/* Progress Bar Section */}
       <div className="p-[16px] sm:p-[20px] rounded-[10px] bg-white">
-        <h4 className="text-[16px] sm:text-[20px] mb-4">Errors in Medication Dispensing</h4>
+        <h4 className="text-[16px] sm:text-[20px] mb-4">
+          Errors in Medication Dispensing
+        </h4>
         <div className="flex flex-col gap-2.5">
-            <div className="grid grid-cols-2 sm:grid-cols-[5fr_7fr] items-center gap-x-2.5 sm:gap-x-5">
-                <p className="text-[12px] sm:text-[14px]">Incorrect Quantity (Q)</p>
-                <Progress value={90} className="h-[10px] rounded-[0_22px_22px_0] bg-[#EAF2FB] [&>div]:bg-[#3B82F6] [&>div]:rounded-[0_22px_22px_0]" />
+          <div className="grid grid-cols-2 sm:grid-cols-[5fr_7fr] items-center gap-x-2.5 sm:gap-x-5">
+            <p className="text-[12px] sm:text-[14px]">Incorrect Quantity (Q)</p>
+            <Progress
+              value={getPercentage("Q")}
+              className="h-[10px] rounded-[0_22px_22px_0] bg-[#EAF2FB] [&>div]:bg-[#3B82F6] [&>div]:rounded-[0_22px_22px_0]"
+            />
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-[5fr_7fr] items-center gap-x-2.5 sm:gap-x-5">
+            <p className="text-[12px] sm:text-[14px]">Incorrect Drug (D)</p>
+            <Progress
+              value={getPercentage("D")}
+              className="h-[10px] rounded-[0_22px_22px_0] bg-[#EAF2FB] [&>div]:bg-[#3B82F6] [&>div]:rounded-[0_22px_22px_0]"
+            />
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-[5fr_7fr] items-center gap-x-2.5 sm:gap-x-5">
+            <p className="text-[12px] sm:text-[14px]">Incorrect Strength (S)</p>
+            <Progress
+              value={getPercentage("S")}
+              className="h-[10px] rounded-[0_22px_22px_0] bg-[#EAF2FB] [&>div]:bg-[#3B82F6] [&>div]:rounded-[0_22px_22px_0]"
+            />
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-[5fr_7fr] items-center gap-x-2.5 sm:gap-x-5">
+            <p className="text-[12px] sm:text-[14px]">Incorrect Directions</p>
+            <Progress
+              value={getPercentage("directions")}
+              className="h-[10px] rounded-[0_22px_22px_0] bg-[#EAF2FB] [&>div]:bg-[#3B82F6] [&>div]:rounded-[0_22px_22px_0]"
+            />
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-[5fr_7fr] items-center gap-x-2.5 sm:gap-x-5">
+            <p className="text-[12px] sm:text-[14px]">Labelling Error</p>
+            <Progress
+              value={getPercentage("labelling")}
+              className="h-[10px] rounded-[0_22px_22px_0] bg-[#EAF2FB] [&>div]:bg-[#3B82F6] [&>div]:rounded-[0_22px_22px_0]"
+            />
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-[5fr_7fr] items-center gap-x-2.5 sm:gap-x-5">
+            <p className="text-[12px] sm:text-[14px]">Incorrect Form (F)</p>
+            <Progress
+              value={getPercentage("F")}
+              className="h-[10px] rounded-[0_22px_22px_0] bg-[#EAF2FB] [&>div]:bg-[#3B82F6] [&>div]:rounded-[0_22px_22px_0]"
+            />
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-[5fr_7fr] items-center gap-x-2.5 sm:gap-x-5">
+            <p className="text-[12px] sm:text-[14px]">No Error Code</p>
+            <Progress
+              value={getPercentage("none")}
+              className="h-[10px] rounded-[0_22px_22px_0] bg-[#EAF2FB] [&>div]:bg-[#3B82F6] [&>div]:rounded-[0_22px_22px_0]"
+            />
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-[5fr_7fr] items-center gap-x-5">
+            <p className="text-[12px] sm:text-[14px]"></p>
+            <div className="flex justify-between">
+              <p className="text-[12px] text-[#4B5563]">0</p>
+              <p className="text-[12px] text-[#4B5563]">25</p>
+              <p className="text-[12px] text-[#4B5563]">50</p>
+              <p className="text-[12px] text-[#4B5563]">75</p>
+              <p className="text-[12px] text-[#4B5563]">100</p>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-[5fr_7fr] items-center gap-x-2.5 sm:gap-x-5">
-                <p className="text-[12px] sm:text-[14px]">Incorrect Drug (D)</p>
-                <Progress value={70} className="h-[10px] rounded-[0_22px_22px_0] bg-[#EAF2FB] [&>div]:bg-[#3B82F6] [&>div]:rounded-[0_22px_22px_0]" />
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-[5fr_7fr] items-center gap-x-2.5 sm:gap-x-5">
-                <p className="text-[12px] sm:text-[14px]">Incorrect Strength (S)</p>
-                <Progress value={60} className="h-[10px] rounded-[0_22px_22px_0] bg-[#EAF2FB] [&>div]:bg-[#3B82F6] [&>div]:rounded-[0_22px_22px_0]" />
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-[5fr_7fr] items-center gap-x-2.5 sm:gap-x-5">
-                <p className="text-[12px] sm:text-[14px]">Incorrect Directions</p>
-                <Progress value={50} className="h-[10px] rounded-[0_22px_22px_0] bg-[#EAF2FB] [&>div]:bg-[#3B82F6] [&>div]:rounded-[0_22px_22px_0]" />
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-[5fr_7fr] items-center gap-x-2.5 sm:gap-x-5">
-                <p className="text-[12px] sm:text-[14px]">Labelling Error</p>
-                <Progress value={40} className="h-[10px] rounded-[0_22px_22px_0] bg-[#EAF2FB] [&>div]:bg-[#3B82F6] [&>div]:rounded-[0_22px_22px_0]" />
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-[5fr_7fr] items-center gap-x-2.5 sm:gap-x-5">
-                <p className="text-[12px] sm:text-[14px]">Incorrect Form (F)</p>
-                <Progress value={30} className="h-[10px] rounded-[0_22px_22px_0] bg-[#EAF2FB] [&>div]:bg-[#3B82F6] [&>div]:rounded-[0_22px_22px_0]" />
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-[5fr_7fr] items-center gap-x-5">
-                <p className="text-[12px] sm:text-[14px]"></p>
-                <div className="flex justify-between">
-                  <p className="text-[12px] text-[#4B5563]">0</p>
-                  <p className="text-[12px] text-[#4B5563]">2</p>
-                  <p className="text-[12px] text-[#4B5563]">4</p>
-                  <p className="text-[12px] text-[#4B5563]">6</p>
-                  <p className="text-[12px] text-[#4B5563]">8</p>
-                </div>
-            </div>
+          </div>
         </div>
       </div>
     </section>

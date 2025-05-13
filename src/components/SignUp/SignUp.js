@@ -31,7 +31,7 @@ const SignUp = () => {
                 </div>
                 <div className='relative mb-[20px]'>
                     <span className='absolute left-[17px] top-[18px] sm:top-[20px]'><RiLockPasswordLine /></span>
-                    <input type="text" name="gphc" id="gphc" placeholder="ODS Code" className='pl-[45px]' />
+                    <input type="text" name="odsCode" id="odsCode" placeholder="ODS Code" className='pl-[45px]' />
                 </div>
                 <div className='relative mb-[20px]'>
                     <span className='absolute left-[17px] top-[18px] sm:top-[20px]'><LuLockKeyhole /></span>
@@ -63,7 +63,7 @@ const SignUp = () => {
                 <div className="flex justify-between gap-2.5 mb-[30px]">
                     <button type="submit" className="primary-btn cursor-pointer w-full">Sign Up</button>
                 </div>
-                <p className="mb-[30px] sm:mb-[15px]">Already have an account? <Link href="#" className="text-[#2563EB]">Login</Link></p>
+                <p className="mb-[30px] sm:mb-[15px]">Already have an account? <Link href="/login-premises" className="text-[#2563EB]">Login</Link></p>
                 <div className="flex flex-col gap-4 mx-[-20px] sm:mx-0 px-[20px] sm:px-0 pt-[40px] sm:pt-0 pb-[50px] sm:pb-0 bg-shape relative z-10 overflow-hidden text-[#474851]">
                     <p>Or, Login with</p>
                     <ul className="flex justify-center gap-[15px]">
