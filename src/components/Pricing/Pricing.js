@@ -167,9 +167,6 @@ export default function Pricing() {
           </div>
         ))}
       </div>
-      <div className="text-right mt-[30px] sm:mt-[50px] 2xl:mt-0">
-        <Link href="/" className="primary-btn w-full sm:w-[390px] 2xl:!absolute 2xl:bottom-[50px] 2xl:right-[30px]">Login</Link>
-      </div>
     </section>
   );
 }
