@@ -1,3 +1,4 @@
+"use client";
 import ErrorsCounter from "@/components/ErrorsCounter/ErrorsCounter";
 import Header from "@/components/Header/Header";
 import Layout from "@/components/Layout/Layout";
@@ -7,8 +8,22 @@ import RecentIncedientsLogged from "@/components/RecentIncedentsLogged/RecentInc
 import RecentIncidents from "@/components/RecentIncidents/RecentIncidents";
 import Image from "next/image";
 import DemoHome from "@/components/DemoHome";
+import useAuthStore from "@/store/useAuthStore";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Home() {
+  const { user, isAuthenticated } = useAuthStore();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (user?.role === 'pharmacist') {
+      router.push('/dashboard-login-technician');
+    } else if (user?.role === 'pharmacy') {
+      router.push('/dashboard-login-premises');
+    }
+  }, [user]);
+
   return (
     <>
       {/* <Layout>
@@ -19,7 +34,7 @@ export default function Home() {
           <MobileNav />
         </div>
       </Layout> */}
-        <DemoHome />
+      {!isAuthenticated && <DemoHome />}
     </>
   );
 }

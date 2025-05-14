@@ -74,7 +74,7 @@ const ErrorsCounter = ({
 
   const errorPercentages = {};
   nearMissErrorCodeStats.forEach((stat) => {
-    errorPercentages[stat.errorCode] = parseInt(stat.percentage) || 0;
+    errorPercentages[stat.errorCode || "none"] = parseInt(stat.percentage) || 0;
   });
 
   const getPercentage = (code) => errorPercentages[code] || 0;

@@ -1,13 +1,17 @@
-"use client"
+"use client";
 import React, { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import LogoBlack from "@/assets/images/logo-black.svg";
 import FormSectionTitle from "@/components/FormSectionTitle/FormSectionTitle";
+import useAuthStore from "@/store/useAuthStore";
+import { useRouter } from "next/navigation";
 
 const Otp = () => {
   const [otp, setOtp] = useState(["", "", "", ""]);
   const inputRefs = useRef([]);
+  const { user } = useAuthStore();
+  const router = useRouter();
 
   const handleChange = (index, value) => {
     if (!/^\d*$/.test(value)) return; // Only allow numbers
@@ -28,6 +32,19 @@ const Otp = () => {
     }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const formData = {
+      email: user.email,
+      otp: otp.join(""),
+    };
+    if (user.role === "pharmacist") {
+      router.push("/dashboard-login-technician");
+    } else if (user.role === "pharmacy") {
+      router.push("/dashboard-login-premises");
+    }
+  };
+
   return (
     <div>
       {/* Logo */}
@@ -38,9 +55,13 @@ const Otp = () => {
       </div>
 
       {/* Title */}
-      <FormSectionTitle alignment="center" title="OTP Verification" description="We will send you an one time password on this Email" />
+      <FormSectionTitle
+        alignment="center"
+        title="OTP Verification"
+        description="We will send you an one time password on this Email"
+      />
 
-      <form action="#">
+      <form onSubmit={handleSubmit}>
         {/* OTP Inputs */}
         <div className="flex justify-center gap-4 mb-[20px]">
           {otp.map((digit, index) => (
@@ -59,12 +80,17 @@ const Otp = () => {
 
         {/* Resend OTP Link */}
         <p className="mb-[30px]">
-          Didn’t receive the OTP? <Link href="#" className="text-[#2563EB]">Resend OTP</Link>
+          Didn’t receive the OTP?{" "}
+          <Link href="#" className="text-[#2563EB]">
+            Resend OTP
+          </Link>
         </p>
 
         {/* Submit Button */}
         <div className="flex justify-between gap-2.5 mb-[30px]">
-          <button type="submit" className="primary-btn cursor-pointer w-full">Verify</button>
+          <button type="submit" className="primary-btn cursor-pointer w-full">
+            Verify
+          </button>
         </div>
       </form>
     </div>

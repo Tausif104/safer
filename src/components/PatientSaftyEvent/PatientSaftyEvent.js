@@ -14,6 +14,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { API_BASE_URL } from "@/config/constant";
+import axios from "axios";
+
 const PatientSaftyEvent = () => {
   const accidentCheckbox = [
     { id: "shop-floor", label: "Shop Floor" },
@@ -68,6 +70,8 @@ const PatientSaftyEvent = () => {
     yellowCardFiled: "",
     isReportedToManager: false,
     isFollowUpScheduled: false,
+    dispensedBy: "",
+    checkedBy: "",
   });
 
   // Add state to track checkbox selections
@@ -81,69 +85,66 @@ const PatientSaftyEvent = () => {
 
     const formData = new FormData(e.target);
 
-    const accidentLocation = selectedAccidentLocations.join(", ");
-    const injurySeverity = selectedInjurySeverities.join(", ");
-
     const payload = {
       type: "patient-safety-event",
       fullName: formData.get("fullName") || "",
       contactInfo: formData.get("contactInfo") || "",
-      // age: formData.get("age") || "",
-      age: 22, //TODO: change in the backend
+      age: formData.get("age") || "",
       sex: formData.get("sex") || "",
       dateOfAccident: formData.get("dateOfAccident") || "",
       timeOfAccident: formData.get("timeOfAccident") || "",
 
-      accidentLocation: accidentLocation || "",
-      accidentLocationOther: formData.get("accidentLocationOther") || "",
+      accidentLocation: selectedAccidentLocations,
+      accidentLocationOther: formData.get("accidentLocationOther") || null,
 
       isReceivingPharmacyService: formValues.current.isReceivingPharmacyService,
-      pharmacyServiceType: formData.get("pharmacyServiceType") || "",
+      pharmacyServiceType: formData.get("pharmacyServiceType") || null,
 
       accidentDescription: formData.get("accidentDescription") || "",
 
       isInjured: formValues.current.isInjured,
-      injuryType: formData.get("injuryType") || "",
-      injuryBodyPart: formData.get("injuryBodyPart") || "",
-      injurySeverity: injurySeverity || "",
+      injuryType: formData.get("injuryType") || null,
+      injuryBodyPart: formData.get("injuryBodyPart") || null,
+      injurySeverity: selectedInjurySeverities,
 
       isMedicalTreatmentGiven: formValues.current.isMedicalTreatmentGiven,
-      medicalTreatmentDetails: formData.get("medicalTreatmentDetails") || "",
+      medicalTreatmentDetails: formData.get("medicalTreatmentDetails") || null,
 
       isRefusedFurtherCare: formValues.current.isRefusedFurtherCare,
-      refusalReason: formData.get("refusalReason") || "",
+      refusalReason: formData.get("refusalReason") || null,
 
       isEmergencyCalled: formValues.current.isEmergencyCalled,
-      emergencyDetails: formData.get("emergencyDetails") || "",
+      emergencyDetails: formData.get("emergencyDetails") || null,
 
       isStaffInvolved: formValues.current.isStaffInvolved,
-      staffNames: formData.get("staffNames") || "",
+      staffNames: formData.get("staffNames") || null,
 
       isLoggedOnPmr: formValues.current.isLoggedOnPmr,
-      yellowCardFiled: formValues.current.yellowCardFiled,
+      yellowCardFiled: formValues.current.yellowCardFiled || "",
 
       isReportedToManager: formValues.current.isReportedToManager,
-      supervisorName: formData.get("supervisorName") || "",
+      supervisorName: formData.get("supervisorName") || null,
 
       isFollowUpScheduled: formValues.current.isFollowUpScheduled,
-      followUpDetails: formData.get("followUpDetails") || "",
+      followUpDetails: formData.get("followUpDetails") || null,
 
-      additionalComments: formData.get("additionalComments") || "",
+      additionalComments: formData.get("additionalComments") || null,
+      dispensedBy: null,
+      checkedBy: null,
+      dispensedByName: formValues.current.dispensedBy || "",
+      checkedByName: formValues.current.checkedBy || "",
+      isDraft: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/incidents`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
+      const response = await axios.post(
+        `${API_BASE_URL}/api/v1/incidents`,
+        payload
       );
 
-      if (response.ok) {
+      if (response.status === 200) {
         alert("Patient safety event submitted successfully!");
         e.target.reset();
         formValues.current = {
@@ -159,14 +160,20 @@ const PatientSaftyEvent = () => {
           yellowCardFiled: "",
           isReportedToManager: false,
           isFollowUpScheduled: false,
+          dispensedBy: "",
+          checkedBy: "",
+          dispensedByName: "",
+          checkedByName: "",
         };
       } else {
-        const error = await response.json();
-        alert(`Error: ${error.message || "Failed to submit form"}`);
+        alert(`Error: ${response.data.message || "Failed to submit form"}`);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert("Failed to submit form. Please try again.");
+      alert(
+        error.response?.data?.message ||
+          "Failed to submit form. Please try again."
+      );
     }
   };
 
@@ -208,15 +215,15 @@ const PatientSaftyEvent = () => {
   };
 
   return (
-    <section className='mb-[50px] lg:mb-0'>
-      <div className='flex md:hidden items-center pt-[25px]'>
+    <section className="mb-[50px] lg:mb-0">
+      <div className="flex md:hidden items-center pt-[25px]">
         <Link
           href="/"
           className="w-[38px] h-[38px] rounded-full border border-[#E7FBBD] bg-white  top-[27px] -left-4 flex items-center justify-center"
         >
           <ArrowLeft />
         </Link>
-        <h4 className='text-[22px] sm:text-[25px] sm:pl-[30px] pl-[15px] flex'>
+        <h4 className="text-[22px] sm:text-[25px] sm:pl-[30px] pl-[15px] flex">
           Patient Safety Event
         </h4>
       </div>
@@ -378,9 +385,9 @@ const PatientSaftyEvent = () => {
                 <h5 className="text-[18px]">What exactly happened?</h5>
                 <hr className="bg-[#DAECFF] my-[16px]" />
                 <Input
-                  type='text'
-                  placeholder='Please describe the incident step-by-step'
-                  className=' bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]'
+                  type="text"
+                  placeholder="Please describe the incident step-by-step"
+                  className=" bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
                 />
               </div>
               <div>
@@ -794,11 +801,51 @@ const PatientSaftyEvent = () => {
                     />
                   </div>
                 </div>
+                <div>
+                  <h5 className="text-[18px]">Dispensed by (optional)</h5>
+                  <hr className="bg-[#DAECFF] my-[16px]" />
+                  <Select
+                    onValueChange={(value) =>
+                      (formValues.current.dispensedBy = value)
+                    }
+                    className=""
+                  >
+                    <SelectTrigger className="w-full  bg-[#F8F9FB] p-[16px] !h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
+                      <SelectValue placeholder="Select One" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Demo User 1">Demo User 1</SelectItem>
+                      <SelectItem value="Demo User 2">Demo User 2</SelectItem>
+                      <SelectItem value="Demo User 3">Demo User 3</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <h5 className="text-[18px] mt-[20px]">
+                    Checked by (optional)
+                  </h5>
+                  <hr className="bg-[#DAECFF] my-[16px]" />
+                  <Select
+                    onValueChange={(value) =>
+                      (formValues.current.checkedBy = value)
+                    }
+                    className=""
+                  >
+                    <SelectTrigger className="w-full  bg-[#F8F9FB] p-[16px] !h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
+                      <SelectValue placeholder="Select One" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Demo User 1">Demo User 1</SelectItem>
+                      <SelectItem value="Demo User 2">Demo User 2</SelectItem>
+                      <SelectItem value="Demo User 3">Demo User 3</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
-            <div className='flex justify-end flex-wrap gap-4 mb-5 mt-[30px] items-end'>
-              <Button className="primary-btn !bg-transparent !border-[#262262] !text-[#262262] !py-[24px] max-w-[365px] w-full sm:!text-[18px] !text-[16px] cursor-pointer capitalize hover:!bg-[#99C729] hover:!text-white hover:!border-[#99C729]">save draft</Button>
-              <Button className='flex items-center gap-[16px] text-[#fff] transition-all duration-300  hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group max-w-[365px] w-full text-[18px] cursor-pointer'>
+            <div className="flex justify-end flex-wrap gap-4 mb-5 mt-[30px] items-end">
+              <Button className="primary-btn !bg-transparent !border-[#262262] !text-[#262262] !py-[24px] max-w-[365px] w-full sm:!text-[18px] !text-[16px] cursor-pointer capitalize hover:!bg-[#99C729] hover:!text-white hover:!border-[#99C729]">
+                save draft
+              </Button>
+              <Button className="flex items-center gap-[16px] text-[#fff] transition-all duration-300  hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group max-w-[365px] w-full text-[18px] cursor-pointer">
                 Submit Incident
               </Button>
             </div>
