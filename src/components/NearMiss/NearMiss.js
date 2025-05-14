@@ -7,6 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Upload } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import axios from "axios";
 import {
   Select,
   SelectContent,
@@ -62,45 +63,41 @@ const NearMiss = () => {
 
     const errorType = errorCheckbox
       .filter((option) => document.getElementById(option.id).checked)
-      .map((option) => option.id)
-      .join(", ");
+      .map((option) => option.id);
 
     const highRisk = riskCheckbox
       .filter((option) => document.getElementById(option.id).checked)
-      .map((option) => option.id)
-      .join(", ");
+      .map((option) => option.id);
 
     const errorCode = typeErrorCheckbox
       .filter((option) => document.getElementById(option.id).checked)
-      .map((option) => option.id)
-      .join(", ");
+      .map((option) => option.id);
 
     const payload = {
       type: "near-miss",
-      errorType: errorType || "none",
-      highRisk: highRisk || "none",
-      dispensedBy: formValues.current.dispensedBy || "",
-      checkedBy: formValues.current.checkedBy || "",
-      errorCode: errorCode || "none",
+      errorType: errorType.length > 0 ? errorType : [],
+      highRisk: highRisk.length > 0 ? highRisk : [],
+      errorCode: errorCode.length > 0 ? errorCode : [],
       drugName: formData.get("drugName") || "",
       possibleCause: formData.get("possibleCause") || "",
       actionTaken: formData.get("actionTaken") || "",
-      picture: formValues.current.picture ? formValues.current.picture : "",
+      picture: formValues.current.picture || null,
+      dispensedBy: null,
+      checkedBy: null,
+      dispensedByName: formValues.current.dispensedBy || "",
+      checkedByName: formValues.current.checkedBy || "",
+      isDraft: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/incidents`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
+      const response = await axios.post(
+        `${API_BASE_URL}/api/v1/incidents`,
+        payload
       );
 
-      if (response.ok) {
+      if (response.status === 200 || response.status === 201) {
         alert("Near miss incident submitted successfully!");
         e.target.reset();
         formValues.current = {
@@ -111,13 +108,12 @@ const NearMiss = () => {
           errorCode: "",
           picture: null,
         };
-      } else {
-        const error = await response.json();
-        alert(`Error: ${error.message || "Failed to submit form"}`);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert("Failed to submit form. Please try again.");
+      alert(
+        `Error: ${error.response?.data?.message || "Failed to submit form"}`
+      );
     }
   };
 
@@ -129,15 +125,15 @@ const NearMiss = () => {
   };
 
   return (
-    <section className='mb-[50px] lg:mb-0'>
-      <div className='flex md:hidden items-center pt-[25px]'>
+    <section className="mb-[50px] lg:mb-0">
+      <div className="flex md:hidden items-center pt-[25px]">
         <Link
           href="/"
           className="w-[38px] h-[38px] rounded-full border border-[#E7FBBD] bg-white  top-[27px] -left-4 flex items-center justify-center"
         >
           <ArrowLeft />
         </Link>
-        <h4 className='text-[22px] sm:text-[25px] sm:pl-[30px] pl-[15px] flex'>
+        <h4 className="text-[22px] sm:text-[25px] sm:pl-[30px] pl-[15px] flex">
           Near Miss
         </h4>
       </div>
@@ -149,15 +145,15 @@ const NearMiss = () => {
         >
           <ArrowLeft />
         </Link>
-        <div className='flex justify-between flex-wrap gap-4 mb-5'>
-          <h4 className='text-[16px] sm:text-[25px] px-0  pt-0 sm:pt-[30px] pl-[30px] hidden md:flex'>
+        <div className="flex justify-between flex-wrap gap-4 mb-5">
+          <h4 className="text-[16px] sm:text-[25px] px-0  pt-0 sm:pt-[30px] pl-[30px] hidden md:flex">
             Near Miss
           </h4>
         </div>
-        <hr className='bg-[#DAECFF] my-[16px] hidden md:flex' />
-        <div className='px-[30px] pb-[20px] sm:pb-[30px] pt-0'>
-          <form action=''>
-            <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8'>
+        <hr className="bg-[#DAECFF] my-[16px] hidden md:flex" />
+        <div className="px-[30px] pb-[20px] sm:pb-[30px] pt-0">
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
               <div>
                 <h5 className="text-[18px]">Type of Error</h5>
                 <hr className="bg-[#DAECFF] my-[16px]" />
@@ -217,9 +213,9 @@ const NearMiss = () => {
                     <SelectValue placeholder="Select One" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="est">Select Two</SelectItem>
-                    <SelectItem value="cst">Select Three</SelectItem>
-                    <SelectItem value="mst">Select Four</SelectItem>
+                    <SelectItem value="Demo User 1">Demo User 1</SelectItem>
+                    <SelectItem value="Demo User 2">Demo User 2</SelectItem>
+                    <SelectItem value="Demo User 3">Demo User 3</SelectItem>
                   </SelectContent>
                 </Select>
                 <h5 className="text-[18px] mt-[20px]">Checked by (optional)</h5>
@@ -234,9 +230,9 @@ const NearMiss = () => {
                     <SelectValue placeholder="Select One" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="est">Select Two</SelectItem>
-                    <SelectItem value="cst">Select Three</SelectItem>
-                    <SelectItem value="mst">Select Four</SelectItem>
+                    <SelectItem value="Demo User 1">Demo User 1</SelectItem>
+                    <SelectItem value="Demo User 2">Demo User 2</SelectItem>
+                    <SelectItem value="Demo User 3">Demo User 3</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -262,8 +258,8 @@ const NearMiss = () => {
                     </div>
                   ))}
                 </div>
-                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[32px] mt-[30px]'>
-                  <div className='space-y-3 flex flex-col justify-between'>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[32px] mt-[30px]">
+                  <div className="space-y-3 flex flex-col justify-between">
                     <label
                       htmlFor="drugName"
                       className="text-[#262262] text-base font-semibold mb-[14px]"
@@ -278,7 +274,7 @@ const NearMiss = () => {
                       className=" bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
                     />
                   </div>
-                  <div className='space-y-3 flex flex-col justify-between'>
+                  <div className="space-y-3 flex flex-col justify-between">
                     <label
                       htmlFor="possibleCause"
                       className="text-[#262262] text-base font-semibold mb-[14px]"
@@ -293,7 +289,7 @@ const NearMiss = () => {
                       className=" bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
                     />
                   </div>
-                  <div className='space-y-3 flex flex-col justify-between'>
+                  <div className="space-y-3 flex flex-col justify-between">
                     <label
                       htmlFor="actionTaken"
                       className="text-[#262262] text-base font-semibold mb-[14px]"
@@ -311,8 +307,8 @@ const NearMiss = () => {
                 </div>
               </div>
             </div>
-            <div className='grid gap-8 mt-[30px]'>
-              <div className=''>
+            <div className="grid gap-8 mt-[30px]">
+              <div className="">
                 <p
                   htmlFor="answer"
                   className="text-[#262262] text-[18px] mb-[10px] font-semibold"
@@ -332,9 +328,11 @@ const NearMiss = () => {
                   />
                 </label>
               </div>
-              <div className='flex justify-end flex-wrap gap-4 mb-5 items-end'>
-                <Button className="primary-btn !bg-transparent !border-[#262262] !text-[#262262] !py-[24px] max-w-[365px] w-full sm:!text-[18px] !text-[16px] cursor-pointer capitalize hover:!bg-[#99C729] hover:!text-white hover:!border-[#99C729]">save draft</Button>
-                <Button className='flex items-center gap-[16px] text-[#fff] transition-all duration-300  hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group max-w-[365px] w-full text-[18px] cursor-pointer'>
+              <div className="flex justify-end flex-wrap gap-4 mb-5 items-end">
+                <Button className="primary-btn !bg-transparent !border-[#262262] !text-[#262262] !py-[24px] max-w-[365px] w-full sm:!text-[18px] !text-[16px] cursor-pointer capitalize hover:!bg-[#99C729] hover:!text-white hover:!border-[#99C729]">
+                  save draft
+                </Button>
+                <Button className="flex items-center gap-[16px] text-[#fff] transition-all duration-300  hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group max-w-[365px] w-full text-[18px] cursor-pointer">
                   Submit Incident
                 </Button>
               </div>

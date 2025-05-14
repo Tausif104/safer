@@ -3,12 +3,20 @@ import React, { useState, useRef } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Select } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { API_BASE_URL } from "@/config/constant";
+import axios from "axios";
+
 const PrescribingIntervention = () => {
   const queryCheckbox = [
     { id: "dose-direction", label: "Dose direction" },
@@ -53,6 +61,8 @@ const PrescribingIntervention = () => {
     patientAge: "",
     isSubmittedToLfpse: false,
     isRecordedOnPmr: false,
+    dispensedBy: "",
+    checkedBy: "",
   });
 
   const handleSubmit = async (e) => {
@@ -62,61 +72,56 @@ const PrescribingIntervention = () => {
 
     const query = queryCheckbox
       .filter((option) => document.getElementById(option.id).checked)
-      .map((option) => option.id)
-      .join(", ");
+      .map((option) => option.id);
 
     const action = actionCheckbox
       .filter((option) => document.getElementById(option.id).checked)
-      .map((option) => option.id)
-      .join(", ");
+      .map((option) => option.id);
 
     const prescriptionType = prescriptionsCheckbox
       .filter((option) => document.getElementById(option.id).checked)
-      .map((option) => option.id)
-      .join(", ");
+      .map((option) => option.id);
 
     const payload = {
       type: "prescribing-intervention",
-      query: query || "",
-      action: action || "",
-      prescriptionType: prescriptionType || "",
-      // patientAge: formValues.current.patientAge || "",
-      patientAge: 22, //TODO: change in the backend
+      query: query.length > 0 ? query : [],
+      action: action.length > 0 ? action : [],
+      prescriptionType: prescriptionType.length > 0 ? prescriptionType : [],
+      patientAge: formData.get("patientAge") || "",
       isSubmittedToLfpse: formValues.current.isSubmittedToLfpse,
       isRecordedOnPmr: formValues.current.isRecordedOnPmr,
-      description: formData.get("description") || "",
+      description: formData.get("description") || null,
+      dispensedBy: null,
+      checkedBy: null,
+      dispensedByName: formValues.current.dispensedBy || null,
+      checkedByName: formValues.current.checkedBy || null,
+      isDraft: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/incidents`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
+      const response = await axios.post(
+        `${API_BASE_URL}/api/v1/incidents`,
+        payload
       );
 
-      if (response.ok) {
+      if (response.status === 200) {
         alert("Prescribing intervention submitted successfully!");
         e.target.reset();
         formValues.current = {
-          query: "",
-          action: "",
-          prescriptionType: "",
-          patientAge: "",
           isSubmittedToLfpse: false,
           isRecordedOnPmr: false,
         };
       } else {
-        const error = await response.json();
-        alert(`Error: ${error.message || "Failed to submit form"}`);
+        alert(`Error: ${response.data.message || "Failed to submit form"}`);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert("Failed to submit form. Please try again.");
+      alert(
+        error.response?.data?.message ||
+          "Failed to submit form. Please try again."
+      );
     }
   };
 
@@ -131,15 +136,15 @@ const PrescribingIntervention = () => {
   };
 
   return (
-    <section className='mb-[50px] lg:mb-0'>
-      <div className='flex md:hidden items-center pt-[25px]'>
+    <section className="mb-[50px] lg:mb-0">
+      <div className="flex md:hidden items-center pt-[25px]">
         <Link
           href="/"
           className="w-[38px] h-[38px] rounded-full border border-[#E7FBBD] bg-white  top-[27px] -left-4 flex items-center justify-center"
         >
           <ArrowLeft />
         </Link>
-        <h4 className='text-[22px] sm:text-[25px] sm:pl-[30px] pl-[15px] flex'>
+        <h4 className="text-[22px] sm:text-[25px] sm:pl-[30px] pl-[15px] flex">
           Prescribing Intervention
         </h4>
       </div>
@@ -187,9 +192,9 @@ const PrescribingIntervention = () => {
                 </div>
               </div>
               <div>
-                <h5 className='text-[18px]'>Action Taken</h5>
-                <hr className='bg-[#DAECFF] my-[16px]' />
-                <div className='flex flex-col space-y-4'>
+                <h5 className="text-[18px]">Action Taken</h5>
+                <hr className="bg-[#DAECFF] my-[16px]" />
+                <div className="flex flex-col space-y-4">
                   {actionCheckbox.map((option) => (
                     <div
                       key={option.id}
@@ -213,9 +218,9 @@ const PrescribingIntervention = () => {
                 </div>
               </div>
               <div>
-                <h5 className='text-[18px]'>Prescription type</h5>
-                <hr className='bg-[#DAECFF] my-[16px]' />
-                <div className='flex flex-col space-y-4'>
+                <h5 className="text-[18px]">Prescription type</h5>
+                <hr className="bg-[#DAECFF] my-[16px]" />
+                <div className="flex flex-col space-y-4">
                   {prescriptionsCheckbox.map((option) => (
                     <div
                       key={option.id}
@@ -239,10 +244,10 @@ const PrescribingIntervention = () => {
                 </div>
               </div>
               <div>
-                <h5 className='text-[18px]'>Patients age</h5>
-                <hr className='bg-[#DAECFF] my-[16px]' />
-                <div className='flex flex-col space-y-4'>
-                  <RadioGroup defaultValue='12-18'>
+                <h5 className="text-[18px]">Patients age</h5>
+                <hr className="bg-[#DAECFF] my-[16px]" />
+                <div className="flex flex-col space-y-4">
+                  <RadioGroup defaultValue="12-18">
                     {ageOptions.map((option) => (
                       <div
                         key={option.id}
@@ -335,6 +340,42 @@ const PrescribingIntervention = () => {
                 </div>
               </div>
             </div>
+            <div className="mt-7">
+              <h5 className="text-[18px]">Dispensed by (optional)</h5>
+              <hr className="bg-[#DAECFF] my-[16px]" />
+              <Select
+                onValueChange={(value) =>
+                  (formValues.current.dispensedBy = value)
+                }
+                className=""
+              >
+                <SelectTrigger className="w-full  bg-[#F8F9FB] p-[16px] !h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
+                  <SelectValue placeholder="Select One" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Demo User 1">Demo User 1</SelectItem>
+                  <SelectItem value="Demo User 2">Demo User 2</SelectItem>
+                  <SelectItem value="Demo User 3">Demo User 3</SelectItem>
+                </SelectContent>
+              </Select>
+              <h5 className="text-[18px] mt-[20px]">Checked by (optional)</h5>
+              <hr className="bg-[#DAECFF] my-[16px]" />
+              <Select
+                onValueChange={(value) =>
+                  (formValues.current.checkedBy = value)
+                }
+                className=""
+              >
+                <SelectTrigger className="w-full  bg-[#F8F9FB] p-[16px] !h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
+                  <SelectValue placeholder="Select One" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Demo User 1">Demo User 1</SelectItem>
+                  <SelectItem value="Demo User 2">Demo User 2</SelectItem>
+                  <SelectItem value="Demo User 3">Demo User 3</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="flex justify-between flex-wrap gap-4 mb-5 mt-[30px] items-end">
               <div>
                 <label
@@ -353,12 +394,13 @@ const PrescribingIntervention = () => {
                 />
               </div>
               <div className="flex items-center flex-wrap gap-[15px] sm:w-auto w-full">
-                <Button className="primary-btn !bg-transparent !border-[#262262] !text-[#262262] !py-[24px] max-w-[365px] w-full sm:w-auto sm:!text-[18px] !text-[16px] cursor-pointer capitalize hover:!bg-[#99C729] hover:!text-white hover:!border-[#99C729]">save draft</Button>
-                <Button className='flex items-center gap-[16px] text-[#fff] transition-all duration-300  hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group w-full sm:w-auto sm:!text-[18px] !text-[16px] cursor-pointer'>
+                <Button className="primary-btn !bg-transparent !border-[#262262] !text-[#262262] !py-[24px] max-w-[365px] w-full sm:w-auto sm:!text-[18px] !text-[16px] cursor-pointer capitalize hover:!bg-[#99C729] hover:!text-white hover:!border-[#99C729]">
+                  save draft
+                </Button>
+                <Button className="flex items-center gap-[16px] text-[#fff] transition-all duration-300  hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group w-full sm:w-auto sm:!text-[18px] !text-[16px] cursor-pointer">
                   Submit Incident
                 </Button>
               </div>
-
             </div>
           </form>
         </div>

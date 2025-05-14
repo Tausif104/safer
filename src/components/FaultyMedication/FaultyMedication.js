@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { API_BASE_URL } from "@/config/constant";
+import axios from "axios";
 
 const FaultyMedication = () => {
   const lfpseCheckbox = [
@@ -40,6 +41,8 @@ const FaultyMedication = () => {
     isInvestigationNeeded: false,
     isItemRequested: false,
     isYellowCardReported: false,
+    dispensedBy: "",
+    checkedBy: "",
   });
 
   const handleSubmit = async (e) => {
@@ -52,7 +55,7 @@ const FaultyMedication = () => {
       fullName: formData.get("fullName") || "",
       contactInfo: formData.get("phoneNumber") || "",
       emailAddress: formData.get("emailAddress") || "",
-      age: formValues.current.age ? parseInt(formValues.current.age) : 0,
+      age: formValues.current.age || "",
       sex: formValues.current.sex || "",
       dateOfReturn: formData.get("dateOfReturn") || "",
 
@@ -80,22 +83,26 @@ const FaultyMedication = () => {
       actionDetails: formData.get("actionDetails") || "",
 
       additionalComments: formData.get("additionalComments") || "",
-      receivedBy: formData.get("receivedBy") || "",
+      receivedByName: formData.get("receivedBy") || "",
+      receivedBy: null,
       receivedDate: formData.get("receivedDate") || "",
+      dispensedBy: null,
+      checkedBy: null,
+      dispensedByName: formValues.current.dispensedBy || "",
+      checkedByName: formValues.current.checkedBy || "",
+      isDraft: false,
+      isDeleted: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/incidents`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      const response = await axios.post(
+        `${API_BASE_URL}/api/v1/incidents`,
+        payload
+      );
 
-      if (response.ok) {
+      if (response.status === 200 || response.status === 201) {
         alert("Form submitted successfully!");
         e.target.reset();
         formValues.current = {
@@ -109,14 +116,17 @@ const FaultyMedication = () => {
           isInvestigationNeeded: false,
           isItemRequested: false,
           isYellowCardReported: false,
+          dispensedBy: "",
+          checkedBy: "",
+          dispensedByName: "",
+          checkedByName: "",
         };
-      } else {
-        const error = await response.json();
-        alert(`Error: ${error.message || "Failed to submit form"}`);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert("Failed to submit form. Please try again.");
+      alert(
+        `Error: ${error.response?.data?.message || "Failed to submit form"}`
+      );
     }
   };
 
@@ -565,6 +575,42 @@ const FaultyMedication = () => {
                     className=" bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
                   />
                 </div>
+              </div>
+              <div>
+                <h5 className="text-[18px]">Dispensed by (optional)</h5>
+                <hr className="bg-[#DAECFF] my-[16px]" />
+                <Select
+                  onValueChange={(value) =>
+                    (formValues.current.dispensedBy = value)
+                  }
+                  className=""
+                >
+                  <SelectTrigger className="w-full  bg-[#F8F9FB] p-[16px] !h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
+                    <SelectValue placeholder="Select One" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Demo User 1">Demo User 1</SelectItem>
+                    <SelectItem value="Demo User 2">Demo User 2</SelectItem>
+                    <SelectItem value="Demo User 3">Demo User 3</SelectItem>
+                  </SelectContent>
+                </Select>
+                <h5 className="text-[18px] mt-[20px]">Checked by (optional)</h5>
+                <hr className="bg-[#DAECFF] my-[16px]" />
+                <Select
+                  onValueChange={(value) =>
+                    (formValues.current.checkedBy = value)
+                  }
+                  className=""
+                >
+                  <SelectTrigger className="w-full  bg-[#F8F9FB] p-[16px] !h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
+                    <SelectValue placeholder="Select One" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Demo User 1">Demo User 1</SelectItem>
+                    <SelectItem value="Demo User 2">Demo User 2</SelectItem>
+                    <SelectItem value="Demo User 3">Demo User 3</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <div className="flex justify-end flex-wrap gap-4 mb-5 mt-[30px] items-end">

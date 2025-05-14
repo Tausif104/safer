@@ -23,10 +23,23 @@ const SignUpTechnician = () => {
   const { setSigningUpEmail, setUser } = useAuthStore();
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const password = e.target.password.value;
+    const confirmPassword = e.target.confirmPassword.value;
+
+    if (!password || !confirmPassword) {
+      alert("Please fill in both password fields");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
     const formData = {
       email: e.target.p_email.value,
       gphc: e.target.gphc.value,
-      password: e.target.password.value,
+      password: password,
     };
     setSigningUpEmail(formData.email);
     try {
@@ -35,7 +48,7 @@ const SignUpTechnician = () => {
         formData
       );
       if (response.status === 200) {
-        console.log('response.data', response.data);
+        console.log("response.data", response.data);
         setUser(response.data?.data);
         router.push("/signup-technician/technician-verification");
       }
@@ -95,6 +108,7 @@ const SignUpTechnician = () => {
             id="password"
             placeholder="Password"
             className="pl-[45px]"
+            required
           />
           {/* Show/Hide Password Icon */}
           <button
@@ -111,10 +125,11 @@ const SignUpTechnician = () => {
           </span>
           <input
             type={ReshowPassword ? "text" : "password"}
-            name="password"
-            id="password"
+            name="confirmPassword"
+            id="confirmPassword"
             placeholder="Re-Password"
             className="pl-[45px]"
+            required
           />
           {/* Show/Hide Password Icon */}
           <button
