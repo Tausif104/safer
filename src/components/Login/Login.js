@@ -118,7 +118,7 @@ const Login = ({ onSuccessfulLogin }) => {
           </button>
         </div>
         <p className="mb-[30px] sm:mb-[15px]">
-          Don't have an account yet?{" "}
+          Don&apos;t have an account yet?{" "}
           <Link href="#" className="text-[#2563EB]">
             Sign Up
           </Link>

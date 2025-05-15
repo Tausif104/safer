@@ -145,7 +145,7 @@ const FaultyMedication = () => {
       </div>
       <p className="text-base text-[#4B5563]   md:hidden mt-[20px]">
         Please use this form to record any near misses. For dispensing errors,
-        this need to be reported on ProScript under 'Incident Report'.
+        this need to be reported on ProScript under &apos;Incident Report&apos;.
       </p>
 
       <div className="bg-white rounded-[16px]  mt-[30px] relative">
@@ -161,8 +161,8 @@ const FaultyMedication = () => {
           </h4>
           <p className="text-base text-[#4B5563] hidden md:block">
             Please use this form to record any near misses. For dispensing
-            errors, this need to be reported on ProScript under 'Incident
-            Report'.
+            errors, this need to be reported on ProScript under &apos;Incident
+            Report&apos;.
           </p>
         </div>
         <hr className="bg-[#DAECFF] my-[16px] hidden md:flex" />
@@ -577,7 +577,7 @@ const FaultyMedication = () => {
                 </div>
               </div>
               <div>
-                <h5 className="text-[18px]">Dispensed by (optional)</h5>
+                <h5 className="text-[18px]">Dispensed by</h5>
                 <hr className="bg-[#DAECFF] my-[16px]" />
                 <Select
                   onValueChange={(value) =>
@@ -594,7 +594,7 @@ const FaultyMedication = () => {
                     <SelectItem value="Demo User 3">Demo User 3</SelectItem>
                   </SelectContent>
                 </Select>
-                <h5 className="text-[18px] mt-[20px]">Checked by (optional)</h5>
+                <h5 className="text-[18px] mt-[20px]">Checked by</h5>
                 <hr className="bg-[#DAECFF] my-[16px]" />
                 <Select
                   onValueChange={(value) =>

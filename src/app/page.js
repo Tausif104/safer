@@ -22,7 +22,7 @@ export default function Home() {
     } else if (user?.role === 'pharmacy') {
       router.push('/dashboard-login-premises');
     }
-  }, [user]);
+  }, [router, user]);
 
   return (
     <>
