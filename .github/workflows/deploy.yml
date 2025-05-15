@@ -18,7 +18,7 @@ jobs:
         node-version: 20
 
     - name: Install dependencies
-      run: npm ci
+      run: npm install
 
     - name: Build project
       run: NEXT_DISABLE_ESLINT_PLUGIN=true npm run build
@@ -39,10 +39,28 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
+          # Ensure permissions
+          sudo chown -R $USER:$USER /var/www/html/saferx*
+          
+          # Stop existing app if running
           pm2 stop saferx || true
+          
+          # Move new build into place
           rm -rf /var/www/html/saferx
           mv /var/www/html/saferx-temp /var/www/html/saferx
+
+          # Go to app directory
           cd /var/www/html/saferx
-          npm ci --omit=dev
-          pm2 start ecosystem.config.js --name saferx
+
+          # Install only production deps
+          npm install --omit=dev
+
+          # Start app with PM2 (fallback if ecosystem config is missing)
+          if [ -f ecosystem.config.js ]; then
+            pm2 start ecosystem.config.js --name saferx
+          else
+            pm2 start npm --name saferx -- run start
+          fi
+
+          # Save PM2 state
           pm2 save
