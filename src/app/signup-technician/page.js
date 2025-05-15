@@ -1,12 +1,12 @@
-import SignUp from '@/components/SignUp/SignUp'
+import SignUpTechnician from '@/components/SignUp/SignUpTechnician'
 import React from 'react'
 
-const LoginPremises = () => {
+const SignUpTechnicianPage = () => {
   return (
     <>
-      <SignUp/>
+      <SignUpTechnician/>
     </>
   )
 }
 
-export default LoginPremises
+export default SignUpTechnicianPage
