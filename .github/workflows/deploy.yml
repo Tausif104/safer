@@ -1,0 +1,63 @@
+name: CI/CD for SaferX
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build project
+      run: NEXT_DISABLE_ESLINT_PLUGIN=true npm run build
+
+    - name: Deploy full project to saferx.syndev.us
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        source: "." # Transfer everything
+        target: "/var/www/html/saferx-temp"
+        debug: true
+
+    - name: Restart app with PM2
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        script: |
+          # Use sudo for permission issues
+          sudo rm -rf /var/www/html/saferx
+          sudo mv /var/www/html/saferx-temp /var/www/html/saferx
+          sudo chown -R $USER:$USER /var/www/html/saferx
+
+          cd /var/www/html/saferx
+
+          # Install only production deps
+          npm install --omit=dev
+
+          # Start PM2 with config or fallback
+          if [ -f ecosystem.config.js ]; then
+            pm2 start ecosystem.config.js --name saferx
+          else
+            pm2 start npm --name saferx -- run start
+          fi
+
+          pm2 save
+
+
+          
