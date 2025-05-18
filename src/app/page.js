@@ -11,16 +11,19 @@ import DemoHome from "@/components/DemoHome";
 import useAuthStore from "@/store/useAuthStore";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { API_BASE_URL } from "@/config/constant";
 
 export default function Home() {
   const { user, isAuthenticated } = useAuthStore();
   const router = useRouter();
 
+  console.log("API BASE URL", API_BASE_URL);
+
   useEffect(() => {
-    if (user?.role === 'pharmacist') {
-      router.push('/dashboard-login-technician');
-    } else if (user?.role === 'pharmacy') {
-      router.push('/dashboard-login-premises');
+    if (user?.role === "pharmacist") {
+      router.push("/dashboard-login-technician");
+    } else if (user?.role === "pharmacy") {
+      router.push("/dashboard-login-premises");
     }
   }, [router, user]);
 
