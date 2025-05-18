@@ -23,15 +23,22 @@ jobs:
     - name: Build project
       run: NEXT_DISABLE_ESLINT_PLUGIN=true npm run build
 
-    - name: Deploy full project to saferx.syndev.us
+    - name: Prepare artifact for deployment
+      run: |
+        mkdir deploy
+        cp -r .next public package.json ecosystem.config.js deploy/
+
+    - name: Deploy built app to saferx.syndev.us
       uses: appleboy/scp-action@v0.1.7
       with:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
-        source: "." # Transfer everything
+        source: "deploy/*"
         target: "/var/www/html/saferx-temp"
+        strip_components: 1
         debug: true
+        overwrite: true
 
     - name: Restart app with PM2
       uses: appleboy/ssh-action@v1.0.3
@@ -40,24 +47,27 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
-          # Use sudo for permission issues
+          # Ensure temp dir exists
+          sudo mkdir -p /var/www/html/saferx-temp
+          sudo chown -R $USER:$USER /var/www/html/saferx-temp
+
+          # Swap directories
           sudo rm -rf /var/www/html/saferx
           sudo mv /var/www/html/saferx-temp /var/www/html/saferx
           sudo chown -R $USER:$USER /var/www/html/saferx
 
           cd /var/www/html/saferx
 
-          # Install only production deps
+          # Install production dependencies only
           npm install --omit=dev
 
-          # Start PM2 with config or fallback
+          # Restart with PM2
           if [ -f ecosystem.config.js ]; then
+            pm2 delete saferx || true
             pm2 start ecosystem.config.js --name saferx
           else
+            pm2 delete saferx || true
             pm2 start npm --name saferx -- run start
           fi
 
           pm2 save
-
-
-          
