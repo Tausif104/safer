@@ -6,13 +6,17 @@ import SectionTitle from "../FormSectionTitle/FormSectionTitle";
 import useAuthStore from "@/store/useAuthStore";
 import { useRouter } from "next/navigation";
 
-const Verification = () => {
+const Verification = ({ queryData }) => {
   const { signingUpEmail } = useAuthStore();
   const router = useRouter();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    router.push("/registration");
+    if (queryData.type === "premise") {
+      router.push("/pricing");
+    } else {
+      router.push("/registration");
+    }
   };
   return (
     <form onSubmit={handleSubmit}>

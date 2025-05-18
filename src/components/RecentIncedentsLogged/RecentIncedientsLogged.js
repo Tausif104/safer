@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Icon1 from "@/assets/images/pharmacy-icon1.svg";
@@ -23,6 +24,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { HiDotsVertical } from "react-icons/hi";
+import ViewIncidentModal from "../Incident/ViewIncidentModal";
 
 const iconMap = {
   pharmacy1: Icon1,
@@ -51,6 +53,25 @@ const RecentIncedientsLogged = ({ recentIncidents = [] }) => {
 
     return { date: formattedDate, time: formattedTime };
   };
+
+  const [openViewIncidentModal, setOpenViewIncidentModal] = useState(false);
+  const [selectedIncident, setSelectedIncident] = useState(null);
+
+  const handleViewIncident = (incident) => {
+    setSelectedIncident(incident);
+    setOpenViewIncidentModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenViewIncidentModal(false);
+    setSelectedIncident(null);
+  };
+
+  useEffect(() => {
+    if (!openViewIncidentModal) {
+      document.body.style.pointerEvents = "auto";
+    }
+  }, [openViewIncidentModal]);
 
   return (
     <section className="bg-white rounded-[16px] px-0 p-[20px] sm:p-[30px] pt-0 sm:pt-[30px] mt-[30px]">
@@ -128,7 +149,11 @@ const RecentIncedientsLogged = ({ recentIncidents = [] }) => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>View</DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleViewIncident(incident)}
+                          >
+                            View
+                          </DropdownMenuItem>
                           <DropdownMenuItem>Edit</DropdownMenuItem>
                           <DropdownMenuItem>Delete</DropdownMenuItem>
                         </DropdownMenuContent>
@@ -141,6 +166,12 @@ const RecentIncedientsLogged = ({ recentIncidents = [] }) => {
           </Table>
         </div>
       </div>
+      {openViewIncidentModal && (
+        <ViewIncidentModal
+          incident={selectedIncident}
+          onClose={handleCloseModal}
+        />
+      )}
     </section>
   );
 };

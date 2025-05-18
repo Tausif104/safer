@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -16,8 +16,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { API_BASE_URL } from "@/config/constant";
+import Image from "next/image";
 
 const NearMiss = () => {
+  const [selectedErrorTypes, setSelectedErrorTypes] = useState([]);
+
   const errorCheckbox = [
     { id: "near-miss", label: "Near Miss" },
     {
@@ -55,6 +58,20 @@ const NearMiss = () => {
     errorCode: "",
     picture: null,
   });
+
+  const [imagePreview, setImagePreview] = useState(null);
+
+  const handleErrorTypeChange = (id) => {
+    setSelectedErrorTypes((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((type) => type !== id);
+      } else {
+        return [...prev, id];
+      }
+    });
+  };
+
+  const isOptional = selectedErrorTypes.some((type) => type === "other");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -117,12 +134,48 @@ const NearMiss = () => {
     }
   };
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files[0];
+
     if (file) {
-      formValues.current.picture = file.name;
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await axios.post(
+          `${API_BASE_URL}/api/v1/common/upload-image`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        if (response.status === 200 || response.status === 201) {
+          formValues.current.picture = response.data.data.fileName;
+        }
+      } catch (error) {
+        console.error("Error uploading file:", error);
+        alert(
+          `Error: ${error.response?.data?.message || "Failed to upload file"}`
+        );
+        setImagePreview(null);
+      }
     }
   };
+
+  // Cleanup preview URL when component unmounts
+  React.useEffect(() => {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
 
   return (
     <section className="mb-[50px] lg:mb-0">
@@ -166,6 +219,8 @@ const NearMiss = () => {
                       <Checkbox
                         id={option.id}
                         className="h-[20px] w-[20px] border-[#374151]"
+                        checked={selectedErrorTypes.includes(option.id)}
+                        onCheckedChange={() => handleErrorTypeChange(option.id)}
                       />
                       <label
                         htmlFor={option.id}
@@ -201,7 +256,12 @@ const NearMiss = () => {
                 </div>
               </div>
               <div>
-                <h5 className="text-[18px]">Dispensed by</h5>
+                <h5 className="text-[18px]">
+                  Dispensed by{" "}
+                  {isOptional && (
+                    <span className="text-gray-500">(Optional)</span>
+                  )}
+                </h5>
                 <hr className="bg-[#DAECFF] my-[16px]" />
                 <Select
                   onValueChange={(value) =>
@@ -218,7 +278,12 @@ const NearMiss = () => {
                     <SelectItem value="Demo User 3">Demo User 3</SelectItem>
                   </SelectContent>
                 </Select>
-                <h5 className="text-[18px] mt-[20px]">Checked by</h5>
+                <h5 className="text-[18px] mt-[20px]">
+                  Checked by{" "}
+                  {isOptional && (
+                    <span className="text-gray-500">(Optional)</span>
+                  )}
+                </h5>
                 <hr className="bg-[#DAECFF] my-[16px]" />
                 <Select
                   onValueChange={(value) =>
@@ -324,9 +389,21 @@ const NearMiss = () => {
                     type="file"
                     id="file-upload"
                     onChange={handleFileUpload}
+                    accept="image/*"
                     style={{ display: "none" }}
                   />
                 </label>
+                {imagePreview && (
+                  <div className="mt-4">
+                    <Image
+                      src={imagePreview}
+                      alt="Preview"
+                      width={300}
+                      height={300}
+                      className="object-contain rounded-lg border border-[#DAECFF]"
+                    />
+                  </div>
+                )}
               </div>
               <div className="flex justify-end flex-wrap gap-4 mb-5 items-end">
                 <Button className="primary-btn !bg-transparent !border-[#262262] !text-[#262262] !py-[24px] max-w-[365px] w-full sm:!text-[18px] !text-[16px] cursor-pointer capitalize hover:!bg-[#99C729] hover:!text-white hover:!border-[#99C729]">

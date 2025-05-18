@@ -10,9 +10,16 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import Card from "@/assets/images/card.png";
+import { Button } from "../ui/button";
+import { useRouter } from "next/navigation";
 
 export default function Pricing() {
   const [plan, setPlan] = useState("monthly");
+  const router = useRouter();
+
+  const handleLogin = () => {
+    router.push("/configuration-step1");
+  };
 
   return (
     <section className="pt-[20px] sm:pt0">
@@ -166,6 +173,9 @@ export default function Pricing() {
             </Dialog>
           </div>
         ))}
+      </div>
+      <div className="text-right mt-[30px] sm:mt-[50px] 2xl:mt-0">
+        <Button onClick={handleLogin} className="primary-btn w-full sm:w-[390px] 2xl:!absolute 2xl:bottom-[50px] 2xl:right-[30px]">Login</Button>
       </div>
     </section>
   );
