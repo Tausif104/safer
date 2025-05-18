@@ -11,11 +11,37 @@ import AppleIcon from '@/assets/images/apple.svg'
 import Google from '@/assets/images/google.svg'
 import Facebook from '@/assets/images/facebook.svg'
 import { RiLockPasswordLine } from "react-icons/ri";
-
+import axios from 'axios';
+import { API_BASE_URL } from "@/config/constant";
+import { useRouter } from 'next/navigation';
+import useAuthStore from "@/store/useAuthStore";
 
 const SignUp = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [ReshowPassword, reSetShowPassword] = useState(false);
+    const router = useRouter();
+    const { setSigningUpEmail, setUser } = useAuthStore();
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await axios.post(`${API_BASE_URL}/api/v1/auth/signup-premise`, {
+                pharmacyEmail: e.target.p_email.value,
+                odsCode: e.target.odsCode.value, 
+                password: e.target.password.value
+            });
+
+            if (response.status === 200) {
+                setSigningUpEmail(e.target.p_email.value);
+                setUser(response.data?.data);
+                router.push('/signup-premises/premises-verification?type=premise');
+            }
+
+        } catch (error) {
+            console.error('Signup error:', error);
+            // Handle error - show error message to user
+        }
+    }
     return (
         <div className='text-center'>
             <div className='mb-[25px] sm:mb-[30px]'>
@@ -24,7 +50,7 @@ const SignUp = () => {
                 </Link>
             </div>
             <SectionTitle alignment="center" title="Create an account" description="Welcome Back! Please Enter Your Details." />
-            <form action="#">
+            <form onSubmit={handleSubmit}>
                 <div className='relative mb-[20px]'>
                     <span className='absolute left-[17px] top-[18px] sm:top-[20px]'><HiOutlineEnvelope /></span>
                     <input type="email" name="p_email" id="p_email" placeholder="Pharmacy Email" className='pl-[45px]' />

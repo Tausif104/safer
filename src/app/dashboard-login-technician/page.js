@@ -5,20 +5,22 @@ import Layout from "@/components/Layout/Layout";
 import LoadingComp from "@/components/LoadingComp/LoadingComp";
 import MobileNav from "@/components/MobileNav/MobileNav";
 import RecentIncedientsLogged from "@/components/RecentIncedentsLogged/RecentIncedientsLogged";
-import RecentIncidents from "@/components/RecentIncidents/RecentIncidents";
 import { API_BASE_URL } from "@/config/constant";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import axios from "axios";
+// import useAuthStore from "@/store/useAuthStore";
+// import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [dashboardStats, setDashboardStats] = useState(null);
   const [recentIncidents, setRecentIncidents] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  // const router = useRouter();
+  // const { isAuthenticated } = useAuthStore();
 
   useEffect(() => {
-    console.log('whats wrong here');
+    console.log("whats wrong here");
     const fetchData = async () => {
       try {
         const statsResponse = await axios.get(
@@ -40,6 +42,12 @@ export default function Home() {
 
     fetchData();
   }, []);
+
+  // useEffect(() => {
+  //   if (!isAuthenticated) {
+  //     router.push("/");
+  //   }
+  // }, [isAuthenticated, router]);
 
   return (
     <>

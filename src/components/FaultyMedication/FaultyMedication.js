@@ -577,7 +577,7 @@ const FaultyMedication = () => {
                 </div>
               </div>
               <div>
-                <h5 className="text-[18px]">Dispensed by</h5>
+                <h5 className="text-[18px]">Dispensed by (Optional)</h5>
                 <hr className="bg-[#DAECFF] my-[16px]" />
                 <Select
                   onValueChange={(value) =>
@@ -594,7 +594,7 @@ const FaultyMedication = () => {
                     <SelectItem value="Demo User 3">Demo User 3</SelectItem>
                   </SelectContent>
                 </Select>
-                <h5 className="text-[18px] mt-[20px]">Checked by</h5>
+                <h5 className="text-[18px] mt-[20px]">Checked by (Optional)</h5>
                 <hr className="bg-[#DAECFF] my-[16px]" />
                 <Select
                   onValueChange={(value) =>
