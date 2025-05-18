@@ -2,7 +2,7 @@ name: CI/CD for SaferX
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build-and-deploy:
@@ -18,15 +18,18 @@ jobs:
         node-version: 20
 
     - name: Install dependencies
-      run: npm install
+      run: npm ci
 
     - name: Build project
       run: NEXT_DISABLE_ESLINT_PLUGIN=true npm run build
 
     - name: Prepare artifact for deployment
       run: |
-        mkdir deploy
+        mkdir -p deploy
         cp -r .next public package.json ecosystem.config.js deploy/
+
+    - name: Debug deploy contents
+      run: ls -lah deploy
 
     - name: Deploy built app to saferx.syndev.us
       uses: appleboy/scp-action@v0.1.7
@@ -34,7 +37,7 @@ jobs:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
-        source: "deploy/*"
+        source: "deploy/"
         target: "/var/www/html/saferx-temp"
         strip_components: 1
         debug: true
@@ -47,21 +50,21 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
-          # Ensure temp dir exists
+          # Ensure the target directory exists and has correct permissions
           sudo mkdir -p /var/www/html/saferx-temp
           sudo chown -R $USER:$USER /var/www/html/saferx-temp
 
-          # Swap directories
+          # Atomically swap the deployment directories
           sudo rm -rf /var/www/html/saferx
           sudo mv /var/www/html/saferx-temp /var/www/html/saferx
           sudo chown -R $USER:$USER /var/www/html/saferx
 
           cd /var/www/html/saferx
 
-          # Install production dependencies only
-          npm install --omit=dev
+          # Install production-only dependencies
+          npm ci --omit=dev
 
-          # Restart with PM2
+          # Restart using PM2
           if [ -f ecosystem.config.js ]; then
             pm2 delete saferx || true
             pm2 start ecosystem.config.js --name saferx
