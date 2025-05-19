@@ -69,6 +69,7 @@ const ViewIncidentModal = ({ incident, onClose }) => {
                         width={400}
                         height={300}
                         className="rounded-lg object-cover"
+                        unoptimized
                       />
                     </div>
                   ) : typeof value === "boolean" ? (
