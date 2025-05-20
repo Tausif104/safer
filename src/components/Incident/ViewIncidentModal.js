@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Image from "next/image";
 import { API_BASE_URL } from "@/config/constant";
 import {
   Dialog,
@@ -62,7 +63,7 @@ const ViewIncidentModal = ({ incident, onClose }) => {
                 <span>
                   {key === "picture" ? (
                     <div className="mt-2">
-                      <img
+                      <Image
                         src={`${API_BASE_URL}/public/img/${value}`}
                         alt="Incident picture"
                         width={400}
