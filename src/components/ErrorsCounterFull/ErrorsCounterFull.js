@@ -6,7 +6,6 @@ import CounterIcon2 from "@/assets/images/counter-icon2.svg";
 import CounterIcon3 from "@/assets/images/counter-icon3.svg";
 import CounterIcon4 from "@/assets/images/counter-icon4.svg";
 
-
 const CounterItem = ({ endValue, label, format, icon, iconBgColor }) => {
   const [count, setCount] = useState(0);
 
@@ -41,60 +40,60 @@ const CounterItem = ({ endValue, label, format, icon, iconBgColor }) => {
   };
 
   return (
-    <div className='bg-white rounded-[14px] flex justify-between flex-col p-[20px] sm:gap-5 gap-3'>
+    <div className="bg-white rounded-[14px] flex justify-between flex-col p-[20px] sm:gap-5 gap-3">
       <div
-        className='sm:h-[80px] h-[48px] sm:w-[80px] w-[48px] sm:min-w-[80px] min-w-[48px] flex items-center justify-center rounded-full'
+        className="sm:h-[80px] h-[48px] sm:w-[80px] w-[48px] sm:min-w-[80px] min-w-[48px] flex items-center justify-center rounded-full"
         style={{ backgroundColor: iconBgColor }}
       >
-        <Image className="sm:w-[40px] w-[25px] sm:h-[40px] h-[25px]" src={icon} alt='report-icon' />
+        <Image
+          className="sm:w-[40px] w-[25px] sm:h-[40px] h-[25px]"
+          src={icon}
+          alt="report-icon"
+        />
       </div>
       <div>
-        <h3 className='counter sm:text-[36px] text-[24px] mb-1 gap-2.5'>
+        <h3 className="counter sm:text-[36px] text-[24px] mb-1 gap-2.5">
           {formatNumber(count)}
         </h3>
-        <p className='sm:text-[16px] text-[14px]'>{label}</p>
+        <p className="sm:text-[16px] text-[14px]">{label}</p>
       </div>
     </div>
   );
 };
 
-
-
-
 const ErrorsCounterFull = () => {
-
   return (
-    <section className='sm:mb-[30px] py-[25px] sm:py-0 bg-[#F8F9FB] sm:bg-transparent'>
+    <section className="sm:mb-[30px] py-[25px] sm:py-0 bg-[#F8F9FB] sm:bg-transparent">
       {/* Month Navigation with Next and Previous Buttons */}
 
-      <div className='grid xl:grid-cols-4 grid-cols-2 sm:gap-6 gap-5'>
+      <div className="grid xl:grid-cols-4 grid-cols-2 sm:gap-6 gap-5">
         <CounterItem
           endValue={3500}
-          label='Total Subscribed Pharmacies'
-          format='k'
+          label="Total Subscribed Pharmacies"
+          format="k"
           icon={CounterIcon1}
-          iconBgColor='#3B82F6'
+          iconBgColor="#3B82F6"
         />
         <CounterItem
           endValue={150}
-          label='Total Pharmacists'
-          format='+'
+          label="Total Pharmacists"
+          format="+"
           icon={CounterIcon2}
-          iconBgColor='#A855F7'
+          iconBgColor="#A855F7"
         />
         <CounterItem
           endValue={1500}
-          label='Total Subscribed Pharmacists'
-          format='k'
+          label="Total Subscribed Pharmacists"
+          format="k"
           icon={CounterIcon3}
-          iconBgColor='#F97316'
+          iconBgColor="#F97316"
         />
         <CounterItem
           endValue={75}
-          label='Total Incidents Logged'
-          format='+'
+          label="Total Incidents Logged"
+          format="+"
           icon={CounterIcon4}
-          iconBgColor='#00D0FF'
+          iconBgColor="#00D0FF"
         />
       </div>
     </section>

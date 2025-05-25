@@ -99,7 +99,7 @@ const pharmacies = [
 
 const DashboardNotificationTable = () => {
   return (
-    <section className='bg-white rounded-[16px] px-0 p-[20px] sm:p-[30px] pt-0 sm:pt-[30px]'>
+    <section className="bg-white rounded-[16px] px-0 p-[20px] sm:p-[30px] pt-0 sm:pt-[30px]">
       <div>
         <div>
           <Table>
@@ -108,42 +108,42 @@ const DashboardNotificationTable = () => {
                 const IconComponent = iconMap[pharmacy.iconKey];
                 return (
                   <TableRow key={index}>
-                    <TableCell className='py-[8px] px-[20px] border-b border-[#DAECFF]'>
-                      <div className='flex items-center gap-3.5'>
+                    <TableCell className="py-[8px] px-[20px] border-b border-[#DAECFF]">
+                      <div className="flex items-center gap-3.5">
                         {IconComponent && (
                           <Image
                             src={IconComponent}
                             alt={`${pharmacy.name} icon`}
                             width={42}
                             height={42}
-                            className='rounded-full'
+                            className="rounded-full"
                           />
                         )}
-                        <div className='flex flex-col'>
-                          <h6 className='text-[14px] font-medium mb-1'>
+                        <div className="flex flex-col">
+                          <h6 className="text-[14px] font-medium mb-1">
                             {pharmacy.name}
                           </h6>
-                          <p className='text-[12px] text-[#707B8A]'>
+                          <p className="text-[12px] text-[#707B8A]">
                             {pharmacy.email}
                           </p>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className='py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]'>
+                    <TableCell className="py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]">
                       Description: {pharmacy.address}
                     </TableCell>
-                    <TableCell className='py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]'>
+                    <TableCell className="py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]">
                       {pharmacy.date}
                     </TableCell>
-                    <TableCell className='py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]'>
+                    <TableCell className="py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]">
                       {pharmacy.time}
                     </TableCell>
-                    <TableCell className='py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]'>
-                      <div className='flex gap-2'>
-                        <button className='px-[16px] py-[8px] rounded-full border border-[#F60000] text-[14px] text-[#F60000] hover:bg-[#F60000] hover:text-[#fff]'>
+                    <TableCell className="py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]">
+                      <div className="flex gap-2">
+                        <button className="px-[16px] py-[8px] rounded-full border border-[#F60000] text-[14px] text-[#F60000] hover:bg-[#F60000] hover:text-[#fff]">
                           Reject
                         </button>
-                        <button className='px-[16px] py-[8px] rounded-full border border-[#3B8D0B] text-[14px] text-[#3B8D0B] hover:bg-[#3B8D0B] hover:text-[#fff]'>
+                        <button className="px-[16px] py-[8px] rounded-full border border-[#3B8D0B] text-[14px] text-[#3B8D0B] hover:bg-[#3B8D0B] hover:text-[#fff]">
                           Approve
                         </button>
                       </div>

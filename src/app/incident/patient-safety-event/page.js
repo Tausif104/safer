@@ -1,7 +1,7 @@
 import Header from "@/components/Header/Header";
 import Layout from "@/components/Layout/Layout";
 import MobileNav from "@/components/MobileNav/MobileNav";
-import PatientSaftyEvent from "@/components/PatientSaftyEvent/PatientSaftyEvent";
+import PatientSaftyEvent from "@/components/PatientSafetyEvent/PatientSafetyEvent";
 import React from "react";
 
 const PatientaftyPage = () => {

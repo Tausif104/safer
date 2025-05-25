@@ -1,6 +1,8 @@
 "use client";
 import React, { useState, useRef } from "react";
-import { Textarea } from "@/components/ui/textarea";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -12,10 +14,13 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Upload } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { API_BASE_URL } from "@/config/constant";
 import axios from "axios";
+import Image from "next/image";
+import IncidentSavedDialog from "@/components/Incident/incident-saved-dialog";
+import { Spinner } from "@/components/ui/spinner";
 
 const PrescribingIntervention = () => {
   const queryCheckbox = [
@@ -54,65 +59,94 @@ const PrescribingIntervention = () => {
     { id: "65+", label: "Over 65 years old" },
   ];
 
-  const formValues = useRef({
-    query: "",
-    action: "",
-    prescriptionType: "",
-    patientAge: "",
-    isSubmittedToLfpse: false,
-    isRecordedOnPmr: false,
-    dispensedBy: "",
-    checkedBy: "",
+  const schema = yup.object().shape({
+    query: yup.array().min(1, "Please select at least one query").required(),
+    action: yup.array().min(1, "Please select at least one action").required(),
+    prescriptionType: yup
+      .array()
+      .min(1, "Please select at least one prescription type")
+      .required(),
+    patientAge: yup.string().required("Please select patient age"),
+    isSubmittedToLfpse: yup
+      .boolean()
+      .required("Please indicate if submitted to LFPSE"),
+    isRecordedOnPmr: yup
+      .boolean()
+      .required("Please indicate if recorded on PMR"),
+    description: yup.string().required("Please provide a description"),
+    picture: yup.mixed().nullable(),
+    dispensedBy: yup.string().nullable(),
+    checkedBy: yup.string().nullable(),
+    dispensedByName: yup.string().nullable(),
+    checkedByName: yup.string().nullable(),
   });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const formData = new FormData(e.target);
-
-    const query = queryCheckbox
-      .filter((option) => document.getElementById(option.id).checked)
-      .map((option) => option.id);
-
-    const action = actionCheckbox
-      .filter((option) => document.getElementById(option.id).checked)
-      .map((option) => option.id);
-
-    const prescriptionType = prescriptionsCheckbox
-      .filter((option) => document.getElementById(option.id).checked)
-      .map((option) => option.id);
-
-    const payload = {
-      type: "prescribing-intervention",
-      query: query.length > 0 ? query : [],
-      action: action.length > 0 ? action : [],
-      prescriptionType: prescriptionType.length > 0 ? prescriptionType : [],
-      patientAge: formData.get("patientAge") || "",
-      isSubmittedToLfpse: formValues.current.isSubmittedToLfpse,
-      isRecordedOnPmr: formValues.current.isRecordedOnPmr,
-      description: formData.get("description") || null,
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+    reset,
+  } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      query: [],
+      action: [],
+      prescriptionType: [],
+      patientAge: "",
+      isSubmittedToLfpse: undefined,
+      isRecordedOnPmr: undefined,
+      description: "",
+      picture: null,
       dispensedBy: null,
       checkedBy: null,
-      dispensedByName: formValues.current.dispensedBy || null,
-      checkedByName: formValues.current.checkedBy || null,
-      isDraft: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+      dispensedByName: null,
+      checkedByName: null,
+    },
+  });
 
+  const [imagePreview, setImagePreview] = useState(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [incidentReference, setIncidentReference] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const onSubmit = async (data) => {
     try {
+      setIsSubmitting(true);
+      const isValid = await schema
+        .validate(data, { abortEarly: false })
+        .catch((err) => {
+          const validationErrors = {};
+          err.inner.forEach((error) => {
+            validationErrors[error.path] = error;
+          });
+          return false;
+        });
+
+      if (!isValid) {
+        setIsSubmitting(false);
+        return;
+      }
+
+      const payload = {
+        type: "prescribing-intervention",
+        ...data,
+        isDraft: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
       const response = await axios.post(
         `${API_BASE_URL}/api/v1/incidents`,
         payload
       );
 
       if (response.status === 200) {
-        alert("Prescribing intervention submitted successfully!");
-        e.target.reset();
-        formValues.current = {
-          isSubmittedToLfpse: false,
-          isRecordedOnPmr: false,
-        };
+        setIncidentReference(response.data.data.referenceNumber);
+        setShowSuccessModal(true);
+        setImagePreview(null);
+        reset();
       } else {
         alert(`Error: ${response.data.message || "Failed to submit form"}`);
       }
@@ -122,18 +156,53 @@ const PrescribingIntervention = () => {
         error.response?.data?.message ||
           "Failed to submit form. Please try again."
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleRadioChange = (group, value) => {
-    if (group === "patientAge") {
-      formValues.current.patientAge = value;
-    } else if (group === "isSubmittedToLfpse") {
-      formValues.current.isSubmittedToLfpse = value === "yes";
-    } else if (group === "isRecordedOnPmr") {
-      formValues.current.isRecordedOnPmr = value === "yes";
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await axios.post(
+          `${API_BASE_URL}/api/v1/common/upload-image`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        if (response.status === 200 || response.status === 201) {
+          setValue("picture", response.data.data.fileName);
+        }
+      } catch (error) {
+        console.error("Error uploading file:", error);
+        alert(
+          `Error: ${error.response?.data?.message || "Failed to upload file"}`
+        );
+        setImagePreview(null);
+      }
     }
   };
+
+  // Cleanup preview URL when component unmounts
+  React.useEffect(() => {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
 
   return (
     <section className="mb-[50px] lg:mb-0">
@@ -163,7 +232,7 @@ const PrescribingIntervention = () => {
         </div>
         <hr className="bg-[#DAECFF] my-[16px] hidden md:flex" />
         <div className="px-[30px] pb-[20px] sm:pb-[30px] pt-0">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)} noValidate>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               <div>
                 <h5 className="text-[18px]">Query</h5>
@@ -177,8 +246,16 @@ const PrescribingIntervention = () => {
                       <Checkbox
                         id={option.id}
                         className="h-[20px] w-[20px] border-[#374151]"
-                        onCheckedChange={(value) => {
-                          document.getElementById(option.id).checked = value;
+                        onCheckedChange={(checked) => {
+                          const currentValues = watch("query") || [];
+                          if (checked) {
+                            setValue("query", [...currentValues, option.id]);
+                          } else {
+                            setValue(
+                              "query",
+                              currentValues.filter((id) => id !== option.id)
+                            );
+                          }
                         }}
                       />
                       <label
@@ -189,6 +266,11 @@ const PrescribingIntervention = () => {
                       </label>
                     </div>
                   ))}
+                  {errors.query && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.query.message}
+                    </p>
+                  )}
                 </div>
               </div>
               <div>
@@ -203,8 +285,16 @@ const PrescribingIntervention = () => {
                       <Checkbox
                         id={option.id}
                         className="h-[20px] w-[20px] border-[#374151]"
-                        onCheckedChange={(value) => {
-                          document.getElementById(option.id).checked = value;
+                        onCheckedChange={(checked) => {
+                          const currentValues = watch("action") || [];
+                          if (checked) {
+                            setValue("action", [...currentValues, option.id]);
+                          } else {
+                            setValue(
+                              "action",
+                              currentValues.filter((id) => id !== option.id)
+                            );
+                          }
                         }}
                       />
                       <label
@@ -215,6 +305,11 @@ const PrescribingIntervention = () => {
                       </label>
                     </div>
                   ))}
+                  {errors.action && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.action.message}
+                    </p>
+                  )}
                 </div>
               </div>
               <div>
@@ -229,8 +324,19 @@ const PrescribingIntervention = () => {
                       <Checkbox
                         id={option.id}
                         className="h-[20px] w-[20px] border-[#374151]"
-                        onCheckedChange={(value) => {
-                          document.getElementById(option.id).checked = value;
+                        onCheckedChange={(checked) => {
+                          const currentValues = watch("prescriptionType") || [];
+                          if (checked) {
+                            setValue("prescriptionType", [
+                              ...currentValues,
+                              option.id,
+                            ]);
+                          } else {
+                            setValue(
+                              "prescriptionType",
+                              currentValues.filter((id) => id !== option.id)
+                            );
+                          }
                         }}
                       />
                       <label
@@ -241,13 +347,21 @@ const PrescribingIntervention = () => {
                       </label>
                     </div>
                   ))}
+                  {errors.prescriptionType && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.prescriptionType.message}
+                    </p>
+                  )}
                 </div>
               </div>
               <div>
                 <h5 className="text-[18px]">Patients age</h5>
                 <hr className="bg-[#DAECFF] my-[16px]" />
                 <div className="flex flex-col space-y-4">
-                  <RadioGroup defaultValue="12-18">
+                  <RadioGroup
+                    defaultValue=""
+                    onValueChange={(value) => setValue("patientAge", value)}
+                  >
                     {ageOptions.map((option) => (
                       <div
                         key={option.id}
@@ -268,6 +382,11 @@ const PrescribingIntervention = () => {
                       </div>
                     ))}
                   </RadioGroup>
+                  {errors.patientAge && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.patientAge.message}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="lg:col-span-2">
@@ -281,7 +400,7 @@ const PrescribingIntervention = () => {
                     <RadioGroup
                       defaultValue=""
                       onValueChange={(value) =>
-                        handleRadioChange("isSubmittedToLfpse", value)
+                        setValue("isSubmittedToLfpse", value === "yes")
                       }
                     >
                       {lfpseCheckbox.map((option) => (
@@ -304,6 +423,11 @@ const PrescribingIntervention = () => {
                         </div>
                       ))}
                     </RadioGroup>
+                    {errors.isSubmittedToLfpse && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.isSubmittedToLfpse.message}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="mt-[30px]">
@@ -313,7 +437,7 @@ const PrescribingIntervention = () => {
                     <RadioGroup
                       defaultValue=""
                       onValueChange={(value) =>
-                        handleRadioChange("isRecordedOnPmr", value)
+                        setValue("isRecordedOnPmr", value === "yes")
                       }
                     >
                       {lfpseCheckbox.map((option) => (
@@ -336,6 +460,11 @@ const PrescribingIntervention = () => {
                         </div>
                       ))}
                     </RadioGroup>
+                    {errors.isRecordedOnPmr && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.isRecordedOnPmr.message}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -344,12 +473,9 @@ const PrescribingIntervention = () => {
               <h5 className="text-[18px]">Dispensed by (optional)</h5>
               <hr className="bg-[#DAECFF] my-[16px]" />
               <Select
-                onValueChange={(value) =>
-                  (formValues.current.dispensedBy = value)
-                }
-                className=""
+                onValueChange={(value) => setValue("dispensedByName", value)}
               >
-                <SelectTrigger className="w-full  bg-[#F8F9FB] p-[16px] !h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
+                <SelectTrigger className="w-full bg-[#F8F9FB] p-[16px] !h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
                   <SelectValue placeholder="Select One" />
                 </SelectTrigger>
                 <SelectContent>
@@ -361,12 +487,9 @@ const PrescribingIntervention = () => {
               <h5 className="text-[18px] mt-[20px]">Checked by (optional)</h5>
               <hr className="bg-[#DAECFF] my-[16px]" />
               <Select
-                onValueChange={(value) =>
-                  (formValues.current.checkedBy = value)
-                }
-                className=""
+                onValueChange={(value) => setValue("checkedByName", value)}
               >
-                <SelectTrigger className="w-full  bg-[#F8F9FB] p-[16px] !h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
+                <SelectTrigger className="w-full bg-[#F8F9FB] p-[16px] !h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
                   <SelectValue placeholder="Select One" />
                 </SelectTrigger>
                 <SelectContent>
@@ -377,7 +500,7 @@ const PrescribingIntervention = () => {
               </Select>
             </div>
             <div className="flex justify-between flex-wrap gap-4 mb-5 mt-[30px] items-end">
-              <div>
+              <div className="w-full md:w-[48%]">
                 <label
                   htmlFor="description"
                   className="text-[#262262] text-[18px] mb-[10px] font-semibold"
@@ -386,25 +509,81 @@ const PrescribingIntervention = () => {
                 </label>
 
                 <Input
+                  {...register("description")}
                   type="text"
                   placeholder="Write a short answer here."
                   id="description"
-                  name="description"
-                  className="mt-[10px] bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
+                  className={`mt-[10px] bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
+                    errors.description ? "border-red-500" : ""
+                  }`}
                 />
+                {errors.description && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.description.message}
+                  </p>
+                )}
               </div>
-              <div className="flex items-center flex-wrap gap-[15px] sm:w-auto w-full">
-                <Button className="primary-btn !bg-transparent !border-[#262262] !text-[#262262] !py-[24px] max-w-[365px] w-full sm:w-auto sm:!text-[18px] !text-[16px] cursor-pointer capitalize hover:!bg-[#99C729] hover:!text-white hover:!border-[#99C729]">
-                  save draft
-                </Button>
-                <Button className="flex items-center gap-[16px] text-[#fff] transition-all duration-300  hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group w-full sm:w-auto sm:!text-[18px] !text-[16px] cursor-pointer">
-                  Submit Incident
-                </Button>
+              <div className="w-full md:w-[48%]">
+                <p className="text-[#262262] text-[18px] mb-[10px] font-semibold">
+                  Upload picture (optional)
+                </p>
+                <label
+                  htmlFor="file-upload"
+                  className="flex items-center justify-center gap-2.5 text-[#4B5563] rounded-[6px] h-[89px] text-base bg-[#F8F9FB] border-2 border-[#DAECFF] cursor-pointer"
+                >
+                  <Upload /> Upload your file
+                  <input
+                    type="file"
+                    id="file-upload"
+                    onChange={handleFileUpload}
+                    accept="image/*"
+                    style={{ display: "none" }}
+                  />
+                </label>
+                {imagePreview && (
+                  <div className="mt-4">
+                    <Image
+                      src={imagePreview}
+                      alt="Preview"
+                      width={300}
+                      height={300}
+                      className="object-contain rounded-lg border border-[#DAECFF]"
+                    />
+                  </div>
+                )}
               </div>
+            </div>
+            <div className="flex items-center justify-end flex-wrap gap-[15px] sm:w-auto w-full">
+              <Button
+                type="button"
+                className="primary-btn !bg-transparent !border-[#262262] !text-[#262262] !py-[24px] max-w-[365px] w-full sm:w-auto sm:!text-[18px] !text-[16px] cursor-pointer capitalize hover:!bg-[#99C729] hover:!text-white hover:!border-[#99C729]"
+              >
+                save draft
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex items-center gap-[16px] text-[#fff] transition-all duration-300 hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group w-full sm:w-auto sm:!text-[18px] !text-[16px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Spinner className="text-white" size="sm" />
+                    Submitting...
+                  </>
+                ) : (
+                  "Submit Incident"
+                )}
+              </Button>
             </div>
           </form>
         </div>
       </div>
+
+      <IncidentSavedDialog
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        reference={incidentReference}
+      />
     </section>
   );
 };

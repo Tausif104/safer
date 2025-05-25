@@ -1,10 +1,10 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Upload } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -15,6 +15,12 @@ import {
 } from "@/components/ui/select";
 import { API_BASE_URL } from "@/config/constant";
 import axios from "axios";
+import Image from "next/image";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import IncidentSavedDialog from "@/components/Incident/incident-saved-dialog";
+import { Spinner } from "@/components/ui/spinner";
 
 const FaultyMedication = () => {
   const lfpseCheckbox = [
@@ -30,105 +36,180 @@ const FaultyMedication = () => {
     { id: "65+", label: "Over 65 years old" },
   ];
 
-  const formValues = useRef({
-    age: "",
-    sex: "",
-    issueDescription: "",
-    faultyDevice: "",
-    hasSideEffects: false,
-    isRefunded: false,
-    isExchanged: false,
-    isInvestigationNeeded: false,
-    isItemRequested: false,
-    isYellowCardReported: false,
-    dispensedBy: "",
-    checkedBy: "",
+  const schema = yup.object().shape({
+    fullName: yup.string().required("Please enter your full name"),
+    contactInfo: yup
+      .string()
+      .required("Please enter your phone number")
+      .matches(/^[0-9+\-\s()]*$/, "Please enter a valid phone number"),
+    emailAddress: yup
+      .string()
+      .email("Please enter a valid email")
+      .required("Please enter your email address"),
+    dateOfReturn: yup.string().required("Please select date of return"),
+    productName: yup.string().required("Please enter the product name"),
+    batchNumber: yup.string().required("Please enter the batch number"),
+    expiryDate: yup.string().required("Please select expiry date"),
+    issuedAt: yup.string().required("Please select date issued"),
+    quantityReturned: yup
+      .number()
+      .required("Please enter quantity returned")
+      .min(1, "Quantity must be at least 1"),
+    age: yup.string().required("Please select age"),
+    sex: yup.string().required("Please select sex"),
+    typeOfIncident: yup.string().required("Please select type of incident"),
+    issueDescriptionDetailed: yup
+      .string()
+      .required("Please provide a detailed description of the issue"),
+    hasSideEffects: yup
+      .boolean()
+      .required("Please indicate if you experienced side effects"),
+    sideEffectsDescription: yup.string().when("hasSideEffects", {
+      is: true,
+      then: (schema) => schema.required("Please describe the side effects"),
+      otherwise: (schema) => schema.nullable(),
+    }),
+    isRefunded: yup.boolean().required("Please indicate if refunded"),
+    isExchanged: yup.boolean().required("Please indicate if exchanged"),
+    isInvestigationNeeded: yup
+      .boolean()
+      .required("Please indicate if investigation is needed"),
+    isItemRequested: yup
+      .boolean()
+      .required("Please indicate if item was requested"),
+    isYellowCardReported: yup
+      .boolean()
+      .required("Please indicate if yellow card was reported"),
+    actionDetails: yup.string().required("Please provide action details"),
+    receivedBy: yup.number().nullable(),
+    receivedByName: yup.string().nullable(),
+    receivedDate: yup.string().nullable(),
+    picture: yup.mixed().nullable(),
+    additionalComments: yup.string().nullable(),
   });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const formData = new FormData(e.target);
-
-    const payload = {
-      type: "faulty-medication",
-      fullName: formData.get("fullName") || "",
-      contactInfo: formData.get("phoneNumber") || "",
-      emailAddress: formData.get("emailAddress") || "",
-      age: formValues.current.age || "",
-      sex: formValues.current.sex || "",
-      dateOfReturn: formData.get("dateOfReturn") || "",
-
-      productName: formData.get("productName") || "",
-      batchNumber: formData.get("batchNumber") || "",
-      expiryDate: formData.get("expiryDate") || "",
-      issuedAt: formData.get("issuedAt") || "",
-      quantityReturned: parseInt(formData.get("quantityReturned")) || 0,
-
-      issueDescription:
-        formValues.current.issueDescription ||
-        formValues.current.faultyDevice ||
-        formData.get("otherIssue") ||
-        "",
-      issueDescriptionDetailed: formData.get("issueDescriptionDetailed") || "",
-
-      hasSideEffects: formValues.current.hasSideEffects,
-      sideEffectsDescription: formData.get("sideEffectsDescription") || "",
-
-      isRefunded: formValues.current.isRefunded,
-      isExchanged: formValues.current.isExchanged,
-      isInvestigationNeeded: formValues.current.isInvestigationNeeded,
-      isItemRequested: formValues.current.isItemRequested,
-      isYellowCardReported: formValues.current.isYellowCardReported,
-      actionDetails: formData.get("actionDetails") || "",
-
-      additionalComments: formData.get("additionalComments") || "",
-      receivedByName: formData.get("receivedBy") || "",
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+    reset,
+  } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      fullName: "",
+      contactInfo: "",
+      emailAddress: "",
+      dateOfReturn: new Date().toISOString().split("T")[0],
+      productName: "",
+      batchNumber: "",
+      expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1))
+        .toISOString()
+        .split("T")[0],
+      issuedAt: new Date().toISOString().split("T")[0],
+      quantityReturned: 0,
+      age: "",
+      sex: "",
+      typeOfIncident: "",
+      issueDescriptionDetailed: "",
+      hasSideEffects: false,
+      sideEffectsDescription: "",
+      isRefunded: false,
+      isExchanged: false,
+      isInvestigationNeeded: false,
+      isItemRequested: false,
+      isYellowCardReported: false,
+      actionDetails: "",
       receivedBy: null,
-      receivedDate: formData.get("receivedDate") || "",
-      dispensedBy: null,
-      checkedBy: null,
-      dispensedByName: formValues.current.dispensedBy || "",
-      checkedByName: formValues.current.checkedBy || "",
-      isDraft: false,
-      isDeleted: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+      receivedDate: new Date().toISOString().split("T")[0],
+      picture: null,
+      additionalComments: "",
+    },
+  });
 
+  const [imagePreview, setImagePreview] = useState(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [incidentReference, setIncidentReference] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const onSubmit = async (data) => {
     try {
+      setIsSubmitting(true);
+      const payload = {
+        type: "faulty-medication",
+        ...data,
+        isDraft: false,
+        isDeleted: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
       const response = await axios.post(
         `${API_BASE_URL}/api/v1/incidents`,
         payload
       );
 
       if (response.status === 200 || response.status === 201) {
-        alert("Form submitted successfully!");
-        e.target.reset();
-        formValues.current = {
-          age: "",
-          sex: "",
-          issueDescription: "",
-          faultyDevice: "",
-          hasSideEffects: false,
-          isRefunded: false,
-          isExchanged: false,
-          isInvestigationNeeded: false,
-          isItemRequested: false,
-          isYellowCardReported: false,
-          dispensedBy: "",
-          checkedBy: "",
-          dispensedByName: "",
-          checkedByName: "",
-        };
+        setIncidentReference(response.data.data.referenceNumber);
+        setShowSuccessModal(true);
+        setImagePreview(null);
+        reset();
+      } else {
+        alert(`Error: ${response.data.message || "Failed to submit form"}`);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
       alert(
-        `Error: ${error.response?.data?.message || "Failed to submit form"}`
+        error.response?.data?.message ||
+          "Failed to submit form. Please try again."
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await axios.post(
+          `${API_BASE_URL}/api/v1/common/upload-image`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        if (response.status === 200 || response.status === 201) {
+          setValue("picture", response.data.data.fileName);
+        }
+      } catch (error) {
+        console.error("Error uploading file:", error);
+        alert(
+          `Error: ${error.response?.data?.message || "Failed to upload file"}`
+        );
+        setImagePreview(null);
+      }
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
 
   return (
     <section className="mb-[50px] lg:mb-0">
@@ -167,154 +248,244 @@ const FaultyMedication = () => {
         </div>
         <hr className="bg-[#DAECFF] my-[16px] hidden md:flex" />
         <div className="px-[30px] pb-[20px] sm:pb-[30px] pt-0">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)} noValidate>
             <div className="grid grid-cols-1 gap-8">
               <div>
                 <h5 className="text-[18px]">Customer Information:</h5>
                 <hr className="bg-[#DAECFF] my-[16px]" />
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <Input
-                    type="text"
-                    name="fullName"
-                    placeholder="Enter your full name"
-                    className=" bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
-                  />
-                  <Input
-                    type="number"
-                    name="phoneNumber"
-                    placeholder="Phone Number"
-                    className=" bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
-                  />
-                  <Input
-                    type="email"
-                    name="emailAddress"
-                    placeholder="Email Address"
-                    className=" bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
-                  />
-                  <Input
-                    type="date"
-                    name="dateOfReturn"
-                    placeholder="Date of Return"
-                    className=" bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
-                  />
+                  <div>
+                    <Input
+                      {...register("fullName")}
+                      type="text"
+                      placeholder="Enter your full name"
+                      className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
+                        errors.fullName ? "border-red-500" : ""
+                      }`}
+                    />
+                    {errors.fullName && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.fullName.message}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <Input
+                      {...register("contactInfo")}
+                      type="tel"
+                      placeholder="Phone Number"
+                      className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
+                        errors.contactInfo ? "border-red-500" : ""
+                      }`}
+                    />
+                    {errors.contactInfo && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.contactInfo.message}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <Input
+                      {...register("emailAddress")}
+                      type="email"
+                      placeholder="Email Address"
+                      className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
+                        errors.emailAddress ? "border-red-500" : ""
+                      }`}
+                    />
+                    {errors.emailAddress && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.emailAddress.message}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <Select
+                      onValueChange={(value) => setValue("age", value)}
+                      className={`${errors.age ? "border-red-500" : ""}`}
+                    >
+                      <SelectTrigger className="w-full bg-[#F8F9FB] p-[16px] !h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
+                        <SelectValue placeholder="Age" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ageOptions.map((option) => (
+                          <SelectItem key={option.id} value={option.id}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {errors.age && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.age.message}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <Select
+                      onValueChange={(value) => setValue("sex", value)}
+                      className={`${errors.sex ? "border-red-500" : ""}`}
+                    >
+                      <SelectTrigger className="w-full bg-[#F8F9FB] p-[16px] !h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
+                        <SelectValue placeholder="Sex" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                        <SelectItem value="others">Others</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.sex && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.sex.message}
+                      </p>
+                    )}
+                  </div>
+                  <div className="lg:col-span-2">
+                    <label className="text-[#262262] block text-base font-semibold mb-2">
+                      Date of Return
+                    </label>
+                    <Input
+                      {...register("dateOfReturn")}
+                      type="date"
+                      placeholder="Date of Return"
+                      className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
+                        errors.dateOfReturn ? "border-red-500" : ""
+                      }`}
+                    />
+                    {errors.dateOfReturn && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.dateOfReturn.message}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
               <div>
                 <h5 className="text-[18px]">Medication/Device Information:</h5>
                 <hr className="bg-[#DAECFF] my-[16px]" />
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <Input
-                    type="text"
-                    name="productName"
-                    placeholder="Product Name (Medication/Device)"
-                    className=" bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
-                  />
-                  <Input
-                    type="text"
-                    name="batchNumber"
-                    placeholder="Batch/Lot Number (if available)"
-                    className=" bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
-                  />
-                  <Input
-                    type="date"
-                    name="expiryDate"
-                    placeholder="Expiry Date"
-                    className=" bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
-                  />
-                  <Input
-                    type="date"
-                    name="issuedAt"
-                    placeholder="Date issued to patient"
-                    className=" bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
-                  />
-                  <Input
-                    type="number"
-                    name="quantityReturned"
-                    placeholder="Quantity Returned"
-                    className=" bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
-                  />
-                  <Select
-                    onValueChange={(value) => (formValues.current.age = value)}
-                    className=""
-                  >
-                    <SelectTrigger className="w-full  bg-[#F8F9FB] p-[16px] !h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
-                      <SelectValue placeholder="Age" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ageOptions.map((option) => (
-                        <SelectItem key={option.id} value={option.id}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select
-                    onValueChange={(value) => (formValues.current.sex = value)}
-                    className=""
-                  >
-                    <SelectTrigger className="w-full  bg-[#F8F9FB] p-[16px] !h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
-                      <SelectValue placeholder="Sex" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="male">Male</SelectItem>
-                      <SelectItem value="female">Female</SelectItem>
-                      <SelectItem value="others">Others</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div>
+                    <Input
+                      {...register("productName")}
+                      type="text"
+                      placeholder="Product Name (Medication/Device)"
+                      className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
+                        errors.productName ? "border-red-500" : ""
+                      }`}
+                    />
+                    {errors.productName && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.productName.message}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <Input
+                      {...register("batchNumber")}
+                      type="text"
+                      placeholder="Batch/Lot Number (if available)"
+                      className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
+                        errors.batchNumber ? "border-red-500" : ""
+                      }`}
+                    />
+                    {errors.batchNumber && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.batchNumber.message}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="text-[#262262] block text-base font-semibold mb-2">
+                      Expiry Date
+                    </label>
+                    <Input
+                      {...register("expiryDate")}
+                      type="date"
+                      placeholder="Expiry Date"
+                      className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
+                        errors.expiryDate ? "border-red-500" : ""
+                      }`}
+                    />
+                    {errors.expiryDate && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.expiryDate.message}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="text-[#262262] block text-base font-semibold mb-2">
+                      Date Issued to Patient
+                    </label>
+                    <Input
+                      {...register("issuedAt")}
+                      type="date"
+                      placeholder="Date issued to patient"
+                      className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
+                        errors.issuedAt ? "border-red-500" : ""
+                      }`}
+                    />
+                    {errors.issuedAt && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.issuedAt.message}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="text-[#262262] block text-base font-semibold mb-2">
+                      Quantity Returned
+                    </label>
+                    <Input
+                      {...register("quantityReturned")}
+                      type="number"
+                      placeholder="Quantity Returned"
+                      className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
+                        errors.quantityReturned ? "border-red-500" : ""
+                      }`}
+                    />
+                    {errors.quantityReturned && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.quantityReturned.message}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
               <div>
                 <h5 className="text-[18px]">Issue Description:</h5>
                 <hr className="bg-[#DAECFF] my-[16px]" />
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <Select
-                    onValueChange={(value) =>
-                      (formValues.current.issueDescription = value)
-                    }
-                    className=""
-                  >
-                    <SelectTrigger className="w-full  bg-[#F8F9FB] p-[16px] !h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
-                      <SelectValue placeholder="Faulty Medication" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="faulty_medication_1">
-                        Faulty Medication
-                      </SelectItem>
-                      <SelectItem value="faulty_medication_2">
-                        Faulty Medication
-                      </SelectItem>
-                      <SelectItem value="faulty_medication_3">
-                        Faulty Medication
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select
-                    onValueChange={(value) =>
-                      (formValues.current.faultyDevice = value)
-                    }
-                    className=""
-                  >
-                    <SelectTrigger className="w-full  bg-[#F8F9FB] p-[16px] !h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
-                      <SelectValue placeholder="Faulty Device" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="faulty_device_1">
-                        Faulty Device
-                      </SelectItem>
-                      <SelectItem value="faulty_device_2">
-                        Faulty Device
-                      </SelectItem>
-                      <SelectItem value="faulty_device_3">
-                        Faulty Device
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Input
-                    type="text"
-                    name="otherIssue"
-                    placeholder="Other"
-                    className=" bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
-                  />
+                  <div>
+                    <label className="text-[#262262] block text-base font-semibold mb-2">
+                      Type of Incident
+                    </label>
+                    <Select
+                      onValueChange={(value) =>
+                        setValue("typeOfIncident", value)
+                      }
+                      className={`${
+                        errors.typeOfIncident ? "border-red-500" : ""
+                      }`}
+                    >
+                      <SelectTrigger className="w-full bg-[#F8F9FB] p-[16px] !h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
+                        <SelectValue placeholder="Select Type of Incident" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="faulty_medication">
+                          Faulty Medication
+                        </SelectItem>
+                        <SelectItem value="faulty_device">
+                          Faulty Device
+                        </SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.typeOfIncident && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.typeOfIncident.message}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
               <div>
@@ -323,45 +494,82 @@ const FaultyMedication = () => {
                 </h5>
                 <hr className="bg-[#DAECFF] my-[16px]" />
                 <div className="flex flex-col space-y-4">
-                  <Input
-                    type="text"
-                    name="issueDescriptionDetailed"
-                    placeholder="Detailed description of the issue"
-                    className=" bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
-                  />
+                  <div>
+                    <Input
+                      {...register("issueDescriptionDetailed")}
+                      type="text"
+                      placeholder="Detailed description of the issue"
+                      className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
+                        errors.issueDescriptionDetailed ? "border-red-500" : ""
+                      }`}
+                    />
+                    {errors.issueDescriptionDetailed && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.issueDescriptionDetailed.message}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
-              <div className="flex flex-col space-y-4 ">
-                <label
-                  htmlFor=""
-                  className="text-[#262262] text-base font-semibold mb-[14px]"
-                >
+              <div className="flex flex-col space-y-4">
+                <label className="text-[#262262] text-base font-semibold mb-[14px]">
                   Did you experience any side effects or adverse reactions?
                 </label>
-                {lfpseCheckbox.map((option) => (
-                  <div key={option.id} className="flex items-center space-x-3">
-                    <Checkbox
-                      id={`sideEffects-${option.id}`}
-                      onCheckedChange={(checked) =>
-                        (formValues.current.hasSideEffects =
-                          option.id === "yes" ? checked : !checked)
-                      }
-                      className="h-[20px] w-[20px] border-[#374151]"
-                    />
-                    <label
-                      htmlFor={`sideEffects-${option.id}`}
-                      className="text-[16px] font-normal text-[#374151]"
+                <div className="flex flex-col space-y-4">
+                  {lfpseCheckbox.map((option) => (
+                    <div
+                      key={option.id}
+                      className="flex items-center space-x-3"
                     >
-                      {option.label}
-                    </label>
+                      <Checkbox
+                        id={`sideEffects-${option.id}`}
+                        checked={
+                          watch("hasSideEffects") === (option.id === "yes")
+                        }
+                        onCheckedChange={(checked) => {
+                          setValue(
+                            "hasSideEffects",
+                            option.id === "yes" ? checked : !checked
+                          );
+                          if (!checked && option.id === "yes") {
+                            setValue("sideEffectsDescription", "");
+                          }
+                        }}
+                        className={`h-[20px] w-[20px] border-[#374151] ${
+                          errors.hasSideEffects ? "border-red-500" : ""
+                        }`}
+                      />
+                      <label
+                        htmlFor={`sideEffects-${option.id}`}
+                        className="text-[16px] font-normal text-[#374151]"
+                      >
+                        {option.label}
+                      </label>
+                    </div>
+                  ))}
+                  {errors.hasSideEffects && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.hasSideEffects.message}
+                    </p>
+                  )}
+                </div>
+                {watch("hasSideEffects") && (
+                  <div>
+                    <Input
+                      {...register("sideEffectsDescription")}
+                      type="text"
+                      placeholder="If yes, please describe"
+                      className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
+                        errors.sideEffectsDescription ? "border-red-500" : ""
+                      }`}
+                    />
+                    {errors.sideEffectsDescription && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.sideEffectsDescription.message}
+                      </p>
+                    )}
                   </div>
-                ))}
-                <Input
-                  type="text"
-                  name="sideEffectsDescription"
-                  placeholder="If yes, please describe"
-                  className=" bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
-                />
+                )}
               </div>
               <div>
                 <h5 className="text-[18px]">Action Taken:</h5>
@@ -372,11 +580,13 @@ const FaultyMedication = () => {
                       Refund:
                     </label>
                     <RadioGroup
-                      defaultValue=""
+                      value={watch("isRefunded") ? "yes" : "no"}
                       onValueChange={(value) =>
-                        (formValues.current.isRefunded = value === "yes")
+                        setValue("isRefunded", value === "yes")
                       }
-                      className="flex flex-wrap"
+                      className={`flex flex-wrap ${
+                        errors.isRefunded ? "border-red-500" : ""
+                      }`}
                     >
                       {lfpseCheckbox.map((option) => (
                         <div
@@ -398,17 +608,25 @@ const FaultyMedication = () => {
                         </div>
                       ))}
                     </RadioGroup>
+                    {errors.isRefunded && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.isRefunded.message}
+                      </p>
+                    )}
                   </div>
+
                   <div className="flex items-center space-x-3">
                     <label htmlFor="" className="text-base text-[#262262]">
                       Exchange:
                     </label>
                     <RadioGroup
-                      defaultValue=""
+                      value={watch("isExchanged") ? "yes" : "no"}
                       onValueChange={(value) =>
-                        (formValues.current.isExchanged = value === "yes")
+                        setValue("isExchanged", value === "yes")
                       }
-                      className="flex flex-wrap"
+                      className={`flex flex-wrap ${
+                        errors.isExchanged ? "border-red-500" : ""
+                      }`}
                     >
                       {lfpseCheckbox.map((option) => (
                         <div
@@ -430,18 +648,25 @@ const FaultyMedication = () => {
                         </div>
                       ))}
                     </RadioGroup>
+                    {errors.isExchanged && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.isExchanged.message}
+                      </p>
+                    )}
                   </div>
+
                   <div className="flex items-center space-x-3">
                     <label htmlFor="" className="text-base text-[#262262]">
                       Investigation needed:
                     </label>
                     <RadioGroup
-                      defaultValue=""
+                      value={watch("isInvestigationNeeded") ? "yes" : "no"}
                       onValueChange={(value) =>
-                        (formValues.current.isInvestigationNeeded =
-                          value === "yes")
+                        setValue("isInvestigationNeeded", value === "yes")
                       }
-                      className="flex "
+                      className={`flex ${
+                        errors.isInvestigationNeeded ? "border-red-500" : ""
+                      }`}
                     >
                       {lfpseCheckbox.map((option) => (
                         <div
@@ -463,17 +688,25 @@ const FaultyMedication = () => {
                         </div>
                       ))}
                     </RadioGroup>
+                    {errors.isInvestigationNeeded && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.isInvestigationNeeded.message}
+                      </p>
+                    )}
                   </div>
+
                   <div className="flex flex-wrap items-center space-x-3 space-y-2">
                     <label htmlFor="" className="text-base text-[#262262]">
                       Replacement Script / Item requested from Surgery:
                     </label>
                     <RadioGroup
-                      defaultValue=""
+                      value={watch("isItemRequested") ? "yes" : "no"}
                       onValueChange={(value) =>
-                        (formValues.current.isItemRequested = value === "yes")
+                        setValue("isItemRequested", value === "yes")
                       }
-                      className="flex flex-col md:flex-row"
+                      className={`flex flex-col md:flex-row ${
+                        errors.isItemRequested ? "border-red-500" : ""
+                      }`}
                     >
                       {lfpseCheckbox.map((option) => (
                         <div
@@ -495,7 +728,13 @@ const FaultyMedication = () => {
                         </div>
                       ))}
                     </RadioGroup>
+                    {errors.isItemRequested && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.isItemRequested.message}
+                      </p>
+                    )}
                   </div>
+
                   <div className="flex flex-wrap items-center space-x-3 space-y-2">
                     <label htmlFor="" className="text-base text-[#262262]">
                       Yellow card Reported{" "}
@@ -508,12 +747,13 @@ const FaultyMedication = () => {
                       :
                     </label>
                     <RadioGroup
-                      defaultValue=""
+                      value={watch("isYellowCardReported") ? "yes" : "no"}
                       onValueChange={(value) =>
-                        (formValues.current.isYellowCardReported =
-                          value === "yes")
+                        setValue("isYellowCardReported", value === "yes")
                       }
-                      className="flex flex-col md:flex-row"
+                      className={`flex flex-col md:flex-row ${
+                        errors.isYellowCardReported ? "border-red-500" : ""
+                      }`}
                     >
                       {lfpseCheckbox.map((option) => (
                         <div
@@ -535,95 +775,154 @@ const FaultyMedication = () => {
                         </div>
                       ))}
                     </RadioGroup>
+                    {errors.isYellowCardReported && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.isYellowCardReported.message}
+                      </p>
+                    )}
                   </div>
-                  <Input
-                    type="text"
-                    name="actionDetails"
-                    placeholder="please specify details from report"
-                    className=" bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
-                  />
-                </div>
 
+                  <div>
+                    <Input
+                      {...register("actionDetails")}
+                      type="text"
+                      placeholder="please specify details from report"
+                      className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
+                        errors.actionDetails ? "border-red-500" : ""
+                      }`}
+                    />
+                    {errors.actionDetails && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.actionDetails.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div>
                 <h5 className="text-[18px] mt-[20px]">
                   Any Additional Notes/Comments:
                 </h5>
                 <hr className="bg-[#DAECFF] my-[16px]" />
                 <div className="flex flex-col space-y-4">
-                  <Input
-                    type="text"
-                    name="additionalComments"
-                    placeholder="Enter your notes/comments"
-                    className=" bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
-                  />
+                  <div>
+                    <Input
+                      {...register("additionalComments")}
+                      type="text"
+                      placeholder="Enter your notes/comments"
+                      className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
+                        errors.additionalComments ? "border-red-500" : ""
+                      }`}
+                    />
+                    {errors.additionalComments && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.additionalComments.message}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
 
               <div>
-                <h5 className="text-[18px]">Pharmacy Staff Use Only:</h5>
+                <h5 className="text-[18px]">Pharmacy Staff Use Only</h5>
                 <hr className="bg-[#DAECFF] my-[16px]" />
-                <div className="flex flex-col md:flex-row  space-x-6 space-y-4">
-                  <Input
-                    type="text"
-                    name="receivedBy"
-                    placeholder="Received By"
-                    className=" bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
-                  />
-                  <Input
-                    type="date"
-                    name="receivedDate"
-                    placeholder="Date"
-                    className=" bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
-                  />
+                <div className="flex flex-col space-y-4">
+                  <div className="w-full">
+                    <Input
+                      {...register("receivedByName")}
+                      type="text"
+                      placeholder="Received By"
+                      className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
+                        errors.receivedByName ? "border-red-500" : ""
+                      }`}
+                    />
+                    {errors.receivedByName && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.receivedByName.message}
+                      </p>
+                    )}
+                  </div>
+                  <div className="w-full">
+                    <label className="text-[#262262] block text-base font-semibold mb-2">
+                      Date Received
+                    </label>
+                    <Input
+                      {...register("receivedDate")}
+                      type="date"
+                      placeholder="Date"
+                      className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
+                        errors.receivedDate ? "border-red-500" : ""
+                      }`}
+                    />
+                    {errors.receivedDate && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.receivedDate.message}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
-              <div>
-                <h5 className="text-[18px]">Dispensed by (Optional)</h5>
-                <hr className="bg-[#DAECFF] my-[16px]" />
-                <Select
-                  onValueChange={(value) =>
-                    (formValues.current.dispensedBy = value)
-                  }
-                  className=""
-                >
-                  <SelectTrigger className="w-full  bg-[#F8F9FB] p-[16px] !h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
-                    <SelectValue placeholder="Select One" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Demo User 1">Demo User 1</SelectItem>
-                    <SelectItem value="Demo User 2">Demo User 2</SelectItem>
-                    <SelectItem value="Demo User 3">Demo User 3</SelectItem>
-                  </SelectContent>
-                </Select>
-                <h5 className="text-[18px] mt-[20px]">Checked by (Optional)</h5>
-                <hr className="bg-[#DAECFF] my-[16px]" />
-                <Select
-                  onValueChange={(value) =>
-                    (formValues.current.checkedBy = value)
-                  }
-                  className=""
-                >
-                  <SelectTrigger className="w-full  bg-[#F8F9FB] p-[16px] !h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
-                    <SelectValue placeholder="Select One" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Demo User 1">Demo User 1</SelectItem>
-                    <SelectItem value="Demo User 2">Demo User 2</SelectItem>
-                    <SelectItem value="Demo User 3">Demo User 3</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            </div>
+            <div className="mt-[30px]">
+              <h5 className="text-[18px]">Upload picture (optional)</h5>
+              <hr className="bg-[#DAECFF] my-[16px]" />
+              <label
+                htmlFor="file-upload"
+                className="flex items-center justify-center gap-2.5 text-[#4B5563] rounded-[6px] h-[89px] text-base bg-[#F8F9FB] border-2 border-[#DAECFF] cursor-pointer"
+              >
+                <Upload /> Upload your file
+                <input
+                  type="file"
+                  id="file-upload"
+                  onChange={handleFileUpload}
+                  accept="image/*"
+                  style={{ display: "none" }}
+                />
+              </label>
+              {imagePreview && (
+                <div className="mt-4">
+                  <Image
+                    src={imagePreview}
+                    alt="Preview"
+                    width={300}
+                    height={300}
+                    className="object-contain rounded-lg border border-[#DAECFF]"
+                  />
+                </div>
+              )}
             </div>
             <div className="flex justify-end flex-wrap gap-4 mb-5 mt-[30px] items-end">
-              <Button className="primary-btn !bg-transparent !border-[#262262] !text-[#262262] !py-[24px] max-w-[365px] w-full sm:!text-[18px] !text-[16px] cursor-pointer capitalize hover:!bg-[#99C729] hover:!text-white hover:!border-[#99C729]">
+              <Button
+                type="button"
+                className="primary-btn !bg-transparent !border-[#262262] !text-[#262262] !py-[24px] max-w-[365px] w-full sm:!text-[18px] !text-[16px] cursor-pointer capitalize hover:!bg-[#99C729] hover:!text-white hover:!border-[#99C729]"
+              >
                 save draft
               </Button>
-              <Button className="flex items-center gap-[16px] text-[#fff] transition-all duration-300  hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group max-w-[365px] w-full text-[18px] cursor-pointer">
-                Submit Incident
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex items-center gap-[16px] text-[#fff] transition-all duration-300 hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group max-w-[365px] w-full text-[18px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Spinner className="text-white" size="sm" />
+                    Submitting...
+                  </>
+                ) : (
+                  "Submit Incident"
+                )}
               </Button>
             </div>
           </form>
         </div>
       </div>
+
+      <IncidentSavedDialog
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        reference={incidentReference}
+      />
     </section>
   );
 };

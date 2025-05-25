@@ -17,9 +17,18 @@ import {
 } from "@/components/ui/select";
 import { API_BASE_URL } from "@/config/constant";
 import Image from "next/image";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import IncidentSavedDialog from "@/components/Incident/incident-saved-dialog";
+import { Spinner } from "@/components/ui/spinner";
 
 const NearMiss = () => {
   const [selectedErrorTypes, setSelectedErrorTypes] = useState([]);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [incidentReference, setIncidentReference] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const errorCheckbox = [
     { id: "near-miss", label: "Near Miss" },
@@ -50,16 +59,52 @@ const NearMiss = () => {
     { id: "lasa", label: "LASA" },
   ];
 
-  const formValues = useRef({
-    errorType: "",
-    highRisk: "",
-    dispensedBy: "",
-    checkedBy: "",
-    errorCode: "",
-    picture: null,
+  const schema = yup.object().shape({
+    errorType: yup
+      .array()
+      .min(1, "Please select at least one error type")
+      .required(),
+    highRisk: yup
+      .array()
+      .min(1, "Please select at least one high risk type")
+      .required(),
+    errorCode: yup
+      .array()
+      .min(1, "Please select at least one error code")
+      .required(),
+    drugName: yup.string().required("Please enter the drug name"),
+    possibleCause: yup.string().required("Please enter the possible cause"),
+    actionTaken: yup.string().required("Please enter the action taken"),
+    dispensedBy: yup.string().nullable(),
+    checkedBy: yup.string().nullable(),
+    dispensedByName: yup.string().nullable(),
+    checkedByName: yup.string().nullable(),
+    picture: yup.mixed().nullable(),
   });
 
-  const [imagePreview, setImagePreview] = useState(null);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+    reset,
+  } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      errorType: [],
+      highRisk: [],
+      errorCode: [],
+      drugName: "",
+      possibleCause: "",
+      actionTaken: "",
+      dispensedBy: null,
+      checkedBy: null,
+      dispensedByName: null,
+      checkedByName: null,
+      picture: null,
+    },
+  });
 
   const handleErrorTypeChange = (id) => {
     setSelectedErrorTypes((prev) => {
@@ -73,64 +118,39 @@ const NearMiss = () => {
 
   const isOptional = selectedErrorTypes.some((type) => type === "other");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const formData = new FormData(e.target);
-
-    const errorType = errorCheckbox
-      .filter((option) => document.getElementById(option.id).checked)
-      .map((option) => option.id);
-
-    const highRisk = riskCheckbox
-      .filter((option) => document.getElementById(option.id).checked)
-      .map((option) => option.id);
-
-    const errorCode = typeErrorCheckbox
-      .filter((option) => document.getElementById(option.id).checked)
-      .map((option) => option.id);
-
-    const payload = {
-      type: "near-miss",
-      errorType: errorType.length > 0 ? errorType : [],
-      highRisk: highRisk.length > 0 ? highRisk : [],
-      errorCode: errorCode.length > 0 ? errorCode : [],
-      drugName: formData.get("drugName") || "",
-      possibleCause: formData.get("possibleCause") || "",
-      actionTaken: formData.get("actionTaken") || "",
-      picture: formValues.current.picture || null,
-      dispensedBy: null,
-      checkedBy: null,
-      dispensedByName: formValues.current.dispensedBy || "",
-      checkedByName: formValues.current.checkedBy || "",
-      isDraft: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
+  const onSubmit = async (data) => {
     try {
+      setIsSubmitting(true);
+      const payload = {
+        type: "near-miss",
+        ...data,
+        isDraft: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
       const response = await axios.post(
         `${API_BASE_URL}/api/v1/incidents`,
         payload
       );
 
       if (response.status === 200 || response.status === 201) {
-        alert("Near miss incident submitted successfully!");
-        e.target.reset();
-        formValues.current = {
-          errorType: "",
-          highRisk: "",
-          dispensedBy: "",
-          checkedBy: "",
-          errorCode: "",
-          picture: null,
-        };
+        setIncidentReference(response.data.data.referenceNumber);
+        setShowSuccessModal(true);
+        setImagePreview(null);
+        reset();
+        setSelectedErrorTypes([]);
+      } else {
+        alert(`Error: ${response.data.message || "Failed to submit form"}`);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
       alert(
-        `Error: ${error.response?.data?.message || "Failed to submit form"}`
+        error.response?.data?.message ||
+          "Failed to submit form. Please try again."
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -156,7 +176,7 @@ const NearMiss = () => {
         );
 
         if (response.status === 200 || response.status === 201) {
-          formValues.current.picture = response.data.data.fileName;
+          setValue("picture", response.data.data.fileName);
         }
       } catch (error) {
         console.error("Error uploading file:", error);
@@ -205,7 +225,7 @@ const NearMiss = () => {
         </div>
         <hr className="bg-[#DAECFF] my-[16px] hidden md:flex" />
         <div className="px-[30px] pb-[20px] sm:pb-[30px] pt-0">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)} noValidate>
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
               <div>
                 <h5 className="text-[18px]">Type of Error</h5>
@@ -219,8 +239,21 @@ const NearMiss = () => {
                       <Checkbox
                         id={option.id}
                         className="h-[20px] w-[20px] border-[#374151]"
-                        checked={selectedErrorTypes.includes(option.id)}
-                        onCheckedChange={() => handleErrorTypeChange(option.id)}
+                        checked={watch("errorType")?.includes(option.id)}
+                        onCheckedChange={(checked) => {
+                          const currentValues = watch("errorType") || [];
+                          if (checked) {
+                            setValue("errorType", [
+                              ...currentValues,
+                              option.id,
+                            ]);
+                          } else {
+                            setValue(
+                              "errorType",
+                              currentValues.filter((id) => id !== option.id)
+                            );
+                          }
+                        }}
                       />
                       <label
                         htmlFor={option.id}
@@ -230,6 +263,11 @@ const NearMiss = () => {
                       </label>
                     </div>
                   ))}
+                  {errors.errorType && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.errorType.message}
+                    </p>
+                  )}
                 </div>
               </div>
               <div>
@@ -244,6 +282,18 @@ const NearMiss = () => {
                       <Checkbox
                         id={option.id}
                         className="h-[20px] w-[20px] border-[#374151]"
+                        checked={watch("highRisk")?.includes(option.id)}
+                        onCheckedChange={(checked) => {
+                          const currentValues = watch("highRisk") || [];
+                          if (checked) {
+                            setValue("highRisk", [...currentValues, option.id]);
+                          } else {
+                            setValue(
+                              "highRisk",
+                              currentValues.filter((id) => id !== option.id)
+                            );
+                          }
+                        }}
                       />
                       <label
                         htmlFor={option.id}
@@ -253,6 +303,11 @@ const NearMiss = () => {
                       </label>
                     </div>
                   ))}
+                  {errors.highRisk && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.highRisk.message}
+                    </p>
+                  )}
                 </div>
               </div>
               <div>
@@ -264,9 +319,7 @@ const NearMiss = () => {
                 </h5>
                 <hr className="bg-[#DAECFF] my-[16px]" />
                 <Select
-                  onValueChange={(value) =>
-                    (formValues.current.dispensedBy = value)
-                  }
+                  onValueChange={(value) => setValue("dispensedByName", value)}
                   className=""
                 >
                   <SelectTrigger className="w-full  bg-[#F8F9FB] p-[16px] !h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
@@ -286,9 +339,7 @@ const NearMiss = () => {
                 </h5>
                 <hr className="bg-[#DAECFF] my-[16px]" />
                 <Select
-                  onValueChange={(value) =>
-                    (formValues.current.checkedBy = value)
-                  }
+                  onValueChange={(value) => setValue("checkedByName", value)}
                   className=""
                 >
                   <SelectTrigger className="w-full  bg-[#F8F9FB] p-[16px] !h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
@@ -313,6 +364,21 @@ const NearMiss = () => {
                       <Checkbox
                         id={option.id}
                         className="h-[20px] w-[20px] border-[#374151]"
+                        checked={watch("errorCode")?.includes(option.id)}
+                        onCheckedChange={(checked) => {
+                          const currentValues = watch("errorCode") || [];
+                          if (checked) {
+                            setValue("errorCode", [
+                              ...currentValues,
+                              option.id,
+                            ]);
+                          } else {
+                            setValue(
+                              "errorCode",
+                              currentValues.filter((id) => id !== option.id)
+                            );
+                          }
+                        }}
                       />
                       <label
                         htmlFor={option.id}
@@ -322,6 +388,11 @@ const NearMiss = () => {
                       </label>
                     </div>
                   ))}
+                  {errors.errorCode && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.errorCode.message}
+                    </p>
+                  )}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[32px] mt-[30px]">
                   <div className="space-y-3 flex flex-col justify-between">
@@ -332,12 +403,20 @@ const NearMiss = () => {
                       Name and Brand or Drug (supposed to be)
                     </label>
                     <Input
+                      {...register("drugName")}
                       type="text"
                       name="drugName"
                       id="drugName"
                       placeholder="Write a short answer here."
-                      className=" bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
+                      className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
+                        errors.drugName ? "border-red-500" : ""
+                      }`}
                     />
+                    {errors.drugName && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.drugName.message}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-3 flex flex-col justify-between">
                     <label
@@ -347,12 +426,20 @@ const NearMiss = () => {
                       Possible cause / other information
                     </label>
                     <Input
+                      {...register("possibleCause")}
                       type="text"
                       name="possibleCause"
                       id="possibleCause"
                       placeholder="Write a short answer here."
-                      className=" bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
+                      className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
+                        errors.possibleCause ? "border-red-500" : ""
+                      }`}
                     />
+                    {errors.possibleCause && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.possibleCause.message}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-3 flex flex-col justify-between">
                     <label
@@ -362,12 +449,20 @@ const NearMiss = () => {
                       Action Taken
                     </label>
                     <Input
+                      {...register("actionTaken")}
                       type="text"
                       name="actionTaken"
                       id="actionTaken"
                       placeholder="Write a short answer here."
-                      className=" bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]"
+                      className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
+                        errors.actionTaken ? "border-red-500" : ""
+                      }`}
                     />
+                    {errors.actionTaken && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.actionTaken.message}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -406,17 +501,37 @@ const NearMiss = () => {
                 )}
               </div>
               <div className="flex justify-end flex-wrap gap-4 mb-5 items-end">
-                <Button className="primary-btn !bg-transparent !border-[#262262] !text-[#262262] !py-[24px] max-w-[365px] w-full sm:!text-[18px] !text-[16px] cursor-pointer capitalize hover:!bg-[#99C729] hover:!text-white hover:!border-[#99C729]">
+                <Button
+                  type="button"
+                  className="primary-btn !bg-transparent !border-[#262262] !text-[#262262] !py-[24px] max-w-[365px] w-full sm:!text-[18px] !text-[16px] cursor-pointer capitalize hover:!bg-[#99C729] hover:!text-white hover:!border-[#99C729]"
+                >
                   save draft
                 </Button>
-                <Button className="flex items-center gap-[16px] text-[#fff] transition-all duration-300  hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group max-w-[365px] w-full text-[18px] cursor-pointer">
-                  Submit Incident
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex items-center gap-[16px] text-[#fff] transition-all duration-300 hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group max-w-[365px] w-full text-[18px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Spinner className="text-white" size="sm" />
+                      Submitting...
+                    </>
+                  ) : (
+                    "Submit Incident"
+                  )}
                 </Button>
               </div>
             </div>
           </form>
         </div>
       </div>
+
+      <IncidentSavedDialog
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        reference={incidentReference}
+      />
     </section>
   );
 };
