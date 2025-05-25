@@ -11,6 +11,19 @@ import {
 } from "@/components/ui/dialog";
 import toKebabCase from "@/helpers/toKebabCase";
 
+const formatKey = (key) => {
+  const formattedKey = key.replace(/^(is|has)(?=[A-Z])/, "");
+  return formattedKey.replace(/([A-Z])/g, " $1").trim();
+};
+
+const excludeFields = [
+  "id",
+  "isDeleted",
+  "checkedBy",
+  "dispensedBy",
+  "receivedBy",
+];
+
 const ViewIncidentModal = ({ incident, onClose }) => {
   const [incidentData, setIncidentData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -55,30 +68,52 @@ const ViewIncidentModal = ({ incident, onClose }) => {
 
         {!loading && !error && incidentData && (
           <div className="space-y-4 mt-4">
-            {Object.entries(incidentData).map(([key, value]) => (
-              <div key={key} className="border-b pb-2">
-                <span className="font-semibold capitalize">
-                  {key.replace(/([A-Z])/g, " $1").trim()}:{" "}
-                </span>
-                <span>
-                  {key === "picture" ? (
-                    <div className="mt-2">
-                      <Image
-                        src={`${API_BASE_URL}/public/img/${value}`}
-                        alt="Incident picture"
-                        width={400}
-                        height={300}
-                        className="rounded-lg object-cover"
-                      />
-                    </div>
-                  ) : typeof value === "boolean" ? (
-                    value.toString()
-                  ) : (
-                    value
-                  )}
-                </span>
-              </div>
-            ))}
+            {Object.entries(incidentData)
+              .filter(([key]) => !excludeFields.includes(key))
+              .map(([key, value]) => (
+                <div key={key} className="border-b pb-2">
+                  <span className="font-semibold capitalize">
+                    {formatKey(key)}:{" "}
+                  </span>
+                  <span>
+                    {(() => {
+                      if (key === "picture") {
+                        if (value) {
+                          return (
+                            <div className="mt-2">
+                              <Image
+                                src={`${API_BASE_URL}/public/img/${value}`}
+                                alt="Incident picture"
+                                width={400}
+                                height={300}
+                                className="rounded-lg object-cover"
+                              />
+                            </div>
+                          );
+                        }
+                        return "No image";
+                      }
+                      if (typeof value === "boolean") {
+                        return value.toString();
+                      }
+                      if (key === "createdAt" || key === "updatedAt") {
+                        return new Date(value)
+                          .toLocaleDateString("en-GB", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          })
+                          .replace(/(\d+)(?=(st|nd|rd|th))/, "$1$2")
+                          .replace(/(am|pm)/i, (match) => match.toUpperCase());
+                      }
+                      return value;
+                    })()}
+                  </span>
+                </div>
+              ))}
           </div>
         )}
       </DialogContent>

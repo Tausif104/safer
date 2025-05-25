@@ -51,7 +51,13 @@ const MainSidebar = () => {
 
       {/* Logo Section */}
       <div className="logo mb-[45px]">
-        <Link href={isAuthenticated && user?.role === "pharmacist" ? "/dashboard-login-technician" : "/"}>
+        <Link
+          href={
+            isAuthenticated && user?.role === "pharmacist"
+              ? "/dashboard-login-technician"
+              : "/"
+          }
+        >
           <Image
             className="mx-auto w-[180px] lg:w-[220px]"
             src={HeaderLogo}
@@ -65,7 +71,11 @@ const MainSidebar = () => {
         <ul className="flex flex-col gap-[5px] mb-[20px] lg:mb-[40px] text-[14px] lg:text-[16px]">
           <li>
             <Link
-              href={isAuthenticated && user?.role === "pharmacist" ? "/dashboard-login-technician" : "/"}
+              href={
+                isAuthenticated && user?.role === "pharmacist"
+                  ? "/dashboard-login-technician"
+                  : "/"
+              }
               className={`${
                 pathname === "/" ? "active" : ""
               } menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
@@ -160,7 +170,11 @@ const MainSidebar = () => {
 
           <li>
             <Link
-              href={isAuthenticated && user?.role === "pharmacist" ? "/dashboard-login-technician" : "/"}
+              href={
+                isAuthenticated && user?.role === "pharmacist"
+                  ? "/dashboard-login-technician"
+                  : "/"
+              }
               className={`${
                 pathname === "/features" ? "active" : ""
               } menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}

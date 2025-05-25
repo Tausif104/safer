@@ -99,36 +99,36 @@ const pharmacies = [
 
 const ListOfPharmacies = () => {
   return (
-    <section className='bg-white rounded-[16px] px-0 p-[20px] sm:p-[30px] pt-0 sm:pt-[30px]'>
+    <section className="bg-white rounded-[16px] px-0 p-[20px] sm:p-[30px] pt-0 sm:pt-[30px]">
       <div>
-        <div className='flex justify-between flex-wrap gap-4 mb-5'>
-          <h4 className='text-[16px] sm:text-[25px]'>
+        <div className="flex justify-between flex-wrap gap-4 mb-5">
+          <h4 className="text-[16px] sm:text-[25px]">
             List of Pharmacies Joined (last 7 days)
           </h4>
-          <Link href='/' className='text-[14px] sm:text-[18px] text-[#3B82F6]'>
+          <Link href="/" className="text-[14px] sm:text-[18px] text-[#3B82F6]">
             See All
           </Link>
         </div>
         <div>
           <Table>
             <TableHeader>
-              <TableRow className='bg-[#F8F9FB] border-0 text-[16px]'>
-                <TableHead className='text-black font-semibold p-[20px] min-w-[250px]'>
+              <TableRow className="bg-[#F8F9FB] border-0 text-[16px]">
+                <TableHead className="text-black font-semibold p-[20px] min-w-[250px]">
                   Name
                 </TableHead>
-                <TableHead className='text-black font-semibold p-[20px]'>
+                <TableHead className="text-black font-semibold p-[20px]">
                   ODS Code
                 </TableHead>
-                <TableHead className='text-black font-semibold p-[20px]'>
+                <TableHead className="text-black font-semibold p-[20px]">
                   Address
                 </TableHead>
-                <TableHead className='text-black font-semibold p-[20px]'>
+                <TableHead className="text-black font-semibold p-[20px]">
                   Town
                 </TableHead>
-                <TableHead className='text-black font-semibold p-[20px]'>
+                <TableHead className="text-black font-semibold p-[20px]">
                   Post Code
                 </TableHead>
-                <TableHead className='text-black font-semibold p-[20px]'></TableHead>
+                <TableHead className="text-black font-semibold p-[20px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -136,47 +136,47 @@ const ListOfPharmacies = () => {
                 const IconComponent = iconMap[pharmacy.iconKey];
                 return (
                   <TableRow key={index}>
-                    <TableCell className='py-[8px] px-[20px] border-b border-[#DAECFF]'>
-                      <div className='flex items-center gap-3.5'>
+                    <TableCell className="py-[8px] px-[20px] border-b border-[#DAECFF]">
+                      <div className="flex items-center gap-3.5">
                         {IconComponent && (
                           <Image
                             src={IconComponent}
                             alt={`${pharmacy.name} icon`}
                             width={42}
                             height={42}
-                            className='rounded-full'
+                            className="rounded-full"
                           />
                         )}
-                        <div className='flex flex-col'>
-                          <h6 className='text-[14px] font-medium mb-1'>
+                        <div className="flex flex-col">
+                          <h6 className="text-[14px] font-medium mb-1">
                             {pharmacy.name}
                           </h6>
-                          <p className='text-[12px] text-[#707B8A]'>
+                          <p className="text-[12px] text-[#707B8A]">
                             {pharmacy.email}
                           </p>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className='py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]'>
+                    <TableCell className="py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]">
                       {pharmacy.ods_code}
                     </TableCell>
-                    <TableCell className='py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]'>
+                    <TableCell className="py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]">
                       {pharmacy.address}
                     </TableCell>
-                    <TableCell className='py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]'>
+                    <TableCell className="py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]">
                       {pharmacy.town}
                     </TableCell>
-                    <TableCell className='py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]'>
+                    <TableCell className="py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]">
                       {pharmacy.post_code}
                     </TableCell>
-                    <TableCell className='text-right py-[8px] px-[20px] border-b border-[#DAECFF]'>
+                    <TableCell className="text-right py-[8px] px-[20px] border-b border-[#DAECFF]">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button className='!bg-transparent text-[#707B8A] cursor-pointer focus:outline-0 focus:shadow-none'>
+                          <Button className="!bg-transparent text-[#707B8A] cursor-pointer focus:outline-0 focus:shadow-none">
                             <HiDotsVertical />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align='end'>
+                        <DropdownMenuContent align="end">
                           <DropdownMenuItem>View</DropdownMenuItem>
                           <DropdownMenuItem>Edit</DropdownMenuItem>
                           <DropdownMenuItem>Delete</DropdownMenuItem>
