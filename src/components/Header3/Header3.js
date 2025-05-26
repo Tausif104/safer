@@ -1,12 +1,13 @@
 "use client";
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import SearchIcon from "@/assets/images/search-icon.svg";
 import Bell from "@/assets/images/bell.svg";
 import userProfile from "@/assets/images/user-profile.svg";
 import userProfile2 from "@/assets/images/user-profile2.svg";
 import userProfile3 from "@/assets/images/user-profile3.svg";
+import { API_BASE_URL } from "@/config/constant";
 import {
   Popover,
   PopoverContent,
@@ -18,6 +19,14 @@ import { useRootContext } from "@/provider/context";
 import { GiCheckMark } from "react-icons/gi";
 import { useRouter } from "next/navigation";
 import useAuthStore from "@/store/useAuthStore";
+import axios from "axios";
+import ViewIncidentModal from "@/components/Incident/ViewIncidentModal";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 import User from "@/assets/images/user.svg";
 import Settings from "@/assets/images/settings.svg";
@@ -30,11 +39,50 @@ const Header = () => {
   const { user, setIsAuthenticated, setUser } = useAuthStore();
   const router = useRouter();
   const { handleToggle } = useRootContext();
+  const [searchResult, setSearchResult] = useState(null);
+  const [showNoResultDialog, setShowNoResultDialog] = useState(false);
 
   const handleLogout = () => {
     setIsAuthenticated(false);
     setUser(null);
     router.push("/");
+  };
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    const searchQuery = e.target.search.value;
+
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/api/v1/incidents/search?query=${encodeURIComponent(
+          searchQuery
+        )}`
+      );
+
+      if (response.status === 200) {
+        if (response.data.data?.incidentData) {
+          console.log('reached here', response.data.data.incidentData);
+          setSearchResult({...response.data.data.incidentData, incidentType: response.data.data.incidentType});
+        } else {
+          setShowNoResultDialog(true);
+        }
+      } else {
+        console.error("Search failed:", response.data.message);
+      }
+    } catch (error) {
+      console.error("Error performing search:", error);
+      alert(
+        error.response?.data?.message || "Search failed. Please try again."
+      );
+    }
+  };
+
+  const handleCloseModal = () => {
+    setSearchResult(null);
+  };
+
+  const handleCloseNoResultDialog = () => {
+    setShowNoResultDialog(false);
   };
 
   return (
@@ -230,7 +278,10 @@ const Header = () => {
               <HiOutlineBars3 />
             </div>
           </div>
-          <div className="relative group hidden sm:flex">
+          <form
+            onSubmit={handleSearch}
+            className="relative group hidden sm:flex"
+          >
             <input
               className="w-0 opacity-0 border border-[#E7FBBD] sm:border-[#DAECFF] bg-white leading-[60px] px-[24px] pr-[50px] rounded-full placeholder:text-[#707B8A] focus:outline-0 focus:shadow-none transition-all duration-300 origin-right group-hover:w-full group-hover:opacity-100"
               type="search"
@@ -244,7 +295,7 @@ const Header = () => {
             >
               <Image className="" width={20} src={SearchIcon} alt="" />
             </button>
-          </div>
+          </form>
         </div>
         <div className="sm:order-1 flex items-center gap-[20px]">
           <div className="rounded-[8px] border border-[#3B8D0B] p-[10px]">
@@ -265,7 +316,10 @@ const Header = () => {
               <p className="text-[16px]">8502 Preston Rd. Inglewood, Maine </p>
             </div>
           </div>
-          <div className="flex relative group sm:hidden w-full">
+          <form
+            onSubmit={handleSearch}
+            className="flex relative group sm:hidden w-full"
+          >
             <input
               className="w-full border border-[#E7FBBD] sm:border-[#DAECFF] bg-white leading-[60px] px-[24px] pr-[50px] rounded-full placeholder:text-[#707B8A] focus:outline-0 focus:shadow-none transition-all duration-300 origin-right"
               type="search"
@@ -279,9 +333,25 @@ const Header = () => {
             >
               <Image className="" width={20} src={SearchIcon} alt="" />
             </button>
-          </div>
+          </form>
         </div>
       </header>
+
+      {searchResult && (
+        <ViewIncidentModal incident={searchResult} onClose={handleCloseModal} />
+      )}
+
+      <Dialog
+        open={showNoResultDialog}
+        onOpenChange={handleCloseNoResultDialog}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Search Result</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">No Incident found</div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
