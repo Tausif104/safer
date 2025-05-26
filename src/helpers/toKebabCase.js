@@ -1,3 +1,3 @@
 export default function toKebabCase(str) {
-  return str?.toLowerCase().replace(/\s+/g, "-");
+  return str?.toLowerCase().replace(/[\s_]+/g, "-");
 }
