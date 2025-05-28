@@ -20,7 +20,7 @@ const SignUpTechnician = () => {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [ReshowPassword, reSetShowPassword] = useState(false);
-  const { setSigningUpEmail, setUser } = useAuthStore();
+  const { setSigningUpEmail, setUser, setToken } = useAuthStore();
   const handleSubmit = async (e) => {
     e.preventDefault();
     const password = e.target.password.value;
@@ -49,7 +49,8 @@ const SignUpTechnician = () => {
       );
       if (response.status === 200) {
         console.log("response.data", response.data);
-        setUser(response.data?.data);
+        setUser(response.data?.data?.user);
+        setToken(response.data?.data?.token);
         router.push("/signup-technician/technician-verification");
       }
     } catch (error) {

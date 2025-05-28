@@ -36,15 +36,14 @@ import { LuMapPin } from "react-icons/lu";
 import { RiEditLine } from "react-icons/ri";
 
 const Header = () => {
-  const { user, setIsAuthenticated, setUser } = useAuthStore();
+  const { user, pharmacy, logout } = useAuthStore();
   const router = useRouter();
   const { handleToggle } = useRootContext();
   const [searchResult, setSearchResult] = useState(null);
   const [showNoResultDialog, setShowNoResultDialog] = useState(false);
 
   const handleLogout = () => {
-    setIsAuthenticated(false);
-    setUser(null);
+    logout();
     router.push("/");
   };
 
@@ -61,8 +60,11 @@ const Header = () => {
 
       if (response.status === 200) {
         if (response.data.data?.incidentData) {
-          console.log('reached here', response.data.data.incidentData);
-          setSearchResult({...response.data.data.incidentData, incidentType: response.data.data.incidentType});
+          console.log("reached here", response.data.data.incidentData);
+          setSearchResult({
+            ...response.data.data.incidentData,
+            incidentType: response.data.data.incidentType,
+          });
         } else {
           setShowNoResultDialog(true);
         }
@@ -91,7 +93,7 @@ const Header = () => {
         <div className="flex sm:justify-end justify-between items-center gap-[15px] sm:order-2">
           <div className="sm:order-2">
             <Popover>
-              <PopoverTrigger asChild>
+              <PopoverTrigger asChild className="cursor-pointer">
                 <button className="flex gap-[12px]">
                   <div>
                     <Image
@@ -103,10 +105,10 @@ const Header = () => {
                   <div className="flex items-center gap-2.5">
                     <div className="text-left">
                       <h6 className="text-[18px] mb-1">
-                        {user?.name || "John Diggle"}
+                        {user?.name || "Unnamed User"}
                       </h6>
                       <p className="text-[14px]">
-                        GPHC Number: {user?.gphcNumber || "73847"}
+                        GPHC Number: {user?.gphcNumber || "N/A"}
                       </p>
                     </div>
                     <div>
@@ -208,7 +210,7 @@ const Header = () => {
                     </li>
                     <li className="">
                       <Link
-                        href="/"
+                        href="/settings"
                         className="flex items-center gap-[15px] text-[16px]"
                       >
                         <Image
@@ -238,7 +240,7 @@ const Header = () => {
                     <li className="flex items-center gap-[15px] text-[16px]">
                       <button
                         onClick={handleLogout}
-                        className="flex items-center gap-[15px] text-[16px]"
+                        className="flex items-center gap-[15px] text-[16px] cursor-pointer"
                       >
                         <Image
                           className="grayscale-100 brightness-[.6]"
@@ -301,7 +303,7 @@ const Header = () => {
           <div className="rounded-[8px] border border-[#3B8D0B] p-[10px]">
             <p className="text-[12px] text-[#4B5563]">ODS Code</p>
             <p className="text-[16px] text-[#3B8D0B] font-semibold flex gap-[10px] items-end leading-[20px]">
-              454888{" "}
+              {pharmacy?.odsCode || "N/A"}
               <span className="h-[18px] w-[18px] min-w-[18px] bg-[#ECF4E7] text-[10px] rounded-full flex items-center justify-center">
                 <RiEditLine />
               </span>
@@ -313,7 +315,7 @@ const Header = () => {
             </span>
             <div className="">
               <p className="text-[12px] mb-[5px]">Pharmacy Address:</p>
-              <p className="text-[16px]">8502 Preston Rd. Inglewood, Maine </p>
+              <p className="text-[16px]">{pharmacy?.address || "N/A"}</p>
             </div>
           </div>
           <form

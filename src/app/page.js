@@ -14,18 +14,15 @@ import { useEffect } from "react";
 import { API_BASE_URL } from "@/config/constant";
 
 export default function Home() {
-  const { user, isAuthenticated } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const router = useRouter();
 
-  console.log("API BASE URL", API_BASE_URL);
-
   useEffect(() => {
-    if (user?.role === "pharmacist") {
-      router.push("/dashboard-login-technician");
-    } else if (user?.role === "pharmacy") {
-      router.push("/dashboard-login-premises");
+    console.log("isAuthenticated", isAuthenticated);
+    if (isAuthenticated) {
+      router.push("/dashboard");
     }
-  }, [router, user]);
+  }, [router, isAuthenticated]);
 
   return (
     <>

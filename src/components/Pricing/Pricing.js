@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import { GoArrowLeft } from "react-icons/go";
@@ -8,12 +9,34 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import Card from "@/assets/images/card.png";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
+import { Spinner } from "@/components/ui/spinner";
+import { API_BASE_URL } from "@/config/constant";
+import useAuthStore from "@/store/useAuthStore";
 
 export default function Pricing() {
   const [plan, setPlan] = useState("monthly");
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const { token, setIsAuthenticated } = useAuthStore();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
+    setIsLoading(true);
+    if (!token) {
+      alert("Something went wrong. Please try again or contact support.");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      await axios.post(`${API_BASE_URL}/api/v1/auth/verify-token`, { token });
+      setIsAuthenticated(true);
+    } catch (error) {
+      alert(
+        "Session expired or something went wrong. Please try again or contact support."
+      );
+    } finally {
+      setIsLoading(false);
+    }
     router.push("/configuration-step1");
   };
 
@@ -185,9 +208,17 @@ export default function Pricing() {
       <div className="text-right mt-[30px] sm:mt-[50px] 2xl:mt-0">
         <Button
           onClick={handleLogin}
-          className="primary-btn w-full sm:w-[390px] 2xl:!absolute 2xl:bottom-[50px] 2xl:right-[30px]"
+          className="primary-btn w-full sm:w-[390px] 2xl:!absolute 2xl:bottom-[50px] 2xl:right-[30px] cursor-pointer hover:cursor-pointer"
+          disabled={isLoading}
         >
-          Login
+          {isLoading ? (
+            <div className="flex items-center justify-center gap-2">
+              <Spinner size="sm" className="text-white" />
+              <span>Logging in...</span>
+            </div>
+          ) : (
+            "Login"
+          )}
         </Button>
       </div>
     </section>
