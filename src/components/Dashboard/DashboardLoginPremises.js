@@ -11,7 +11,7 @@ import axios from "axios";
 // import useAuthStore from "@/store/useAuthStore";
 // import { useRouter } from "next/navigation";
 
-export default function Home() {
+export default function DashboardLoginTechnician() {
   const [dashboardStats, setDashboardStats] = useState(null);
   const [recentIncidents, setRecentIncidents] = useState(null);
   const [error, setError] = useState(null);

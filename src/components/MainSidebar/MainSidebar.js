@@ -51,13 +51,7 @@ const MainSidebar = () => {
 
       {/* Logo Section */}
       <div className="logo mb-[45px]">
-        <Link
-          href={
-            isAuthenticated && user?.role === "pharmacist"
-              ? "/dashboard-login-technician"
-              : "/"
-          }
-        >
+        <Link href="/dashboard">
           <Image
             className="mx-auto w-[180px] lg:w-[220px]"
             src={HeaderLogo}
@@ -71,13 +65,9 @@ const MainSidebar = () => {
         <ul className="flex flex-col gap-[5px] mb-[20px] lg:mb-[40px] text-[14px] lg:text-[16px]">
           <li>
             <Link
-              href={
-                isAuthenticated && user?.role === "pharmacist"
-                  ? "/dashboard-login-technician"
-                  : "/"
-              }
+              href="/dashboard"
               className={`${
-                pathname === "/" ? "active" : ""
+                pathname === "/dashboard" ? "active" : ""
               } menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
             >
               <Image
@@ -170,11 +160,7 @@ const MainSidebar = () => {
 
           <li>
             <Link
-              href={
-                isAuthenticated && user?.role === "pharmacist"
-                  ? "/dashboard-login-technician"
-                  : "/"
-              }
+              href="/dashboard"
               className={`${
                 pathname === "/features" ? "active" : ""
               } menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
@@ -264,9 +250,9 @@ const MainSidebar = () => {
           </li>
           <li>
             <Link
-              href="/"
+              href="/settings"
               className={`${
-                pathname === "/setting" ? "active" : ""
+                pathname === "/settings" ? "active" : ""
               } menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
             >
               <Image

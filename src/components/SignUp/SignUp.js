@@ -15,33 +15,51 @@ import axios from "axios";
 import { API_BASE_URL } from "@/config/constant";
 import { useRouter } from "next/navigation";
 import useAuthStore from "@/store/useAuthStore";
+import { Spinner } from "../ui/spinner";
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [ReshowPassword, reSetShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
-  const { setSigningUpEmail, setUser } = useAuthStore();
+  const { setSigningUpEmail, setUser, setPharmacy, setToken } = useAuthStore();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    const password = e.target.password.value;
+    const confirmPassword = e.target.confirmPassword.value;
+
+    if (!password || !confirmPassword) {
+      alert("Please fill in both password fields");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
     try {
       const response = await axios.post(
         `${API_BASE_URL}/api/v1/auth/signup-premise`,
         {
           pharmacyEmail: e.target.p_email.value,
           odsCode: e.target.odsCode.value,
-          password: e.target.password.value,
+          password,
         }
       );
 
       if (response.status === 200) {
         setSigningUpEmail(e.target.p_email.value);
-        setUser(response.data?.data);
+        setUser(response.data?.data?.user);
+        setToken(response.data?.data?.token);
+        setPharmacy(response.data?.data?.pharmacy);
         router.push("/signup-premises/premises-verification?type=premise");
       }
     } catch (error) {
       console.error("Signup error:", error);
-      // Handle error - show error message to user
+    } finally {
+      setIsSubmitting(false);
     }
   };
   return (
@@ -111,8 +129,8 @@ const SignUp = () => {
           </span>
           <input
             type={ReshowPassword ? "text" : "password"}
-            name="password"
-            id="password"
+            name="confirmPassword"
+            id="confirmPassword"
             placeholder="Re-Password"
             className="pl-[45px]"
           />
@@ -137,8 +155,23 @@ const SignUp = () => {
           </label>
         </div>
         <div className="flex justify-between gap-2.5 mb-[30px]">
-          <button type="submit" className="primary-btn cursor-pointer w-full">
-            Sign Up
+          <button
+            type="submit"
+            className={`primary-btn w-full ${
+              isSubmitting
+                ? "opacity-70 pointer-events-none !transition-none hover:!transform-none active:!transform-none"
+                : "cursor-pointer"
+            }`}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <div className="flex items-center justify-center gap-2">
+                <Spinner size="sm" className="text-white" />
+                <span>Signing up...</span>
+              </div>
+            ) : (
+              "Sign Up"
+            )}
           </button>
         </div>
         <p className="mb-[30px] sm:mb-[15px]">

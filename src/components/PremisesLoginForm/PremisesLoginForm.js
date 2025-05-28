@@ -10,9 +10,43 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import AppleIcon from "@/assets/images/apple.svg";
 import Google from "@/assets/images/google.svg";
 import Facebook from "@/assets/images/facebook.svg";
+import useAuthStore from "@/store/useAuthStore";
+import axios from "axios";
+import { API_BASE_URL } from "@/config/constant";
+import { useRouter } from "next/navigation";
+import { Spinner } from "../ui/spinner";
 
 const PremisesLoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { setUser, setIsAuthenticated, setToken } = useAuthStore();
+  const router = useRouter();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    const formData = {
+      email: e.target.email.value,
+      passwordOrPin: e.target.password.value,
+    };
+
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/api/v1/auth/login`,
+        formData
+      );
+      setUser(response.data?.data?.user);
+      setToken(response.data?.data?.token);
+      setIsAuthenticated(true);
+      router.push("/login-premises/premises-otp");
+    } catch (error) {
+      console.error("Login failed:", error.response?.data || error.message);
+      alert(error.response?.data?.message || "Login failed");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="text-center">
       <div className="mb-[25px] sm:mb-[30px]">
@@ -29,7 +63,7 @@ const PremisesLoginForm = () => {
         title="Sign In as Pharmacy (Premises)"
         description="Welcome Back! Please Enter Your Details."
       />
-      <form action="#">
+      <form onSubmit={handleSubmit}>
         <div className="relative mb-[20px]">
           <span className="absolute left-[17px] top-[18px] sm:top-[20px]">
             <HiOutlineEnvelope />
@@ -77,13 +111,28 @@ const PremisesLoginForm = () => {
           </Link>
         </div>
         <div className="flex justify-between gap-2.5 mb-[30px]">
-          <button type="submit" className="primary-btn cursor-pointer w-full">
-            Login
+          <button
+            type="submit"
+            className={`primary-btn w-full ${
+              isSubmitting
+                ? "opacity-70 pointer-events-none !transition-none hover:!transform-none active:!transform-none"
+                : "cursor-pointer"
+            }`}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <div className="flex items-center justify-center gap-2">
+                <Spinner size="sm" className="text-white" />
+                <span>Logging in...</span>
+              </div>
+            ) : (
+              "Login"
+            )}
           </button>
         </div>
         <p className="mb-[30px] sm:mb-[15px]">
-          Don’t have an account yet?{" "}
-          <Link href="#" className="text-[#2563EB]">
+          Don&apos;t have an account yet?{" "}
+          <Link href="/signup-premises" className="text-[#2563EB]">
             Sign Up
           </Link>
         </p>

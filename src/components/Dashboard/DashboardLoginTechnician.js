@@ -7,7 +7,7 @@ import RecentIncedientsLogged from "@/components/RecentIncedentsLogged/RecentInc
 import RecentIncidents from "@/components/RecentIncidents/RecentIncidents";
 import Image from "next/image";
 
-export default function Home() {
+export default function DashboardLoginPremises() {
   return (
     <>
       <Layout>

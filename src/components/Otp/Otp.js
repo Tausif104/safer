@@ -38,11 +38,7 @@ const Otp = () => {
       email: user.email,
       otp: otp.join(""),
     };
-    if (user.role === "pharmacist") {
-      router.push("/dashboard-login-technician");
-    } else if (user.role === "pharmacy") {
-      router.push("/dashboard-login-premises");
-    }
+    router.push("/dashboard");
   };
 
   return (

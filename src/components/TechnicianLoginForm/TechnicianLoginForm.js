@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation";
 
 const TechnicianLoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const { setUser, setIsAuthenticated } = useAuthStore();
+  const { setUser, setIsAuthenticated, setToken } = useAuthStore();
   const router = useRouter();
 
   const handleSubmit = async (e) => {
@@ -33,6 +33,7 @@ const TechnicianLoginForm = () => {
         formData
       );
       setUser(response.data?.data?.user);
+      setToken(response.data?.data?.token);
       setIsAuthenticated(true);
       router.push("/login-technician/technician-otp");
     } catch (error) {
@@ -109,8 +110,8 @@ const TechnicianLoginForm = () => {
           </button>
         </div>
         <p className="mb-[30px] sm:mb-[15px]">
-          Don't have an account yet?{" "}
-          <Link href="#" className="text-[#2563EB]">
+          Don&apos;t have an account yet?{" "}
+          <Link href="/signup-technician" className="text-[#2563EB]">
             Sign Up
           </Link>
         </p>
