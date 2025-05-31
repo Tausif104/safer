@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import SearchIcon from "@/assets/images/search-icon.svg";
 import Bell from "@/assets/images/bell.svg";
@@ -27,13 +27,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { RiEditLine } from "react-icons/ri";
+import { IoCheckmark, IoClose } from "react-icons/io5";
+import toast, { Toaster } from "react-hot-toast";
 
 import User from "@/assets/images/user.svg";
 import Settings from "@/assets/images/settings.svg";
 import Payment from "@/assets/images/payment.svg";
 import Logout from "@/assets/images/logout.svg";
 import { LuMapPin } from "react-icons/lu";
-import { RiEditLine } from "react-icons/ri";
 
 const Header = () => {
   const { user, pharmacy, logout } = useAuthStore();
@@ -41,6 +43,32 @@ const Header = () => {
   const { handleToggle } = useRootContext();
   const [searchResult, setSearchResult] = useState(null);
   const [showNoResultDialog, setShowNoResultDialog] = useState(false);
+  const [isEditingOdsCode, setIsEditingOdsCode] = useState(false);
+  const [odsCodeValue, setOdsCodeValue] = useState("");
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (pharmacy?.odsCode) {
+      setOdsCodeValue(pharmacy.odsCode);
+    }
+  }, [pharmacy?.odsCode]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (inputRef.current && !inputRef.current.contains(event.target)) {
+        setIsEditingOdsCode(false);
+      }
+    };
+
+    if (isEditingOdsCode) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isEditingOdsCode, pharmacy?.odsCode]);
 
   const handleLogout = () => {
     logout();
@@ -87,8 +115,81 @@ const Header = () => {
     setShowNoResultDialog(false);
   };
 
+  const handleOdsCodeChange = (e) => {
+    const newValue = e.target.value;
+    setOdsCodeValue(newValue);
+  };
+
+  const handleOdsCodeSubmit = async () => {
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/api/v1/pharmacies/join`,
+        {
+          odsCode: odsCodeValue,
+          userId: +user?.id,
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success("Join request sent successfully!", {
+          duration: 4000,
+          position: "top-right",
+          style: {
+            background: "#3B8D0B",
+            color: "#fff",
+            borderRadius: "8px",
+            padding: "16px",
+          },
+          icon: "✓",
+          iconTheme: {
+            primary: "#fff",
+            secondary: "#3B8D0B",
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Error joining pharmacy:", error);
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to join pharmacy. Please try again.",
+        {
+          duration: 4000,
+          position: "top-right",
+          style: {
+            background: "#EF4444",
+            color: "#fff",
+            borderRadius: "8px",
+            padding: "16px",
+          },
+          icon: "✕",
+          iconTheme: {
+            primary: "#fff",
+            secondary: "#EF4444",
+          },
+        }
+      );
+    } finally {
+      setIsEditingOdsCode(false);
+      setShowConfirmDialog(false);
+    }
+  };
+
+  const handleCloseEdit = () => {
+    setIsEditingOdsCode(false);
+  };
+
+  const handleConfirmSubmit = () => {
+    setShowConfirmDialog(true);
+  };
+
+  const handleCancelSubmit = () => {
+    setShowConfirmDialog(false);
+    handleCloseEdit();
+  };
+
   return (
     <>
+      <Toaster />
       <header className="bg-[#F8FEE6] sm:bg-white py-[20px] sm:py-[15px] px-[20px] rounded-[12px] sm:shadow-[6px_16px_50px_6px_rgba(38,57,136,0.06)] grid 2xl:grid-cols-[6fr_6fr] xl:grid-cols-[5fr_7fr] sm:grid-cols-[3fr_9fr] gap-[20px] sm:gap-0 items-center mx-[-20px] sm:mx-0 sm:mb-[30px]">
         <div className="flex sm:justify-end justify-between items-center gap-[15px] sm:order-2">
           <div className="sm:order-2">
@@ -302,12 +403,42 @@ const Header = () => {
         <div className="sm:order-1 flex items-center gap-[20px]">
           <div className="rounded-[8px] border border-[#3B8D0B] p-[10px]">
             <p className="text-[12px] text-[#4B5563]">ODS Code</p>
-            <p className="text-[16px] text-[#3B8D0B] font-semibold flex gap-[10px] items-end leading-[20px]">
-              {pharmacy?.odsCode || "N/A"}
-              <span className="h-[18px] w-[18px] min-w-[18px] bg-[#ECF4E7] text-[10px] rounded-full flex items-center justify-center">
-                <RiEditLine />
-              </span>
-            </p>
+            <div className="text-[16px] text-[#3B8D0B] font-semibold flex gap-[10px] items-end leading-[20px]">
+              {isEditingOdsCode ? (
+                <div className="flex items-center gap-2 w-full" ref={inputRef}>
+                  <input
+                    type="text"
+                    name="odsCode"
+                    value={odsCodeValue}
+                    onChange={handleOdsCodeChange}
+                    className="w-full pl-0 bg-transparent border-none focus:outline-none text-[#3B8D0B] font-semibold h-[20px]"
+                    autoFocus
+                  />
+                  <span
+                    className="h-[18px] w-[18px] min-w-[18px] bg-[#ECF4E7] text-[10px] rounded-full flex items-center justify-center cursor-pointer"
+                    onClick={handleConfirmSubmit}
+                  >
+                    <IoCheckmark />
+                  </span>
+                  <span
+                    className="h-[18px] w-[18px] min-w-[18px] bg-[#ECF4E7] text-[10px] rounded-full flex items-center justify-center cursor-pointer"
+                    onClick={handleCloseEdit}
+                  >
+                    <IoClose />
+                  </span>
+                </div>
+              ) : (
+                <span>{odsCodeValue || "N/A"}</span>
+              )}
+              {!isEditingOdsCode && (
+                <span
+                  className="h-[18px] w-[18px] min-w-[18px] bg-[#ECF4E7] text-[10px] rounded-full flex items-center justify-center cursor-pointer"
+                  onClick={() => setIsEditingOdsCode(true)}
+                >
+                  <RiEditLine />
+                </span>
+              )}
+            </div>
           </div>
           <div className="gap-[14px] hidden xl:flex">
             <span className="h-[48px] w-[48px] min-w-[48px] border border-[#E7FBBD] sm:border-[#DAECFF] flex justify-center items-center rounded-full cursor-pointer bg-white">
@@ -352,6 +483,34 @@ const Header = () => {
             <DialogTitle>Search Result</DialogTitle>
           </DialogHeader>
           <div className="py-4">No Incident found</div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Confirm Pharmacy Join Request</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p>
+              Are you sure you want to request to join the pharmacy with ODS
+              Code: <strong>{odsCodeValue}</strong>?
+            </p>
+          </div>
+          <div className="flex justify-end gap-4">
+            <button
+              onClick={handleCancelSubmit}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 hover:cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleOdsCodeSubmit}
+              className="px-4 py-2 text-sm font-medium text-white bg-[#3B8D0B] rounded-md hover:bg-[#2d6b08] hover:cursor-pointer"
+            >
+              Confirm
+            </button>
+          </div>
         </DialogContent>
       </Dialog>
     </>
