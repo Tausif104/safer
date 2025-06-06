@@ -15,11 +15,13 @@ import axios from "axios";
 import { API_BASE_URL } from "@/config/constant";
 import { useRouter } from "next/navigation";
 import { Spinner } from "../ui/spinner";
+import { Button } from "../ui/button";
+import toast from "react-hot-toast";
 
 const PremisesLoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { setUser, setIsAuthenticated, setToken } = useAuthStore();
+  const { setUser, setIsAuthenticated, setToken, setPharmacy } = useAuthStore();
   const router = useRouter();
 
   const handleSubmit = async (e) => {
@@ -35,13 +37,20 @@ const PremisesLoginForm = () => {
         `${API_BASE_URL}/api/v1/auth/login`,
         formData
       );
+      console.log("data", response.data);
       setUser(response.data?.data?.user);
+      setPharmacy(response.data?.data?.pharmacy);
       setToken(response.data?.data?.token);
       setIsAuthenticated(true);
+      toast.success("Login successful!");
       router.push("/login-premises/premises-otp");
     } catch (error) {
-      console.error("Login failed:", error.response?.data || error.message);
-      alert(error.response?.data?.message || "Login failed");
+      console.error("Login failed:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Login failed. Please try again.";
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -111,13 +120,9 @@ const PremisesLoginForm = () => {
           </Link>
         </div>
         <div className="flex justify-between gap-2.5 mb-[30px]">
-          <button
+          <Button
             type="submit"
-            className={`primary-btn w-full ${
-              isSubmitting
-                ? "opacity-70 pointer-events-none !transition-none hover:!transform-none active:!transform-none"
-                : "cursor-pointer"
-            }`}
+            className="primary-btn w-full"
             disabled={isSubmitting}
           >
             {isSubmitting ? (
@@ -128,7 +133,7 @@ const PremisesLoginForm = () => {
             ) : (
               "Login"
             )}
-          </button>
+          </Button>
         </div>
         <p className="mb-[30px] sm:mb-[15px]">
           Don&apos;t have an account yet?{" "}

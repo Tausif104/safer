@@ -167,13 +167,37 @@ const ConfigurationStep1 = () => {
           </div>
           <div className="relative mb-[16px] sm:mb-[20px]">
             <label className="text-[14px] text-[#707B8A] mb-2.5 block">
-              Address
+              Address Line 1
             </label>
             <input
               type="text"
-              name="address"
-              id="address"
-              defaultValue={pharmacy?.address}
+              name="addressLine1"
+              id="addressLine1"
+              defaultValue={pharmacy?.addressLine1}
+              className="bg-[#F8F9FB] text-[#262262] placeholder:text-[#262262]"
+            />
+          </div>
+          <div className="relative mb-[16px] sm:mb-[20px]">
+            <label className="text-[14px] text-[#707B8A] mb-2.5 block">
+              Town
+            </label>
+            <input
+              type="text"
+              name="town"
+              id="town"
+              defaultValue={pharmacy?.town}
+              className="bg-[#F8F9FB] text-[#262262] placeholder:text-[#262262]"
+            />
+          </div>
+          <div className="relative mb-[16px] sm:mb-[20px]">
+            <label className="text-[14px] text-[#707B8A] mb-2.5 block">
+              Post Code
+            </label>
+            <input
+              type="text"
+              name="postCode"
+              id="postCode"
+              defaultValue={pharmacy?.postCode}
               className="bg-[#F8F9FB] text-[#262262] placeholder:text-[#262262]"
             />
           </div>

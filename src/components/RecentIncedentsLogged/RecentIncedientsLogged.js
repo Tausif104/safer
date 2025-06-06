@@ -80,7 +80,10 @@ const RecentIncedientsLogged = ({ recentIncidents = [] }) => {
           <h4 className="text-[16px] sm:text-[25px]">
             Recent Incidents Logged
           </h4>
-          <Link href="/" className="text-[14px] sm:text-[18px] text-[#3B82F6]">
+          <Link
+            href="/report"
+            className="text-[14px] sm:text-[18px] text-[#3B82F6]"
+          >
             See All
           </Link>
         </div>

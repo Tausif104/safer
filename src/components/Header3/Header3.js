@@ -27,15 +27,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { RiEditLine } from "react-icons/ri";
-import { IoCheckmark, IoClose } from "react-icons/io5";
-import toast, { Toaster } from "react-hot-toast";
-
-import User from "@/assets/images/user.svg";
-import Settings from "@/assets/images/settings.svg";
-import Payment from "@/assets/images/payment.svg";
-import Logout from "@/assets/images/logout.svg";
 import { LuMapPin } from "react-icons/lu";
+import PharmacistSwitchOption from "./PharmacistSwitchOption";
+import PremiseNameOds from "./PremiseNameOds";
+import toast, { Toaster } from "react-hot-toast";
 
 const Header = () => {
   const { user, pharmacy, logout } = useAuthStore();
@@ -43,37 +38,6 @@ const Header = () => {
   const { handleToggle } = useRootContext();
   const [searchResult, setSearchResult] = useState(null);
   const [showNoResultDialog, setShowNoResultDialog] = useState(false);
-  const [isEditingOdsCode, setIsEditingOdsCode] = useState(false);
-  const [odsCodeValue, setOdsCodeValue] = useState("");
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const inputRef = useRef(null);
-
-  useEffect(() => {
-    if (pharmacy?.odsCode) {
-      setOdsCodeValue(pharmacy.odsCode);
-    }
-  }, [pharmacy?.odsCode]);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (inputRef.current && !inputRef.current.contains(event.target)) {
-        setIsEditingOdsCode(false);
-      }
-    };
-
-    if (isEditingOdsCode) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isEditingOdsCode, pharmacy?.odsCode]);
-
-  const handleLogout = () => {
-    logout();
-    router.push("/");
-  };
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -115,247 +79,16 @@ const Header = () => {
     setShowNoResultDialog(false);
   };
 
-  const handleOdsCodeChange = (e) => {
-    const newValue = e.target.value;
-    setOdsCodeValue(newValue);
-  };
-
-  const handleOdsCodeSubmit = async () => {
-    try {
-      const response = await axios.post(
-        `${API_BASE_URL}/api/v1/pharmacies/join`,
-        {
-          odsCode: odsCodeValue,
-          userId: +user?.id,
-        }
-      );
-
-      if (response.status === 200) {
-        toast.success("Join request sent successfully!", {
-          duration: 4000,
-          position: "top-right",
-          style: {
-            background: "#3B8D0B",
-            color: "#fff",
-            borderRadius: "8px",
-            padding: "16px",
-          },
-          icon: "✓",
-          iconTheme: {
-            primary: "#fff",
-            secondary: "#3B8D0B",
-          },
-        });
-      }
-    } catch (error) {
-      console.error("Error joining pharmacy:", error);
-      toast.error(
-        error.response?.data?.message ||
-          "Failed to join pharmacy. Please try again.",
-        {
-          duration: 4000,
-          position: "top-right",
-          style: {
-            background: "#EF4444",
-            color: "#fff",
-            borderRadius: "8px",
-            padding: "16px",
-          },
-          icon: "✕",
-          iconTheme: {
-            primary: "#fff",
-            secondary: "#EF4444",
-          },
-        }
-      );
-    } finally {
-      setIsEditingOdsCode(false);
-      setShowConfirmDialog(false);
-    }
-  };
-
-  const handleCloseEdit = () => {
-    setIsEditingOdsCode(false);
-  };
-
-  const handleConfirmSubmit = () => {
-    setShowConfirmDialog(true);
-  };
-
-  const handleCancelSubmit = () => {
-    setShowConfirmDialog(false);
-    handleCloseEdit();
-  };
-
   return (
     <>
       <Toaster />
       <header className="bg-[#F8FEE6] sm:bg-white py-[20px] sm:py-[15px] px-[20px] rounded-[12px] sm:shadow-[6px_16px_50px_6px_rgba(38,57,136,0.06)] grid 2xl:grid-cols-[6fr_6fr] xl:grid-cols-[5fr_7fr] sm:grid-cols-[3fr_9fr] gap-[20px] sm:gap-0 items-center mx-[-20px] sm:mx-0 sm:mb-[30px]">
         <div className="flex sm:justify-end justify-between items-center gap-[15px] sm:order-2">
-          <div className="sm:order-2">
-            <Popover>
-              <PopoverTrigger asChild className="cursor-pointer">
-                <button className="flex gap-[12px]">
-                  <div>
-                    <Image
-                      className="w-[48px] h-[48px]"
-                      src={userProfile}
-                      alt="bell"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <div className="text-left">
-                      <h6 className="text-[18px] mb-1">
-                        {user?.name || "Unnamed User"}
-                      </h6>
-                      <p className="text-[14px]">
-                        GPHC Number: {user?.gphcNumber || "N/A"}
-                      </p>
-                    </div>
-                    <div>
-                      <LiaAngleDownSolid />
-                    </div>
-                  </div>
-                </button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="rounded-[10px] p-[20px]"
-                side="top"
-                align="end"
-              >
-                <div className="">
-                  <p className="text-[14px] font-medium uppercase text-[#9298A1] mb-[15px] pb-[15px] border-b border-b-[#DAECFF]">
-                    Switch Account
-                  </p>
-                  <div className="flex flex-col gap-[15px] mb-[20px]">
-                    {/* single item  */}
-                    <div className="flex justify-between items-center mb-[15px]">
-                      <div className="flex gap-[15px] items-center">
-                        <Image
-                          className="w-[48px] h-[48px]"
-                          src={userProfile}
-                          alt="userProfile"
-                        />
-                        <div>
-                          <h6 className="text-[16px] font-medium text-[#262262] mb-[5px]">
-                            SK Pharmacy
-                          </h6>
-                          <p className="text-[14px] text-[#707B8A]">
-                            ODS Code:{" "}
-                            <span className="text-[#4B5563]">73847</span>
-                          </p>
-                        </div>
-                      </div>
-                      <span className="h-[24px] w-[24px] bg-[#E8F1FF] rounded-full flex items-center justify-center text-[12px] text-[#3B82F6]">
-                        <GiCheckMark />
-                      </span>
-                    </div>
-
-                    {/* single item  */}
-                    <div className="flex justify-between items-center mb-[15px]">
-                      <div className="flex gap-[15px] items-center">
-                        <Image
-                          className="w-[48px] h-[48px]"
-                          src={userProfile2}
-                          alt="userProfile2"
-                        />
-                        <div>
-                          <h6 className="text-[16px] font-medium text-[#262262] mb-[5px]">
-                            SK Pharmacy
-                          </h6>
-                          <p className="text-[14px] text-[#707B8A]">
-                            ODS Code:{" "}
-                            <span className="text-[#4B5563]">73847</span>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* single item  */}
-                    <div className="flex justify-between items-center mb-[15px]">
-                      <div className="flex gap-[15px] items-center">
-                        <Image
-                          className="w-[48px] h-[48px]"
-                          src={userProfile3}
-                          alt="userProfile3"
-                        />
-                        <div>
-                          <h6 className="text-[16px] font-medium text-[#262262] mb-[5px]">
-                            SK Pharmacy
-                          </h6>
-                          <p className="text-[14px] text-[#707B8A]">
-                            ODS Code:{" "}
-                            <span className="text-[#4B5563]">73847</span>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <p className="text-[14px] font-medium uppercase text-[#9298A1] mb-[15px] pb-[15px] border-b border-b-[#DAECFF]">
-                    USer Portal
-                  </p>
-                  <ul className="flex flex-col gap-[15px] mb-[20px] text-[#514E81] border-b border-b-[#DAECFF] mb-[15px] pb-[15px]">
-                    <li className="">
-                      <Link
-                        href="/"
-                        className="flex items-center gap-[15px] text-[16px]"
-                      >
-                        <Image
-                          className="grayscale-100 brightness-[.6]"
-                          src={User}
-                          alt="links"
-                        />{" "}
-                        Profile
-                      </Link>{" "}
-                    </li>
-                    <li className="">
-                      <Link
-                        href="/settings"
-                        className="flex items-center gap-[15px] text-[16px]"
-                      >
-                        <Image
-                          className="grayscale-100 brightness-[.6]"
-                          src={Settings}
-                          alt="links"
-                        />{" "}
-                        Settings
-                      </Link>
-                    </li>
-                    <li className="">
-                      <Link
-                        href="/"
-                        className="flex items-center gap-[15px] text-[16px]"
-                      >
-                        <Image
-                          className="grayscale-100 brightness-[.6]"
-                          src={Payment}
-                          alt="links"
-                        />{" "}
-                        Payment
-                      </Link>
-                    </li>
-                  </ul>
-
-                  <ul className="flex flex-col gap-[15px] text-[#514E81]">
-                    <li className="flex items-center gap-[15px] text-[16px]">
-                      <button
-                        onClick={handleLogout}
-                        className="flex items-center gap-[15px] text-[16px] cursor-pointer"
-                      >
-                        <Image
-                          className="grayscale-100 brightness-[.6]"
-                          src={Logout}
-                          alt="links"
-                        />{" "}
-                        Logout
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-              </PopoverContent>
-            </Popover>
-          </div>
+          {user?.role === "pharmacist" ? (
+            <PharmacistSwitchOption />
+          ) : (
+            <PremiseNameOds pharmacy={pharmacy} />
+          )}
           <div className="flex gap-[10px] sm:order-1">
             <Popover>
               <PopoverTrigger asChild>
@@ -386,67 +119,36 @@ const Header = () => {
             className="relative group hidden sm:flex"
           >
             <input
-              className="w-0 opacity-0 border border-[#E7FBBD] sm:border-[#DAECFF] bg-white leading-[60px] px-[24px] pr-[50px] rounded-full placeholder:text-[#707B8A] focus:outline-0 focus:shadow-none transition-all duration-300 origin-right group-hover:w-full group-hover:opacity-100"
+              className="w-full border border-[#E7FBBD] sm:border-[#DAECFF] bg-white leading-[54px] px-[24px] pr-[50px] rounded-full placeholder:text-[#707B8A] focus:outline-0 focus:shadow-none"
               type="search"
               name="search"
               id="search"
               placeholder="Search here"
             />
             <button
-              className="h-[48px] w-[48px] min-w-[48px] border border-[#DAECFF] flex items-center justify-center rounded-full bg-white absolute right-[7px] top-[7px] cursor-pointer"
+              className="h-[42px] w-[42px] min-w-[42px] flex items-center justify-center rounded-full sm:bg-primary absolute right-[7px] top-[7px] cursor-pointer"
               type="submit"
             >
-              <Image className="" width={20} src={SearchIcon} alt="" />
+              <Image
+                className="sm:brightness-0 sm:invert-100"
+                width={20}
+                src={SearchIcon}
+                alt=""
+              />
             </button>
           </form>
         </div>
         <div className="sm:order-1 flex items-center gap-[20px]">
-          <div className="rounded-[8px] border border-[#3B8D0B] p-[10px]">
-            <p className="text-[12px] text-[#4B5563]">ODS Code</p>
-            <div className="text-[16px] text-[#3B8D0B] font-semibold flex gap-[10px] items-end leading-[20px]">
-              {isEditingOdsCode ? (
-                <div className="flex items-center gap-2 w-full" ref={inputRef}>
-                  <input
-                    type="text"
-                    name="odsCode"
-                    value={odsCodeValue}
-                    onChange={handleOdsCodeChange}
-                    className="w-full pl-0 bg-transparent border-none focus:outline-none text-[#3B8D0B] font-semibold h-[20px]"
-                    autoFocus
-                  />
-                  <span
-                    className="h-[18px] w-[18px] min-w-[18px] bg-[#ECF4E7] text-[10px] rounded-full flex items-center justify-center cursor-pointer"
-                    onClick={handleConfirmSubmit}
-                  >
-                    <IoCheckmark />
-                  </span>
-                  <span
-                    className="h-[18px] w-[18px] min-w-[18px] bg-[#ECF4E7] text-[10px] rounded-full flex items-center justify-center cursor-pointer"
-                    onClick={handleCloseEdit}
-                  >
-                    <IoClose />
-                  </span>
-                </div>
-              ) : (
-                <span>{odsCodeValue || "N/A"}</span>
-              )}
-              {!isEditingOdsCode && (
-                <span
-                  className="h-[18px] w-[18px] min-w-[18px] bg-[#ECF4E7] text-[10px] rounded-full flex items-center justify-center cursor-pointer"
-                  onClick={() => setIsEditingOdsCode(true)}
-                >
-                  <RiEditLine />
-                </span>
-              )}
-            </div>
-          </div>
           <div className="gap-[14px] hidden xl:flex">
             <span className="h-[48px] w-[48px] min-w-[48px] border border-[#E7FBBD] sm:border-[#DAECFF] flex justify-center items-center rounded-full cursor-pointer bg-white">
               <LuMapPin />
             </span>
             <div className="">
               <p className="text-[12px] mb-[5px]">Pharmacy Address:</p>
-              <p className="text-[16px]">{pharmacy?.address || "N/A"}</p>
+              <p className="text-[16px]">
+                {`${pharmacy?.addressLine1}, ${pharmacy?.town}, ${pharmacy?.postCode}` ||
+                  "N/A"}
+              </p>
             </div>
           </div>
           <form
@@ -483,34 +185,6 @@ const Header = () => {
             <DialogTitle>Search Result</DialogTitle>
           </DialogHeader>
           <div className="py-4">No Incident found</div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Confirm Pharmacy Join Request</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <p>
-              Are you sure you want to request to join the pharmacy with ODS
-              Code: <strong>{odsCodeValue}</strong>?
-            </p>
-          </div>
-          <div className="flex justify-end gap-4">
-            <button
-              onClick={handleCancelSubmit}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 hover:cursor-pointer"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleOdsCodeSubmit}
-              className="px-4 py-2 text-sm font-medium text-white bg-[#3B8D0B] rounded-md hover:bg-[#2d6b08] hover:cursor-pointer"
-            >
-              Confirm
-            </button>
-          </div>
         </DialogContent>
       </Dialog>
     </>

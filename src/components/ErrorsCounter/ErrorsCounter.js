@@ -6,8 +6,9 @@ import ErrorDetected from "@/assets/images/error-detected.png";
 import MedicationError from "@/assets/images/medication-error.svg";
 import ErrorLogged from "@/assets/images/error-logged.svg";
 import { Progress } from "@/components/ui/progress";
+import { useRouter } from "next/navigation";
 
-const CounterItem = ({ endValue, label, format, icon, iconBgColor }) => {
+const CounterItem = ({ endValue, label, format, icon, iconBgColor, onClick }) => {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
@@ -41,7 +42,7 @@ const CounterItem = ({ endValue, label, format, icon, iconBgColor }) => {
   };
 
   return (
-    <div className="bg-white rounded-[14px] flex justify-between items-center p-[20px] gap-3">
+    <div className="bg-white rounded-[14px] flex justify-between items-center p-[20px] gap-3 hover:cursor-pointer" onClick={onClick}>
       <div>
         <h3 className="counter text-[30px] mb-1 gap-2.5">
           {formatNumber(count)}
@@ -62,6 +63,7 @@ const ErrorsCounter = ({
   nearMissErrorCodeStats = [],
   incidentTypeCount = [],
 }) => {
+  const router = useRouter();
   const errorCodes = {
     D: "Incorrect Drug (D)",
     Q: "Incorrect Quantity (Q)",
@@ -74,10 +76,10 @@ const ErrorsCounter = ({
 
   const errorPercentages = {};
   nearMissErrorCodeStats.forEach((stat) => {
-    errorPercentages[stat.errorCode || "none"] = parseInt(stat.percentage) || 0;
+    errorPercentages[stat.errorCode.toLowerCase() || "none"] = parseInt(stat.percentage) || 0;
   });
 
-  const getPercentage = (code) => errorPercentages[code] || 0;
+  const getPercentage = (code) => errorPercentages[code.toLowerCase()] || 0;
 
   const incidentCounts = {};
   incidentTypeCount.forEach((item) => {
@@ -95,6 +97,9 @@ const ErrorsCounter = ({
           format="k"
           icon={ReportIcon}
           iconBgColor="#3B82F6"
+          onClick={() => {
+            router.push("/incident/near-miss");
+          }}
         />
         <CounterItem
           endValue={getIncidentCount("Patient Safety Event")}
@@ -102,6 +107,9 @@ const ErrorsCounter = ({
           format="+"
           icon={ErrorDetected}
           iconBgColor="#A855F7"
+          onClick={() => {
+            router.push("/incident/patient-safety-event");
+          }}
         />
         <CounterItem
           endValue={getIncidentCount("Prescribing Intervention")}
@@ -109,6 +117,9 @@ const ErrorsCounter = ({
           format="k"
           icon={MedicationError}
           iconBgColor="#F97316"
+          onClick={() => {
+            router.push("/incident/prescribing-intervention");
+          }}
         />
         <CounterItem
           endValue={getIncidentCount("Faulty Medication")}
@@ -116,6 +127,9 @@ const ErrorsCounter = ({
           format="+"
           icon={ErrorLogged}
           iconBgColor="#00D0FF"
+          onClick={() => {
+            router.push("/incident/faulty-medication");
+          }}
         />
       </div>
 

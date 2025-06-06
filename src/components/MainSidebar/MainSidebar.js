@@ -5,6 +5,8 @@ import Image from "next/image";
 import HeaderLogo from "@/assets/images/logo.svg";
 import DashboardIcon from "@/assets/images/dashboard.svg";
 import AddCircle from "@/assets/images/add-circle.svg";
+import AdminMenuIcon3 from "@/assets/images/admin-menu-icon3.svg";
+import AdminMenuIcon2 from "@/assets/images/admin-menu-icon1.svg";
 import AddSquare from "@/assets/images/add-square.svg";
 import Pricing from "@/assets/images/pricing.svg";
 import User from "@/assets/images/user.svg";
@@ -194,15 +196,15 @@ const MainSidebar = () => {
               <Image
                 className="brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0"
                 width={26}
-                src={AddCircle}
+                src={AdminMenuIcon2}
                 alt=""
               />
-              Add Dispenser
+              Dispenser
             </Link>
           </li>
           <li>
             <Link
-              href="/"
+              href="/pharmacist"
               className={`${
                 pathname === "/pharmacist" ? "active" : ""
               } menu-link flex items-center gap-[16px] text-[#D4D3E0] transition-all duration-300 hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group`}
@@ -210,10 +212,10 @@ const MainSidebar = () => {
               <Image
                 className="brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0"
                 width={26}
-                src={AddCircle}
+                src={AdminMenuIcon3}
                 alt=""
               />
-              Add Pharmacist
+              Pharmacist
             </Link>
           </li>
           <li>

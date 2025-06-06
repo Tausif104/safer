@@ -12,6 +12,13 @@ import * as yup from "yup";
 import { API_BASE_URL, DEFAULT_PASSWORD, USER_ROLE } from "@/config/constant";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import useAuthStore from "../../store/useAuthStore";
 
 const schema = yup.object().shape({
@@ -19,6 +26,7 @@ const schema = yup.object().shape({
   phone: yup.string().required("Phone number is required"),
   email: yup.string().email("Invalid email").required("Email is required"),
   gphc: yup.string().required("GPhC code is required"),
+  role: yup.string().required("Role is required"),
 });
 
 const ConfigurationStep2 = () => {
@@ -31,6 +39,7 @@ const ConfigurationStep2 = () => {
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
   } = useForm({
     resolver: yupResolver(schema),
     mode: "onChange",
@@ -42,7 +51,7 @@ const ConfigurationStep2 = () => {
       name: data.name,
       phone: data.phone,
       email: data.email,
-      role: USER_ROLE.PHARMACIST,
+      role: data.role,
       gphcNumber: data.gphc,
       password: DEFAULT_PASSWORD,
     };
@@ -176,14 +185,28 @@ const ConfigurationStep2 = () => {
               <p className="text-red-500 text-sm mt-1">{errors.gphc.message}</p>
             )}
           </div>
-          <div className="flex items-center gap-3">
-            <Button
-              type="button"
-              onClick={handleSkip}
-              className="!bg-transparent !border !border-[#262262] !text-[#262262] hover:!bg-[#99C729] hover:!text-white hover:!border-[#99C729] cursor-pointer whitespace-nowrap"
+          <div className="relative mb-[16px] sm:mb-[20px]">
+            <label className="text-[14px] text-[#707B8A] mb-2.5 block">
+              Role
+            </label>
+            <Select
+              onValueChange={(value) => setValue("role", value)}
+              className={`${errors.role ? "border-red-500" : ""}`}
             >
-              Skip
-            </Button>
+              <SelectTrigger className="w-full bg-[#F8F9FB] p-[16px] !h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
+                <SelectValue placeholder="Select a role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={USER_ROLE.PHARMACIST}>Pharmacist</SelectItem>
+                <SelectItem value={USER_ROLE.DISPENSER}>Dispenser</SelectItem>
+                <SelectItem value={USER_ROLE.STAFF}>Staff</SelectItem>
+              </SelectContent>
+            </Select>
+            {errors.role && (
+              <p className="text-red-500 text-sm mt-1">{errors.role.message}</p>
+            )}
+          </div>
+          <div className="flex items-center gap-3">
             <div className="flex-1 grid grid-cols-2 gap-3">
               <div className="text-center">
                 <Button
@@ -206,14 +229,15 @@ const ConfigurationStep2 = () => {
               </div>
               <div className="text-center">
                 <Button
-                  type="submit"
+                  type="button"
+                  onClick={handleSkip}
                   className="primary-btn w-full cursor-pointer"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
                     <div className="flex items-center gap-2">
                       <Spinner size="sm" className="text-white" />
-                      <span>Creating...</span>
+                      <span>Processing...</span>
                     </div>
                   ) : (
                     "Next"

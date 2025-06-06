@@ -6,12 +6,15 @@ import LogoBlack from "@/assets/images/logo-black.svg";
 import FormSectionTitle from "@/components/FormSectionTitle/FormSectionTitle";
 import useAuthStore from "@/store/useAuthStore";
 import { useRouter } from "next/navigation";
+import { Button } from "../ui/button";
+import { Spinner } from "../ui/spinner";
 
 const Otp = () => {
   const [otp, setOtp] = useState(["", "", "", ""]);
   const inputRefs = useRef([]);
   const { user } = useAuthStore();
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (index, value) => {
     if (!/^\d*$/.test(value)) return; // Only allow numbers
@@ -34,10 +37,12 @@ const Otp = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     const formData = {
       email: user.email,
       otp: otp.join(""),
     };
+    setIsSubmitting(false);
     router.push("/dashboard");
   };
 
@@ -76,7 +81,7 @@ const Otp = () => {
 
         {/* Resend OTP Link */}
         <p className="mb-[30px]">
-          Didn’t receive the OTP?{" "}
+          Didn&apos;t receive the OTP?{" "}
           <Link href="#" className="text-[#2563EB]">
             Resend OTP
           </Link>
@@ -84,9 +89,20 @@ const Otp = () => {
 
         {/* Submit Button */}
         <div className="flex justify-between gap-2.5 mb-[30px]">
-          <button type="submit" className="primary-btn cursor-pointer w-full">
-            Verify
-          </button>
+          <Button
+            type="submit"
+            className="primary-btn cursor-pointer w-full"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <div className="flex items-center justify-center gap-2">
+                <Spinner size="sm" className="text-white" />
+                <span>Verifying...</span>
+              </div>
+            ) : (
+              "Verify"
+            )}
+          </Button>
         </div>
       </form>
     </div>

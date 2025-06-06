@@ -2,9 +2,12 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 import LogoBlack from "@/assets/images/logo-black.svg";
 import SectionTitle from "@/components/FormSectionTitle/FormSectionTitle";
-import { HiOutlineEnvelope } from "react-icons/hi2";
+import { HiOutlineEnvelope, HiOutlineIdentification } from "react-icons/hi2";
 import { LuLockKeyhole } from "react-icons/lu";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import AppleIcon from "@/assets/images/apple.svg";
@@ -14,33 +17,61 @@ import useAuthStore from "@/store/useAuthStore";
 import axios from "axios";
 import { API_BASE_URL } from "@/config/constant";
 import { useRouter } from "next/navigation";
+import { Spinner } from "@/components/ui/spinner";
+import { Button } from "../ui/button";
+import toast from "react-hot-toast";
+
+const schema = yup
+  .object({
+    email: yup
+      .string()
+      .email("Invalid email format")
+      .required("Email is required"),
+    password: yup.string().required("Password is required"),
+    odsCode: yup.string().required("ODS code is required"),
+  })
+  .required();
 
 const TechnicianLoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const { setUser, setIsAuthenticated, setToken } = useAuthStore();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { setUser, setIsAuthenticated, setToken, setPharmacy } = useAuthStore();
   const router = useRouter();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = {
-      email: e.target.email.value,
-      passwordOrPin: e.target.password.value,
-    };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
 
+  const onSubmit = async (data) => {
+    setIsSubmitting(true);
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/api/v1/auth/login`,
-        formData
-      );
+      const response = await axios.post(`${API_BASE_URL}/api/v1/auth/login`, {
+        email: data.email,
+        passwordOrPin: data.password,
+        odsCode: data.odsCode,
+      });
       setUser(response.data?.data?.user);
+      setPharmacy(response.data?.data?.pharmacy);
       setToken(response.data?.data?.token);
       setIsAuthenticated(true);
+      toast.success("Login successful!");
       router.push("/login-technician/technician-otp");
     } catch (error) {
-      console.error("Login failed:", error.response?.data || error.message);
-      alert(error.response?.data?.message || "Login failed");
+      console.error("Login failed:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Login failed. Please try again.";
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
   return (
     <div className="text-center">
       <div className="mb-[25px] sm:mb-[30px]">
@@ -57,18 +88,22 @@ const TechnicianLoginForm = () => {
         title="Sign In as Pharmacist (Technician)"
         description="Welcome Back! Please Enter Your Details."
       />
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="relative mb-[20px]">
           <span className="absolute left-[17px] top-[18px] sm:top-[20px]">
             <HiOutlineEnvelope />
           </span>
           <input
             type="email"
-            name="email"
-            id="email"
+            {...register("email")}
             placeholder="Your email"
-            className="pl-[45px]"
+            className={`pl-[45px] ${errors.email ? "border-red-500" : ""}`}
           />
+          {errors.email && (
+            <p className="text-red-500 text-sm text-left mt-1">
+              {errors.email.message}
+            </p>
+          )}
         </div>
         <div className="relative mb-[30px]">
           <span className="absolute left-[17px] top-[18px] sm:top-[20px]">
@@ -76,12 +111,15 @@ const TechnicianLoginForm = () => {
           </span>
           <input
             type={showPassword ? "text" : "password"}
-            name="password"
-            id="password"
+            {...register("password")}
             placeholder="Password"
-            className="pl-[45px]"
+            className={`pl-[45px] ${errors.password ? "border-red-500" : ""}`}
           />
-          {/* Show/Hide Password Icon */}
+          {errors.password && (
+            <p className="text-red-500 text-sm text-left mt-1">
+              {errors.password.message}
+            </p>
+          )}
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
@@ -89,6 +127,22 @@ const TechnicianLoginForm = () => {
           >
             {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
           </button>
+        </div>
+        <div className="relative mb-[20px]">
+          <span className="absolute left-[17px] top-[18px] sm:top-[20px]">
+            <HiOutlineIdentification />
+          </span>
+          <input
+            type="text"
+            {...register("odsCode")}
+            placeholder="ODS code"
+            className={`pl-[45px] ${errors.odsCode ? "border-red-500" : ""}`}
+          />
+          {errors.odsCode && (
+            <p className="text-red-500 text-sm text-left mt-1">
+              {errors.odsCode.message}
+            </p>
+          )}
         </div>
         <div className="flex justify-between gap-2.5 mb-[30px]">
           <label className="relative flex items-center gap-[10px] text-[#374151] text-[16px] sm:text-[18px]">
@@ -105,9 +159,20 @@ const TechnicianLoginForm = () => {
           </Link>
         </div>
         <div className="flex justify-between gap-2.5 mb-[30px]">
-          <button type="submit" className="primary-btn cursor-pointer w-full">
-            Login
-          </button>
+          <Button
+            type="submit"
+            className="primary-btn cursor-pointer w-full"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <div className="flex items-center justify-center gap-2">
+                <Spinner size="sm" className="text-white" />
+                <span>Logging in...</span>
+              </div>
+            ) : (
+              "Login"
+            )}
+          </Button>
         </div>
         <p className="mb-[30px] sm:mb-[15px]">
           Don&apos;t have an account yet?{" "}
