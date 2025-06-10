@@ -13,12 +13,19 @@ import { API_BASE_URL } from "@/config/constant";
 import useAuthStore from "@/store/useAuthStore";
 import Image from "next/image";
 
-const PharmacistModal = ({ isOpen, onClose, pharmacistId, onSuccess, setRefetchedAt: setParentRefetchedAt }) => {
+const PharmacistModal = ({
+  isOpen,
+  onClose,
+  pharmacistId,
+  onSuccess,
+  setRefetchedAt: setParentRefetchedAt,
+}) => {
   const [pharmacist, setPharmacist] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const { token } = useAuthStore();
+  const { token, pharmacy } = useAuthStore();
   const [refetchedAt, setRefetchedAt] = useState(null);
+  const isCreating = !pharmacistId;
 
   const [formData, setFormData] = useState({
     name: "",
@@ -79,21 +86,37 @@ const PharmacistModal = ({ isOpen, onClose, pharmacistId, onSuccess, setRefetche
     e.preventDefault();
     try {
       setLoading(true);
-      await axios.put(
-        `${API_BASE_URL}/api/v1/users/${pharmacistId}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
+      if (isCreating) {
+        await axios.post(
+          `${API_BASE_URL}/api/v1/users`,
+          {
+            ...formData,
+            role: "PHARMACIST",
+            pharmacyId: pharmacy?.id,
           },
-        }
-      );
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      } else {
+        await axios.put(
+          `${API_BASE_URL}/api/v1/users/${pharmacistId}`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      }
       setIsEditing(false);
       onSuccess?.();
       setRefetchedAt(Date.now());
       onClose();
     } catch (error) {
-      console.error("Error updating pharmacist:", error);
+      console.error("Error saving pharmacist:", error);
     } finally {
       setLoading(false);
     }
@@ -106,7 +129,11 @@ const PharmacistModal = ({ isOpen, onClose, pharmacistId, onSuccess, setRefetche
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? "Edit Pharmacist" : "Pharmacist Details"}
+            {isCreating
+              ? "Add New Pharmacist"
+              : isEditing
+              ? "Edit Pharmacist"
+              : "Pharmacist Details"}
           </DialogTitle>
         </DialogHeader>
 
@@ -116,7 +143,7 @@ const PharmacistModal = ({ isOpen, onClose, pharmacistId, onSuccess, setRefetche
           </div>
         ) : (
           <div className="mt-4">
-            {!isEditing ? (
+            {!isEditing && !isCreating ? (
               <div className="space-y-4">
                 <div className="flex items-center gap-4 mb-6">
                   {pharmacist?.photo ? (
@@ -201,6 +228,7 @@ const PharmacistModal = ({ isOpen, onClose, pharmacistId, onSuccess, setRefetche
                       name="name"
                       value={formData?.name}
                       onChange={handleInputChange}
+                      required
                     />
                   </div>
                   <div className="space-y-2">
@@ -216,6 +244,7 @@ const PharmacistModal = ({ isOpen, onClose, pharmacistId, onSuccess, setRefetche
                       type="email"
                       value={formData?.email}
                       onChange={handleInputChange}
+                      required
                     />
                   </div>
                   <div className="space-y-2">
@@ -230,6 +259,7 @@ const PharmacistModal = ({ isOpen, onClose, pharmacistId, onSuccess, setRefetche
                       name="phone"
                       value={formData?.phone}
                       onChange={handleInputChange}
+                      required
                     />
                   </div>
                   <div className="space-y-2">
@@ -244,6 +274,7 @@ const PharmacistModal = ({ isOpen, onClose, pharmacistId, onSuccess, setRefetche
                       name="gphcNumber"
                       value={formData?.gphcNumber}
                       onChange={handleInputChange}
+                      required
                     />
                   </div>
                   <div className="space-y-2">
@@ -291,15 +322,11 @@ const PharmacistModal = ({ isOpen, onClose, pharmacistId, onSuccess, setRefetche
                 </div>
 
                 <div className="flex justify-end gap-2 mt-6">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setIsEditing(false)}
-                  >
+                  <Button variant="outline" onClick={onClose}>
                     Cancel
                   </Button>
                   <Button type="submit" disabled={loading}>
-                    {loading ? "Saving..." : "Save Changes"}
+                    {isCreating ? "Create" : "Save Changes"}
                   </Button>
                 </div>
               </form>

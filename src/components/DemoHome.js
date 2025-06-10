@@ -104,6 +104,28 @@ const DemoHome = () => {
               Login
             </Link>
           </div>
+
+          {/* Login as Admin */}
+          <div className="bg-white p-6 mb-6 rounded-[14px] border border-[#DAECFF] hover:shadow-lg transition-shadow">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="h-12 w-12 bg-[#E8F1FF] rounded-full flex items-center justify-center">
+                <HiOutlineUser className="text-[#3B82F6] text-xl" />
+              </div>
+              <h3 className="text-xl font-semibold text-[#262262]">
+                Login as System Admin
+              </h3>
+            </div>
+            <p className="text-[#707B8A] mb-6">
+              Access the admin dashboard to manage system-wide settings and
+              users
+            </p>
+            <Link
+              href="/login-admin"
+              className="inline-block bg-[#3B82F6] text-white px-6 py-2 rounded-md hover:bg-[#2563EB] transition-colors"
+            >
+              Login
+            </Link>
+          </div>
         </div>
       </div>
     </section>

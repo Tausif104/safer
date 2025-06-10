@@ -105,7 +105,7 @@ const TechnicianLoginForm = () => {
             </p>
           )}
         </div>
-        <div className="relative mb-[30px]">
+        <div className="relative mb-[20px]">
           <span className="absolute left-[17px] top-[18px] sm:top-[20px]">
             <LuLockKeyhole />
           </span>
@@ -128,7 +128,7 @@ const TechnicianLoginForm = () => {
             {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
           </button>
         </div>
-        <div className="relative mb-[20px]">
+        <div className="relative mb-[30px]">
           <span className="absolute left-[17px] top-[18px] sm:top-[20px]">
             <HiOutlineIdentification />
           </span>

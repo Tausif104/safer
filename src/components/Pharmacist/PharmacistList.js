@@ -20,12 +20,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { API_BASE_URL } from "@/config/constant";
+import { API_BASE_URL, USER_ROLE, PHARMACIST_STATUS } from "@/config/constant";
 import useAuthStore from "@/store/useAuthStore";
 import AddCircle from "@/assets/images/add-circle.svg";
 import PharmacistModal from "./PharmacistModal";
 
-const PharmacistList = () => {
+const PharmacistList = ({ type }) => {
   const [pharmacists, setPharmacists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedPharmacistId, setSelectedPharmacistId] = useState(null);
@@ -35,17 +35,27 @@ const PharmacistList = () => {
   const [refetchedAt, setRefetchedAt] = useState(null);
 
   useEffect(() => {
+    let query = "";
+    if (pharmacy?.id) {
+      query = `pharmacyId=${pharmacy.id}`;
+    } else {
+      query = `role=${USER_ROLE.PHARMACIST}&status=${
+        type === "approval-pending"
+          ? PHARMACIST_STATUS.PENDING
+          : PHARMACIST_STATUS.APPROVED
+      }`;
+    }
     const fetchPharmacists = async () => {
       try {
         const response = await axios.get(
-          `${API_BASE_URL}/api/v1/users?pharmacyId=${pharmacy.id}`,
+          `${API_BASE_URL}/api/v1/users?${query}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
-        setPharmacists(response.data?.data);
+        setPharmacists(response.data?.data?.users || response.data?.data);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching pharmacists:", error);
@@ -53,7 +63,7 @@ const PharmacistList = () => {
       }
     };
     fetchPharmacists();
-  }, [pharmacy.id, token, refetchedAt]);
+  }, [pharmacy?.id, token, refetchedAt, type]);
 
   useEffect(() => {
     if (!isModalOpen) {
@@ -113,32 +123,43 @@ const PharmacistList = () => {
     setIsModalOpen(true);
   };
 
+  const handleAddNew = () => {
+    setSelectedPharmacistId(null);
+    setIsModalOpen(true);
+  };
+
   const handleModalClose = () => {
     setIsModalOpen(false);
     setSelectedPharmacistId(null);
   };
 
   const handleModalSuccess = () => {
-    fetchPharmacists();
+    setRefetchedAt(Date.now());
   };
 
   return (
     <section className="bg-white rounded-[16px] px-0 p-[20px] sm:p-[30px] pt-0 sm:pt-[30px] mt-[30px]">
       <div>
         <div className="flex justify-between flex-wrap gap-4 sm:mb-5 sm:p-0 p-[15px]">
-          <h4 className="text-[16px] sm:text-[25px]">Pharmacists</h4>
-          <Link
-            href="/pharmacist/add"
-            className="bg-[#3B82F6] text-white px-4 py-2 rounded-md hover:bg-[#2563EB] transition-colors flex items-center gap-2"
-          >
-            <Image
-              className="brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0"
-              width={26}
-              src={AddCircle}
-              alt=""
-            />
-            Add Pharmacist
-          </Link>
+          <h4 className="text-[16px] sm:text-[25px]">
+            {type === "approval-pending"
+              ? "Pharmacists Pending Approval"
+              : "Pharmacists"}
+          </h4>
+          {type !== "approval-pending" && (
+            <Button
+              onClick={handleAddNew}
+              className="bg-[#3B82F6] text-white px-4 py-2 rounded-md hover:bg-[#2563EB] cursor-pointer transition-colors flex items-center gap-2"
+            >
+              <Image
+                className="brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0"
+                width={26}
+                src={AddCircle}
+                alt=""
+              />
+              Add Pharmacist
+            </Button>
+          )}
         </div>
         <div>
           <Table>
@@ -218,12 +239,13 @@ const PharmacistList = () => {
                       <span
                         className={`px-2 py-1 rounded-full text-sm ${
                           pharmacist?.pharmacyUserStatus?.toLowerCase() ===
-                          "approved"
+                            "approved" ||
+                          pharmacist?.status?.toLowerCase() === "approved"
                             ? "bg-green-100 text-green-800"
                             : "bg-yellow-100 text-yellow-800"
                         }`}
                       >
-                        {pharmacist?.pharmacyUserStatus}
+                        {pharmacist?.pharmacyUserStatus || pharmacist?.status}
                       </span>
                     </TableCell>
                     <TableCell className="text-right py-[8px] px-[20px] border-b border-[#DAECFF]">
@@ -240,22 +262,27 @@ const PharmacistList = () => {
                           >
                             View/Edit
                           </DropdownMenuItem>
-                          {!pharmacist?.isApproved && (
-                            <>
-                              <DropdownMenuItem
-                                onClick={() => handleApprove(pharmacist?.pharmacyUserId)}
-                                className="cursor-pointer"
-                              >
-                                Approve
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => handleReject(pharmacist?.pharmacyUserId)}
-                                className="cursor-pointer"
-                              >
-                                Reject
-                              </DropdownMenuItem>
-                            </>
-                          )}
+                          {type === "approval-pending" &&
+                            !pharmacist?.isApproved && (
+                              <>
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    handleApprove(pharmacist?.pharmacyUserId)
+                                  }
+                                  className="cursor-pointer"
+                                >
+                                  Approve
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    handleReject(pharmacist?.pharmacyUserId)
+                                  }
+                                  className="cursor-pointer"
+                                >
+                                  Reject
+                                </DropdownMenuItem>
+                              </>
+                            )}
                           <DropdownMenuItem
                             onClick={() => handleDelete(pharmacist?.id)}
                             className="text-red-600 cursor-pointer"

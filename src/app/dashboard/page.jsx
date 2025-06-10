@@ -5,6 +5,7 @@ import useAuthStore from "@/store/useAuthStore";
 import { USER_ROLE } from "@/config/constant";
 import DashboardLoginTechnician from "@/components/Dashboard/DashboardLoginTechnician";
 import DashboardLoginPremises from "@/components/Dashboard/DashboardLoginPremises";
+import DashboardLoginAdmin from "@/components/Dashboard/DashboardLoginAdmin";
 
 const Dashboard = () => {
   const router = useRouter();
@@ -20,6 +21,8 @@ const Dashboard = () => {
     return <DashboardLoginTechnician />;
   } else if (user?.role === USER_ROLE.PHARMACY) {
     return <DashboardLoginPremises />;
+  } else if (user?.role === USER_ROLE.ADMIN) {
+    return <DashboardLoginAdmin />;
   }
 };
 

@@ -6,4 +6,17 @@ export const USER_ROLE = {
   DISPENSER: "dispenser",
   STAFF: "staff",
   PHARMACY: "pharmacy",
+  ADMIN: "admin",
+};
+
+export const PHARMACIST_STATUS = {
+  APPROVED: "approved",
+  PENDING: "pending",
+  REJECTED: "rejected",
+};
+
+export const PHARMACY_STATUS = {
+  APPROVED: "APPROVED",
+  PENDING: "PENDING",
+  REJECTED: "REJECTED",
 };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Icon1 from "@/assets/images/pharmacy-icon1.svg";
@@ -22,6 +22,9 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { HiDotsVertical } from "react-icons/hi";
+import axios from "axios";
+import { API_BASE_URL, PHARMACY_STATUS } from "@/config/constant";
+import useAuthStore from "@/store/useAuthStore";
 
 const iconMap = {
   pharmacy1: Icon1,
@@ -31,81 +34,62 @@ const iconMap = {
   pharmacy5: Icon5,
 };
 
-const pharmacies = [
-  {
-    name: "Priti Pharmacy",
-    email: "jitu@example.com",
-    ods_code: "487441",
-    address: "8502 Preston Rd. Inglewood, Maine 98380",
-    town: "Town BO",
-    post_code: "3002",
-    iconKey: "pharmacy1",
-  },
-  {
-    name: "Priti Pharmacy",
-    email: "jitu@example.com",
-    ods_code: "487441",
-    address: "6391 Elgin St. Celina, Delaware 10299",
-    town: "Town AB",
-    post_code: "3001",
-    iconKey: "pharmacy2",
-  },
-  {
-    name: "Priti Pharmacy",
-    email: "jitu@example.com",
-    ods_code: "487441",
-    address: "3517 W. Gray St. Utica, Pennsylvania 57867",
-    town: "Town BD",
-    post_code: "3006",
-    iconKey: "pharmacy3",
-  },
-  {
-    name: "Priti Pharmacy",
-    email: "jitu@example.com",
-    ods_code: "487441",
-    address: "2464 Royal Ln. Mesa, New Jersey 45463",
-    town: "Town AP",
-    post_code: "3005",
-    iconKey: "pharmacy4",
-  },
-  {
-    name: "Priti Pharmacy",
-    email: "jitu@example.com",
-    ods_code: "487441",
-    address: "1901 Thornridge Cir. Shiloh, Hawaii 81063",
-    town: "Town BJ",
-    post_code: "3004",
-    iconKey: "pharmacy5",
-  },
-  {
-    name: "Priti Pharmacy",
-    email: "jitu@example.com",
-    ods_code: "487441",
-    address: "1901 Thornridge Cir. Shiloh, Hawaii 81063",
-    town: "Town BA",
-    post_code: "3020",
-    iconKey: "pharmacy5",
-  },
-  {
-    name: "Priti Pharmacy",
-    email: "jitu@example.com",
-    ods_code: "487441",
-    address: "1901 Thornridge Cir. Shiloh, Hawaii 81063",
-    town: "Town BC",
-    post_code: "3003",
-    iconKey: "pharmacy5",
-  },
-];
+const ListOfPharmacies = ({ status = PHARMACY_STATUS.APPROVED }) => {
+  const [pharmacies, setPharmacies] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { token } = useAuthStore();
+  const [refetchedAt, setRefetchedAt] = useState(null);
 
-const ListOfPharmacies = () => {
+  useEffect(() => {
+    const fetchPharmacies = async () => {
+      try {
+        const response = await axios.get(
+          `${API_BASE_URL}/api/v1/pharmacies?status=${status}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setPharmacies(response.data?.data?.pharmacies || []);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching pharmacies:", error);
+        setLoading(false);
+      }
+    };
+    fetchPharmacies();
+  }, [token, refetchedAt, status]);
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`${API_BASE_URL}/api/v1/pharmacies/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setRefetchedAt(Date.now());
+    } catch (error) {
+      console.error("Error deleting pharmacy:", error);
+    }
+  };
+
   return (
     <section className="bg-white rounded-[16px] px-0 p-[20px] sm:p-[30px] pt-0 sm:pt-[30px]">
       <div>
         <div className="flex justify-between flex-wrap gap-4 mb-5">
           <h4 className="text-[16px] sm:text-[25px]">
-            List of Pharmacies Joined (last 7 days)
+            List of Pharmacies{" "}
+            {status === PHARMACY_STATUS.APPROVED
+              ? "Joined (last 7 days)"
+              : status === PHARMACY_STATUS.PENDING
+              ? "Pending Approval"
+              : "Rejected"}
           </h4>
-          <Link href="/" className="text-[14px] sm:text-[18px] text-[#3B82F6]">
+          <Link
+            href="/pharmacies"
+            className="text-[14px] sm:text-[18px] text-[#3B82F6]"
+          >
             See All
           </Link>
         </div>
@@ -132,60 +116,89 @@ const ListOfPharmacies = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {pharmacies.map((pharmacy, index) => {
-                const IconComponent = iconMap[pharmacy.iconKey];
-                return (
-                  <TableRow key={index}>
-                    <TableCell className="py-[8px] px-[20px] border-b border-[#DAECFF]">
-                      <div className="flex items-center gap-3.5">
-                        {IconComponent && (
-                          <Image
-                            src={IconComponent}
-                            alt={`${pharmacy.name} icon`}
-                            width={42}
-                            height={42}
-                            className="rounded-full"
-                          />
-                        )}
-                        <div className="flex flex-col">
-                          <h6 className="text-[14px] font-medium mb-1">
-                            {pharmacy.name}
-                          </h6>
-                          <p className="text-[12px] text-[#707B8A]">
-                            {pharmacy.email}
-                          </p>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-4">
+                    Loading...
+                  </TableCell>
+                </TableRow>
+              ) : pharmacies.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-4">
+                    No pharmacies found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                pharmacies.map((pharmacy, index) => {
+                  const IconComponent = iconMap[`pharmacy${(index % 5) + 1}`];
+                  return (
+                    <TableRow key={pharmacy.id}>
+                      <TableCell className="py-[8px] px-[20px] border-b border-[#DAECFF]">
+                        <div className="flex items-center gap-3.5">
+                          {pharmacy.logo ? (
+                            <Image
+                              src={pharmacy.logo}
+                              alt={pharmacy.name}
+                              width={42}
+                              height={42}
+                              className="rounded-full"
+                            />
+                          ) : (
+                            IconComponent && (
+                              <Image
+                                src={IconComponent}
+                                alt={`${pharmacy.name} icon`}
+                                width={42}
+                                height={42}
+                                className="rounded-full"
+                              />
+                            )
+                          )}
+                          <div className="flex flex-col">
+                            <h6 className="text-[14px] font-medium mb-1">
+                              {pharmacy.name}
+                            </h6>
+                            <p className="text-[12px] text-[#707B8A]">
+                              {pharmacy.email}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]">
-                      {pharmacy.ods_code}
-                    </TableCell>
-                    <TableCell className="py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]">
-                      {pharmacy.address}
-                    </TableCell>
-                    <TableCell className="py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]">
-                      {pharmacy.town}
-                    </TableCell>
-                    <TableCell className="py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]">
-                      {pharmacy.post_code}
-                    </TableCell>
-                    <TableCell className="text-right py-[8px] px-[20px] border-b border-[#DAECFF]">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button className="!bg-transparent text-[#707B8A] cursor-pointer focus:outline-0 focus:shadow-none">
-                            <HiDotsVertical />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>View</DropdownMenuItem>
-                          <DropdownMenuItem>Edit</DropdownMenuItem>
-                          <DropdownMenuItem>Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+                      </TableCell>
+                      <TableCell className="py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]">
+                        {pharmacy.odsCode}
+                      </TableCell>
+                      <TableCell className="py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]">
+                        {pharmacy.addressLine1}
+                      </TableCell>
+                      <TableCell className="py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]">
+                        {pharmacy.town}
+                      </TableCell>
+                      <TableCell className="py-[8px] px-[20px] border-b border-[#DAECFF] text-[16px]">
+                        {pharmacy.postCode}
+                      </TableCell>
+                      <TableCell className="text-right py-[8px] px-[20px] border-b border-[#DAECFF]">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button className="!bg-transparent text-[#707B8A] cursor-pointer focus:outline-0 focus:shadow-none">
+                              <HiDotsVertical />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem>View</DropdownMenuItem>
+                            <DropdownMenuItem>Edit</DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleDelete(pharmacy.id)}
+                              className="text-red-600 cursor-pointer"
+                            >
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
             </TableBody>
           </Table>
         </div>

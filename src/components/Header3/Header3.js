@@ -7,7 +7,7 @@ import Bell from "@/assets/images/bell.svg";
 import userProfile from "@/assets/images/user-profile.svg";
 import userProfile2 from "@/assets/images/user-profile2.svg";
 import userProfile3 from "@/assets/images/user-profile3.svg";
-import { API_BASE_URL } from "@/config/constant";
+import { API_BASE_URL, USER_ROLE } from "@/config/constant";
 import {
   Popover,
   PopoverContent,
@@ -31,6 +31,7 @@ import { LuMapPin } from "react-icons/lu";
 import PharmacistSwitchOption from "./PharmacistSwitchOption";
 import PremiseNameOds from "./PremiseNameOds";
 import toast, { Toaster } from "react-hot-toast";
+import AdminNameEmail from "./AdminNameEmail";
 
 const Header = () => {
   const { user, pharmacy, logout } = useAuthStore();
@@ -79,17 +80,29 @@ const Header = () => {
     setShowNoResultDialog(false);
   };
 
+  const showSecondDiv = user?.role !== USER_ROLE.ADMIN;
+
   return (
     <>
       <Toaster />
-      <header className="bg-[#F8FEE6] sm:bg-white py-[20px] sm:py-[15px] px-[20px] rounded-[12px] sm:shadow-[6px_16px_50px_6px_rgba(38,57,136,0.06)] grid 2xl:grid-cols-[6fr_6fr] xl:grid-cols-[5fr_7fr] sm:grid-cols-[3fr_9fr] gap-[20px] sm:gap-0 items-center mx-[-20px] sm:mx-0 sm:mb-[30px]">
-        <div className="flex sm:justify-end justify-between items-center gap-[15px] sm:order-2">
-          {user?.role === "pharmacist" ? (
+      <header className="bg-[#F8FEE6] sm:bg-white py-[20px] sm:py-[15px] px-[20px] rounded-[12px] sm:shadow-[6px_16px_50px_6px_rgba(38,57,136,0.06)] flex items-center mx-[-20px] sm:mx-0 sm:mb-[30px]">
+        <div
+          className={`${
+            showSecondDiv ? "flex-1 sm:justify-end" : "w-full"
+          } flex justify-between items-center gap-[15px] sm:order-2`}
+        >
+          {user?.role === USER_ROLE.PHARMACIST ? (
             <PharmacistSwitchOption />
+          ) : user?.role === USER_ROLE.ADMIN ? (
+            <AdminNameEmail user={user} />
           ) : (
             <PremiseNameOds pharmacy={pharmacy} />
           )}
-          <div className="flex gap-[10px] sm:order-1">
+          <div
+            className={`flex gap-[10px] sm:order-1 ${
+              showSecondDiv ? "" : "ml-auto"
+            }`}
+          >
             <Popover>
               <PopoverTrigger asChild>
                 <button className="h-[48px] w-[48px] border border-[#E7FBBD] sm:border-[#DAECFF] flex justify-center items-center rounded-full cursor-pointer bg-white">
@@ -138,38 +151,40 @@ const Header = () => {
             </button>
           </form>
         </div>
-        <div className="sm:order-1 flex items-center gap-[20px]">
-          <div className="gap-[14px] hidden xl:flex">
-            <span className="h-[48px] w-[48px] min-w-[48px] border border-[#E7FBBD] sm:border-[#DAECFF] flex justify-center items-center rounded-full cursor-pointer bg-white">
-              <LuMapPin />
-            </span>
-            <div className="">
-              <p className="text-[12px] mb-[5px]">Pharmacy Address:</p>
-              <p className="text-[16px]">
-                {`${pharmacy?.addressLine1}, ${pharmacy?.town}, ${pharmacy?.postCode}` ||
-                  "N/A"}
-              </p>
+        {user?.role !== USER_ROLE.ADMIN && (
+          <div className="sm:order-1 flex items-center gap-[20px]">
+            <div className="gap-[14px] hidden xl:flex">
+              <span className="h-[48px] w-[48px] min-w-[48px] border border-[#E7FBBD] sm:border-[#DAECFF] flex justify-center items-center rounded-full cursor-pointer bg-white">
+                <LuMapPin />
+              </span>
+              <div className="">
+                <p className="text-[12px] mb-[5px]">Pharmacy Address:</p>
+                <p className="text-[16px]">
+                  {`${pharmacy?.addressLine1}, ${pharmacy?.town}, ${pharmacy?.postCode}` ||
+                    "N/A"}
+                </p>
+              </div>
             </div>
-          </div>
-          <form
-            onSubmit={handleSearch}
-            className="flex relative group sm:hidden w-full"
-          >
-            <input
-              className="w-full border border-[#E7FBBD] sm:border-[#DAECFF] bg-white leading-[60px] px-[24px] pr-[50px] rounded-full placeholder:text-[#707B8A] focus:outline-0 focus:shadow-none transition-all duration-300 origin-right"
-              type="search"
-              name="search"
-              id="search"
-              placeholder="Search here"
-            />
-            <button
-              className="h-[48px] w-[48px] min-w-[48px] border border-[#DAECFF] flex items-center justify-center rounded-full bg-white absolute right-[7px] top-[7px] cursor-pointer"
-              type="submit"
+            <form
+              onSubmit={handleSearch}
+              className="flex relative group sm:hidden w-full"
             >
-              <Image className="" width={20} src={SearchIcon} alt="" />
-            </button>
-          </form>
-        </div>
+              <input
+                className="w-full border border-[#E7FBBD] sm:border-[#DAECFF] bg-white leading-[60px] px-[24px] pr-[50px] rounded-full placeholder:text-[#707B8A] focus:outline-0 focus:shadow-none transition-all duration-300 origin-right"
+                type="search"
+                name="search"
+                id="search"
+                placeholder="Search here"
+              />
+              <button
+                className="h-[48px] w-[48px] min-w-[48px] border border-[#DAECFF] flex items-center justify-center rounded-full bg-white absolute right-[7px] top-[7px] cursor-pointer"
+                type="submit"
+              >
+                <Image className="" width={20} src={SearchIcon} alt="" />
+              </button>
+            </form>
+          </div>
+        )}
       </header>
 
       {searchResult && (
