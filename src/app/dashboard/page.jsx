@@ -17,11 +17,11 @@ const Dashboard = () => {
     }
   }, [isAuthenticated, router]);
 
-  if (user?.role === USER_ROLE.PHARMACIST) {
+  if (user?.role.toLowerCase() === USER_ROLE.PHARMACIST.toLowerCase()) {
     return <DashboardLoginTechnician />;
-  } else if (user?.role === USER_ROLE.PHARMACY) {
+  } else if (user?.role.toLowerCase() === USER_ROLE.PHARMACY.toLowerCase()) {
     return <DashboardLoginPremises />;
-  } else if (user?.role === USER_ROLE.ADMIN) {
+  } else if (user?.role.toLowerCase() === USER_ROLE.ADMIN.toLowerCase()) {
     return <DashboardLoginAdmin />;
   }
 };
