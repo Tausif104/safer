@@ -207,7 +207,7 @@ const NearMiss = () => {
           <ArrowLeft />
         </Link>
         <h4 className="text-[22px] sm:text-[25px] sm:pl-[30px] pl-[15px] flex">
-          Near Miss
+          Near Miss (Dispensing Error)
         </h4>
       </div>
 
@@ -220,7 +220,7 @@ const NearMiss = () => {
         </Link>
         <div className="flex justify-between flex-wrap gap-4 mb-5">
           <h4 className="text-[16px] sm:text-[25px] px-0  pt-0 sm:pt-[30px] pl-[30px] hidden md:flex">
-            Near Miss
+            Near Miss (Dispensing Error)
           </h4>
         </div>
         <hr className="bg-[#DAECFF] my-[16px] hidden md:flex" />
