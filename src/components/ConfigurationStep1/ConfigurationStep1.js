@@ -66,8 +66,13 @@ const ConfigurationStep1Content = () => {
     const pharmacyData = {
       name: formData.get("name"),
       phone: formData.get("phone"),
-      address: formData.get("address"),
+      addressLine1: formData.get("addressLine1"),
+      town: formData.get("town"),
+      postCode: formData.get("postCode"),
       odsCode: formData.get("ods"),
+      email: pharmacy?.odsCode
+        ? `pharmacy.${pharmacy.odsCode}@nhs.net`
+        : formData.get("email"),
       gphcPremisesNumber: formData.get("gphc"),
     };
 
@@ -163,6 +168,21 @@ const ConfigurationStep1Content = () => {
               id="phone"
               defaultValue={pharmacy?.phone}
               className="bg-[#F8F9FB] text-[#262262] placeholder:text-[#262262]"
+            />
+          </div>
+          <div className="relative mb-[16px] sm:mb-[20px]">
+            <label className="text-[14px] text-[#707B8A] mb-2.5 block">
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              id="email"
+              defaultValue={
+                pharmacy?.odsCode ? `pharmacy.${pharmacy.odsCode}@nhs.net` : ""
+              }
+              disabled
+              className="bg-[#F8F9FB] text-[#262262] placeholder:text-[#262262] disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
             />
           </div>
           <div className="relative mb-[16px] sm:mb-[20px]">

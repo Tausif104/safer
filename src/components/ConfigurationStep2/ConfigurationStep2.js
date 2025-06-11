@@ -3,15 +3,22 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { GoArrowLeft } from "react-icons/go";
-import { FaCircleCheck } from "react-icons/fa6";
 import { FaPlus } from "react-icons/fa6";
+import { FaCopy } from "react-icons/fa";
+import { FaCheck } from "react-icons/fa";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { API_BASE_URL, DEFAULT_PASSWORD, USER_ROLE } from "@/config/constant";
+import { API_BASE_URL, USER_ROLE, PHARMACIST_STATUS } from "@/config/constant";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -29,10 +36,34 @@ const schema = yup.object().shape({
   role: yup.string().required("Role is required"),
 });
 
+const generatePassword = () => {
+  const length = 12;
+  const charset =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+  let password = "";
+
+  password += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[Math.floor(Math.random() * 26)];
+  password += "abcdefghijklmnopqrstuvwxyz"[Math.floor(Math.random() * 26)];
+  password += "0123456789"[Math.floor(Math.random() * 10)];
+  password += "!@#$%^&*"[Math.floor(Math.random() * 8)];
+
+  for (let i = password.length; i < length; i++) {
+    password += charset[Math.floor(Math.random() * charset.length)];
+  }
+
+  return password
+    .split("")
+    .sort(() => Math.random() - 0.5)
+    .join("");
+};
+
 const ConfigurationStep2 = () => {
   const router = useRouter();
   const { token: storeToken, pharmacy } = useAuthStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [generatedPassword, setGeneratedPassword] = useState("");
+  const [isCopied, setIsCopied] = useState(false);
 
   const {
     register,
@@ -47,13 +78,17 @@ const ConfigurationStep2 = () => {
 
   const createUser = async (data) => {
     setIsSubmitting(true);
+    const password = generatePassword();
+    setGeneratedPassword(password);
+
     const userData = {
       name: data.name,
       phone: data.phone,
       email: data.email,
       role: data.role,
       gphcNumber: data.gphc,
-      password: DEFAULT_PASSWORD,
+      password: password,
+      status: PHARMACIST_STATUS.APPROVED,
     };
 
     try {
@@ -66,6 +101,7 @@ const ConfigurationStep2 = () => {
           },
         }
       );
+      setShowPasswordModal(true);
       return true;
     } catch (error) {
       console.error("Failed to create user:", error);
@@ -92,6 +128,14 @@ const ConfigurationStep2 = () => {
 
   const handleSkip = () => {
     router.push("/configuration-step3");
+  };
+
+  const handleCopyPassword = () => {
+    navigator.clipboard.writeText(generatedPassword);
+    setIsCopied(true);
+    setTimeout(() => {
+      setIsCopied(false);
+    }, 1000);
   };
 
   return (
@@ -248,6 +292,41 @@ const ConfigurationStep2 = () => {
           </div>
         </form>
       </div>
+
+      <Dialog open={showPasswordModal} onOpenChange={setShowPasswordModal}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="text-center text-[24px] font-semibold text-[#262262]">
+              User Created Successfully!
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-4">
+            <p className="text-gray-600 mb-4">
+              Please save this password securely. It will not be shown again.
+            </p>
+            <div className="bg-gray-100 p-4 rounded-lg flex items-center justify-between">
+              <code className="text-lg font-mono">{generatedPassword}</code>
+              <button
+                onClick={handleCopyPassword}
+                className="p-2 hover:bg-gray-200 rounded-full transition-colors cursor-pointer"
+                title="Copy password"
+              >
+                {isCopied ? (
+                  <FaCheck className="text-green-600" />
+                ) : (
+                  <FaCopy className="text-gray-600" />
+                )}
+              </button>
+            </div>
+            <button
+              onClick={() => setShowPasswordModal(false)}
+              className="mt-6 w-full bg-[#99C729] text-white py-3 rounded-full hover:bg-[#8ab324] transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };

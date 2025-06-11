@@ -20,6 +20,7 @@ import { useRouter } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "../ui/button";
 import toast from "react-hot-toast";
+import PharmacyConfirmationModal from "./PharmacyConfirmationModal";
 
 const schema = yup
   .object({
@@ -35,6 +36,9 @@ const schema = yup
 const TechnicianLoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPharmacyModal, setShowPharmacyModal] = useState(false);
+  const [selectedPharmacy, setSelectedPharmacy] = useState(null);
+  const [loginData, setLoginData] = useState(null);
   const { setUser, setIsAuthenticated, setToken, setPharmacy } = useAuthStore();
   const router = useRouter();
 
@@ -49,10 +53,36 @@ const TechnicianLoginForm = () => {
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     try {
+      const pharmacy = await axios.get(
+        `${API_BASE_URL}/api/v1/pharmacies/ods-code/${data.odsCode}`
+      );
+      if (!pharmacy.data?.data) {
+        toast.error("Pharmacy not found");
+        return;
+      }
+
+      setSelectedPharmacy(pharmacy.data.data);
+      setLoginData(data);
+      setShowPharmacyModal(true);
+    } catch (error) {
+      console.error("Error fetching pharmacy:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to fetch pharmacy details. Please try again.";
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handlePharmacyConfirm = async () => {
+    setIsSubmitting(true);
+    try {
       const response = await axios.post(`${API_BASE_URL}/api/v1/auth/login`, {
-        email: data.email,
-        passwordOrPin: data.password,
-        odsCode: data.odsCode,
+        email: loginData.email,
+        passwordOrPin: loginData.password,
+        odsCode: loginData.odsCode,
       });
       setUser(response.data?.data?.user);
       setPharmacy(response.data?.data?.pharmacy);
@@ -69,6 +99,7 @@ const TechnicianLoginForm = () => {
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
+      setShowPharmacyModal(false);
     }
   };
 
@@ -216,6 +247,13 @@ const TechnicianLoginForm = () => {
           </p>
         </div>
       </form>
+      <PharmacyConfirmationModal
+        isOpen={showPharmacyModal}
+        onClose={() => setShowPharmacyModal(false)}
+        pharmacy={selectedPharmacy}
+        onConfirm={handlePharmacyConfirm}
+        isSubmitting={isSubmitting}
+      />
     </div>
   );
 };
