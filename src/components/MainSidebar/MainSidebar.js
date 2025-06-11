@@ -27,6 +27,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"; // adjust path based on your setup
 import useAuthStore from "@/store/useAuthStore";
+import { USER_ROLE } from "@/config/constant";
 
 const MainSidebar = () => {
   const { isExpanded, handleToggle } = useRootContext();
@@ -86,7 +87,7 @@ const MainSidebar = () => {
             </Link>
           </li>
 
-          {user?.role === "admin" ? (
+          {user?.role === USER_ROLE.ADMIN ? (
             <>
               <li>
                 <Link
@@ -305,7 +306,7 @@ const MainSidebar = () => {
           </li>
         </ul>
       </div>
-      {user?.role !== "admin" && (
+      {user?.role !== USER_ROLE.ADMIN && (
         <div className="bg-[#3B82F6] rounded-[14px] text-center px-[24px] py-[22px] w-[220px] mx-auto">
           <Image className="mx-auto mb-4" src={Stars} alt="" />
           <p className="text-[14px] lg:text-[16px] font-semibold mb-[25px] text-white">
@@ -316,7 +317,7 @@ const MainSidebar = () => {
           </Link>
         </div>
       )}
-      {user?.role === "admin" && (
+      {user?.role === USER_ROLE.ADMIN && (
         <div className="text-center">
           <p className="text-[14px] lg:text-[16px] text-[#D4D3E0] pt-[20px] border-t border-white/20">
             Copyright © 2025 SafeRX.<br/> All rights reserved.
