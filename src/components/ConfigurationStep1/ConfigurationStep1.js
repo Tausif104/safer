@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GoArrowLeft } from "react-icons/go";
@@ -10,7 +10,7 @@ import { API_BASE_URL } from "@/config/constant";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
 
-const ConfigurationStep1 = () => {
+const ConfigurationStep1Content = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isVerifying, setIsVerifying] = useState(true);
@@ -251,6 +251,20 @@ const ConfigurationStep1 = () => {
         </form>
       </div>
     </section>
+  );
+};
+
+const ConfigurationStep1 = () => {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex justify-center items-center min-h-screen">
+          Loading...
+        </div>
+      }
+    >
+      <ConfigurationStep1Content />
+    </Suspense>
   );
 };
 
