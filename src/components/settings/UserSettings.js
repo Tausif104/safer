@@ -4,13 +4,20 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import axios from "axios";
-import { API_BASE_URL } from "@/config/constant";
+import { API_BASE_URL, USER_ROLE } from "@/config/constant";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
 import useAuthStore from "../../store/useAuthStore";
 import { Upload, Pencil } from "lucide-react";
 import Image from "next/image";
 import toast from "react-hot-toast";
+
+const nameLabel = {
+  [USER_ROLE.PHARMACIST]: "Pharmacist's Name",
+  [USER_ROLE.PHARMACY]: "Superintendent/Manager's Name",
+  [USER_ROLE.DISPENSER]: "Dispenser's Name",
+  [USER_ROLE.ADMIN]: "Admin's Name",
+};
 
 const schema = yup.object().shape({
   name: yup.string(),
@@ -130,7 +137,7 @@ const UserSettings = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="relative mb-[16px] sm:mb-[20px]">
           <label className="text-[14px] text-[#707B8A] mb-2.5 block">
-            Name
+            {nameLabel[user?.role]}
           </label>
           <input
             type="text"
@@ -144,7 +151,7 @@ const UserSettings = () => {
         </div>
         <div className="relative mb-[16px] sm:mb-[20px]">
           <label className="text-[14px] text-[#707B8A] mb-2.5 block">
-            Phone number
+            Phone Number
           </label>
           <input
             type="text"
@@ -172,7 +179,7 @@ const UserSettings = () => {
         </div>
         <div className="relative mb-[16px] sm:mb-[20px]">
           <label className="text-[14px] text-[#707B8A] mb-2.5 block">
-            GPhC code
+            GPHC code
           </label>
           <input
             type="text"

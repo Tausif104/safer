@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -15,20 +15,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { API_BASE_URL } from "@/config/constant";
+import { API_BASE_URL, USER_ROLE } from "@/config/constant";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import IncidentSavedDialog from "@/components/Incident/incident-saved-dialog";
 import { Spinner } from "@/components/ui/spinner";
+import useAuthStore from "@/store/useAuthStore";
+import PharmacistModal from "../Pharmacist/PharmacistModal";
+import AddCircle from "@/assets/images/add-circle.svg";
 
 const NearMiss = () => {
+  const { pharmacy, user } = useAuthStore();
   const [selectedErrorTypes, setSelectedErrorTypes] = useState([]);
   const [imagePreview, setImagePreview] = useState(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [incidentReference, setIncidentReference] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [dispenser, setDispenser] = useState([]);
+  const [pharmacists, setPharmacists] = useState([]);
+  const [showDispenserModal, setShowDispenserModal] = useState(false);
+  const [showPharmacistModal, setShowPharmacistModal] = useState(false);
+  const [refetchedAt, setRefetchedAt] = useState(null);
 
   const errorCheckbox = [
     { id: "near-miss", label: "Near Miss" },
@@ -77,6 +86,29 @@ const NearMiss = () => {
     actionTaken: yup.string().required("Please enter the action taken"),
     dispensedBy: yup.string().nullable(),
     checkedBy: yup.string().nullable(),
+    dateOfIncident: yup
+      .string()
+      .required("Please enter the date of incident")
+      .transform((value) => {
+        if (!value) return value;
+        const [year, month, day] = value.split("-");
+        const date = new Date();
+        date.setUTCDate(parseInt(day, 10));
+        date.setUTCMonth(parseInt(month, 10) - 1);
+        date.setUTCFullYear(parseInt(year, 10));
+        return date.toISOString();
+      }),
+    timeOfIncident: yup
+      .string()
+      .required("Please enter the time of incident")
+      .transform((value) => {
+        if (!value) return value;
+        const [hours, minutes] = value.split(":");
+        const date = new Date();
+        date.setHours(parseInt(hours, 10));
+        date.setMinutes(parseInt(minutes, 10));
+        return date.toISOString();
+      }),
     dispensedByName: yup.string().nullable(),
     checkedByName: yup.string().nullable(),
     picture: yup.mixed().nullable(),
@@ -103,6 +135,8 @@ const NearMiss = () => {
       dispensedByName: null,
       checkedByName: null,
       picture: null,
+      dateOfIncident: new Date().toISOString().split("T")[0],
+      timeOfIncident: new Date().toTimeString().slice(0, 5),
     },
   });
 
@@ -196,6 +230,30 @@ const NearMiss = () => {
       }
     };
   }, [imagePreview]);
+
+  const handleRefetch = (value) => {
+    setRefetchedAt(value);
+  };
+
+  useEffect(() => {
+    const fetchPharmacists = async () => {
+      const response = await axios.get(
+        `${API_BASE_URL}/api/v1/users?pharmacyId=${pharmacy.id}&role=${USER_ROLE.PHARMACIST}`
+      );
+      setPharmacists(response.data.data);
+    };
+    fetchPharmacists();
+  }, [pharmacy, refetchedAt]);
+
+  useEffect(() => {
+    const fetchDispenser = async () => {
+      const response = await axios.get(
+        `${API_BASE_URL}/api/v1/users?pharmacyId=${pharmacy.id}&role=${USER_ROLE.DISPENSER}`
+      );
+      setDispenser(response.data.data);
+    };
+    fetchDispenser();
+  }, [pharmacy, refetchedAt]);
 
   return (
     <section className="mb-[50px] lg:mb-0">
@@ -311,46 +369,136 @@ const NearMiss = () => {
                 </div>
               </div>
               <div>
-                <h5 className="text-[18px]">
+                <h5 className="text-[18px] flex items-center gap-2">
                   Dispensed by{" "}
                   {isOptional && (
                     <span className="text-gray-500">(Optional)</span>
                   )}
-                </h5>
-                <hr className="bg-[#DAECFF] my-[16px]" />
-                <Select
-                  onValueChange={(value) => setValue("dispensedByName", value)}
-                  className=""
-                >
-                  <SelectTrigger className="w-full  bg-[#F8F9FB] p-[16px] !h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
-                    <SelectValue placeholder="Select One" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Demo User 1">Demo User 1</SelectItem>
-                    <SelectItem value="Demo User 2">Demo User 2</SelectItem>
-                    <SelectItem value="Demo User 3">Demo User 3</SelectItem>
-                  </SelectContent>
-                </Select>
-                <h5 className="text-[18px] mt-[20px]">
-                  Checked by{" "}
-                  {isOptional && (
-                    <span className="text-gray-500">(Optional)</span>
+                  {[USER_ROLE.PHARMACIST, USER_ROLE.PHARMACY].includes(
+                    user?.role
+                  ) && (
+                    <span
+                      className="text-[#707B8A] text-[14px] cursor-pointer"
+                      onClick={() => setShowDispenserModal(true)}
+                    >
+                      <Image
+                        src={AddCircle}
+                        alt="Add"
+                        width={24}
+                        height={24}
+                        style={{
+                          filter:
+                            "brightness(0) saturate(100%) invert(45%) sepia(8%) saturate(1012%) hue-rotate(182deg) brightness(92%) contrast(87%)",
+                        }}
+                      />
+                    </span>
                   )}
                 </h5>
                 <hr className="bg-[#DAECFF] my-[16px]" />
                 <Select
-                  onValueChange={(value) => setValue("checkedByName", value)}
+                  onValueChange={(value) => {
+                    setValue("dispensedBy", Number(value.split(";;")[0]));
+                    setValue("dispensedByName", value.split(";;")[1]);
+                  }}
                   className=""
                 >
                   <SelectTrigger className="w-full  bg-[#F8F9FB] p-[16px] !h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
                     <SelectValue placeholder="Select One" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Demo User 1">Demo User 1</SelectItem>
-                    <SelectItem value="Demo User 2">Demo User 2</SelectItem>
-                    <SelectItem value="Demo User 3">Demo User 3</SelectItem>
+                    {dispenser.map((dispenser) => (
+                      <SelectItem
+                        key={dispenser.id}
+                        value={`${dispenser.id};;${dispenser.name}`}
+                      >
+                        {dispenser.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
+                <h5 className="text-[18px] mt-[20px] flex items-center gap-2">
+                  Checked by{" "}
+                  {isOptional && (
+                    <span className="text-gray-500">(Optional)</span>
+                  )}
+                  {[USER_ROLE.PHARMACIST, USER_ROLE.PHARMACY].includes(
+                    user?.role
+                  ) && (
+                    <span
+                      className="text-[#707B8A] text-[14px] cursor-pointer"
+                      onClick={() => setShowPharmacistModal(true)}
+                    >
+                      <Image
+                        src={AddCircle}
+                        alt="Add"
+                        width={24}
+                        height={24}
+                        style={{
+                          filter:
+                            "brightness(0) saturate(100%) invert(45%) sepia(8%) saturate(1012%) hue-rotate(182deg) brightness(92%) contrast(87%)",
+                        }}
+                      />
+                    </span>
+                  )}
+                </h5>
+                <hr className="bg-[#DAECFF] my-[16px]" />
+                <Select
+                  onValueChange={(value) => {
+                    setValue("checkedBy", Number(value.split(";;")[0]));
+                    setValue("checkedByName", value.split(";;")[1]);
+                  }}
+                  className=""
+                >
+                  <SelectTrigger className="w-full  bg-[#F8F9FB] p-[16px] !h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
+                    <SelectValue placeholder="Select One" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {pharmacists.map((pharmacist) => (
+                      <SelectItem
+                        key={pharmacist.id}
+                        value={`${pharmacist.id};;${pharmacist.name}`}
+                      >
+                        {pharmacist.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-[#262262] block text-base font-semibold mb-2">
+                  Date of Incident
+                </label>
+                <Input
+                  {...register("dateOfIncident")}
+                  type="date"
+                  placeholder="Date of Incident"
+                  className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
+                    errors.dateOfIncident ? "border-red-500" : ""
+                  }`}
+                />
+                {errors.dateOfIncident && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.dateOfIncident.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="text-[#262262] block text-base font-semibold mb-2">
+                  Time of Incident
+                </label>
+                <Input
+                  {...register("timeOfIncident")}
+                  type="time"
+                  placeholder="Time of Incident"
+                  className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
+                    errors.timeOfIncident ? "border-red-500" : ""
+                  }`}
+                />
+                {errors.timeOfIncident && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.timeOfIncident.message}
+                  </p>
+                )}
               </div>
               <div className="lg:col-span-3">
                 <h5 className="text-[18px]">Type Of Error</h5>
@@ -526,6 +674,20 @@ const NearMiss = () => {
           </form>
         </div>
       </div>
+
+      <PharmacistModal
+        isOpen={showPharmacistModal}
+        onClose={() => setShowPharmacistModal(false)}
+        setRefetchedAt={handleRefetch}
+        type={USER_ROLE.PHARMACIST}
+      />
+
+      <PharmacistModal
+        isOpen={showDispenserModal}
+        onClose={() => setShowDispenserModal(false)}
+        setRefetchedAt={handleRefetch}
+        type={USER_ROLE.DISPENSER}
+      />
 
       <IncidentSavedDialog
         isOpen={showSuccessModal}

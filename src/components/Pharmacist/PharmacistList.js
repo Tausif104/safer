@@ -31,18 +31,25 @@ const PharmacistList = ({ type }) => {
   const [selectedPharmacistId, setSelectedPharmacistId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
-  const { token, pharmacy } = useAuthStore();
+  const { token, pharmacy, user } = useAuthStore();
   const [refetchedAt, setRefetchedAt] = useState(null);
 
   useEffect(() => {
     let query = "";
-    if (pharmacy?.id) {
-      query = `pharmacyId=${pharmacy.id}`;
+    const pharmacyId = pharmacy?.id ? `pharmacyId=${pharmacy.id}&` : "";
+    if (type === "approval-pending") {
+      query = `${pharmacyId}role=${USER_ROLE.PHARMACIST}&status=${PHARMACIST_STATUS.PENDING}`;
+    } else if (type === USER_ROLE.DISPENSER) {
+      query = `${pharmacyId}role=${USER_ROLE.DISPENSER}`;
     } else {
-      query = `role=${USER_ROLE.PHARMACIST}&status=${
-        type === "approval-pending"
-          ? PHARMACIST_STATUS.PENDING
-          : PHARMACIST_STATUS.APPROVED
+      query = `${pharmacyId}role=${USER_ROLE.PHARMACIST}${
+        [
+          USER_ROLE.PHARMACIST,
+          USER_ROLE.DISPENSER,
+          USER_ROLE.PHARMACY,
+        ].includes(user?.role)
+          ? ""
+          : `&status=${PHARMACIST_STATUS.APPROVED}`
       }`;
     }
     const fetchPharmacists = async () => {
@@ -142,9 +149,15 @@ const PharmacistList = ({ type }) => {
       <div>
         <div className="flex justify-between flex-wrap gap-4 sm:mb-5 sm:p-0 p-[15px]">
           <h4 className="text-[16px] sm:text-[25px]">
-            {type === "approval-pending"
-              ? "Pharmacists Pending Approval"
-              : "Pharmacists"}
+            {(() => {
+              if (type === "approval-pending") {
+                return "Pharmacists Pending Approval";
+              } else if (type === USER_ROLE.DISPENSER) {
+                return "Dispensers";
+              } else {
+                return "Pharmacists";
+              }
+            })()}
           </h4>
           {type !== "approval-pending" && (
             <Button
@@ -157,7 +170,7 @@ const PharmacistList = ({ type }) => {
                 src={AddCircle}
                 alt=""
               />
-              Add Pharmacist
+              Add {type === USER_ROLE.DISPENSER ? "Dispenser" : "Pharmacist"}
             </Button>
           )}
         </div>
@@ -193,7 +206,11 @@ const PharmacistList = ({ type }) => {
               ) : pharmacists.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-4">
-                    No pharmacists found
+                    No
+                    {type === USER_ROLE.DISPENSER
+                      ? " dispensers "
+                      : " pharmacists "}
+                    found
                   </TableCell>
                 </TableRow>
               ) : (
@@ -306,6 +323,7 @@ const PharmacistList = ({ type }) => {
         pharmacistId={selectedPharmacistId}
         onSuccess={handleModalSuccess}
         setRefetchedAt={setRefetchedAt}
+        type={type}
       />
     </section>
   );

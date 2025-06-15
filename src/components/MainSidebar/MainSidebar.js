@@ -146,6 +146,12 @@ const RoleBasedMenu = ({ userRole }) => {
         show: true,
       },
       {
+        href: "/dispensers",
+        icon: AdminMenuIcon5,
+        label: "Dispensers",
+        show: true,
+      },
+      {
         href: "/revenue",
         icon: AdminMenuIcon4,
         label: "Revenue Report",
@@ -173,13 +179,25 @@ const RoleBasedMenu = ({ userRole }) => {
         )),
       },
       {
+        href: "/pharmacists",
+        icon: AdminMenuIcon3,
+        label: "Pharmacists",
+        show: true,
+      },
+      {
+        href: "/dispensers",
+        icon: AdminMenuIcon5,
+        label: "Dispensers",
+        show: true,
+      },
+      {
         href: "/report",
         icon: AddCircle,
         label: "Reports",
         show: true,
       },
       {
-        href: "/dashboard",
+        href: "/",
         icon: Pricing,
         label: (
           <span>
@@ -214,6 +232,12 @@ const RoleBasedMenu = ({ userRole }) => {
         href: "/pharmacists",
         icon: AdminMenuIcon3,
         label: "Pharmacists",
+        show: true,
+      },
+      {
+        href: "/dispensers",
+        icon: AdminMenuIcon5,
+        label: "Dispensers",
         show: true,
       },
       {

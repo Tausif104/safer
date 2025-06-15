@@ -4,8 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { GoArrowLeft } from "react-icons/go";
 import { FaPlus } from "react-icons/fa6";
-import { FaCopy } from "react-icons/fa";
-import { FaCheck } from "react-icons/fa";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -14,12 +12,6 @@ import { API_BASE_URL, USER_ROLE, PHARMACIST_STATUS } from "@/config/constant";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -27,35 +19,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import useAuthStore from "../../store/useAuthStore";
+import generateRandomPassword from "@/utils/generateRandomPassword";
+import UserCreatedWithPasswordDialog from "../User/UserCreatedWithPasswordDialog";
 
 const schema = yup.object().shape({
   name: yup.string().required("Employee name is required"),
   phone: yup.string().required("Phone number is required"),
   email: yup.string().email("Invalid email").required("Email is required"),
-  gphc: yup.string().required("GPhC code is required"),
   role: yup.string().required("Role is required"),
+  gphc: yup.string().when("role", {
+    is: (role) => role === USER_ROLE.PHARMACIST || role === USER_ROLE.DISPENSER,
+    then: (schema) => schema.required("GPHC code is required"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
 });
-
-const generatePassword = () => {
-  const length = 12;
-  const charset =
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
-  let password = "";
-
-  password += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[Math.floor(Math.random() * 26)];
-  password += "abcdefghijklmnopqrstuvwxyz"[Math.floor(Math.random() * 26)];
-  password += "0123456789"[Math.floor(Math.random() * 10)];
-  password += "!@#$%^&*"[Math.floor(Math.random() * 8)];
-
-  for (let i = password.length; i < length; i++) {
-    password += charset[Math.floor(Math.random() * charset.length)];
-  }
-
-  return password
-    .split("")
-    .sort(() => Math.random() - 0.5)
-    .join("");
-};
 
 const ConfigurationStep2 = () => {
   const router = useRouter();
@@ -63,7 +40,7 @@ const ConfigurationStep2 = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [generatedPassword, setGeneratedPassword] = useState("");
-  const [isCopied, setIsCopied] = useState(false);
+  const [selectedRole, setSelectedRole] = useState("");
 
   const {
     register,
@@ -78,7 +55,7 @@ const ConfigurationStep2 = () => {
 
   const createUser = async (data) => {
     setIsSubmitting(true);
-    const password = generatePassword();
+    const password = generateRandomPassword();
     setGeneratedPassword(password);
 
     const userData = {
@@ -128,14 +105,6 @@ const ConfigurationStep2 = () => {
 
   const handleSkip = () => {
     router.push("/configuration-step3");
-  };
-
-  const handleCopyPassword = () => {
-    navigator.clipboard.writeText(generatedPassword);
-    setIsCopied(true);
-    setTimeout(() => {
-      setIsCopied(false);
-    }, 1000);
   };
 
   return (
@@ -217,24 +186,13 @@ const ConfigurationStep2 = () => {
           </div>
           <div className="relative mb-[16px] sm:mb-[20px]">
             <label className="text-[14px] text-[#707B8A] mb-2.5 block">
-              GPhC code
-            </label>
-            <input
-              type="text"
-              {...register("gphc")}
-              placeholder="Enter GPhC code"
-              className="bg-[#F8F9FB] text-[#262262]"
-            />
-            {errors.gphc && (
-              <p className="text-red-500 text-sm mt-1">{errors.gphc.message}</p>
-            )}
-          </div>
-          <div className="relative mb-[16px] sm:mb-[20px]">
-            <label className="text-[14px] text-[#707B8A] mb-2.5 block">
               Role
             </label>
             <Select
-              onValueChange={(value) => setValue("role", value)}
+              onValueChange={(value) => {
+                setValue("role", value);
+                setSelectedRole(value);
+              }}
               className={`${errors.role ? "border-red-500" : ""}`}
             >
               <SelectTrigger className="w-full bg-[#F8F9FB] p-[16px] !h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
@@ -250,6 +208,25 @@ const ConfigurationStep2 = () => {
               <p className="text-red-500 text-sm mt-1">{errors.role.message}</p>
             )}
           </div>
+          {(selectedRole === USER_ROLE.PHARMACIST ||
+            selectedRole === USER_ROLE.DISPENSER) && (
+            <div className="relative mb-[16px] sm:mb-[20px]">
+              <label className="text-[14px] text-[#707B8A] mb-2.5 block">
+                GPHC code
+              </label>
+              <input
+                type="text"
+                {...register("gphc")}
+                placeholder="Enter GPHC code"
+                className="bg-[#F8F9FB] text-[#262262]"
+              />
+              {errors.gphc && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.gphc.message}
+                </p>
+              )}
+            </div>
+          )}
           <div className="flex items-center gap-3">
             <div className="flex-1 grid grid-cols-2 gap-3">
               <div className="text-center">
@@ -293,40 +270,11 @@ const ConfigurationStep2 = () => {
         </form>
       </div>
 
-      <Dialog open={showPasswordModal} onOpenChange={setShowPasswordModal}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle className="text-center text-[24px] font-semibold text-[#262262]">
-              User Created Successfully!
-            </DialogTitle>
-          </DialogHeader>
-          <div className="mt-4">
-            <p className="text-gray-600 mb-4">
-              Please save this password securely. It will not be shown again.
-            </p>
-            <div className="bg-gray-100 p-4 rounded-lg flex items-center justify-between">
-              <code className="text-lg font-mono">{generatedPassword}</code>
-              <button
-                onClick={handleCopyPassword}
-                className="p-2 hover:bg-gray-200 rounded-full transition-colors cursor-pointer"
-                title="Copy password"
-              >
-                {isCopied ? (
-                  <FaCheck className="text-green-600" />
-                ) : (
-                  <FaCopy className="text-gray-600" />
-                )}
-              </button>
-            </div>
-            <button
-              onClick={() => setShowPasswordModal(false)}
-              className="mt-6 w-full bg-[#99C729] text-white py-3 rounded-full hover:bg-[#8ab324] transition-colors"
-            >
-              Close
-            </button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <UserCreatedWithPasswordDialog
+        showPasswordModal={showPasswordModal}
+        setShowPasswordModal={setShowPasswordModal}
+        generatedPassword={generatedPassword}
+      />
     </section>
   );
 };

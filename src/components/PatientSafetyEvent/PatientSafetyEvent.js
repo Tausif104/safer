@@ -68,8 +68,29 @@ const PatientSafetyEvent = () => {
     contactInfo: yup.string().required("Please enter contact information"),
     age: yup.string().required("Please select age"),
     sex: yup.string().required("Please select sex"),
-    dateOfAccident: yup.string().required("Please select date of accident"),
-    timeOfAccident: yup.string().required("Please select time of accident"),
+    dateOfAccident: yup
+      .string()
+      .required("Please select date of accident")
+      .transform((value) => {
+        if (!value) return value;
+        const [year, month, day] = value.split("-");
+        const date = new Date();
+        date.setUTCDate(parseInt(day, 10));
+        date.setUTCMonth(parseInt(month, 10) - 1);
+        date.setUTCFullYear(parseInt(year, 10));
+        return date.toISOString();
+      }),
+    timeOfAccident: yup
+      .string()
+      .required("Please select time of accident")
+      .transform((value) => {
+        if (!value) return value;
+        const [hours, minutes] = value.split(":");
+        const date = new Date();
+        date.setHours(parseInt(hours, 10));
+        date.setMinutes(parseInt(minutes, 10));
+        return date.toISOString();
+      }),
     accidentLocation: yup
       .array()
       .min(1, "Please select at least one location")
@@ -937,7 +958,9 @@ const PatientSafetyEvent = () => {
                   </div>
                 </div>
                 <div className="mt-[30px]">
-                  <h5 className="text-[18px]">Admin:</h5>
+                  <h5 className="text-[18px] bg-[#F8F9FB] p-3 rounded-md">
+                    Admin:
+                  </h5>
                   <hr className="bg-[#DAECFF] my-[16px]" />
                   <div className="flex flex-col space-y-4">
                     <label

@@ -245,14 +245,7 @@ const ConfigurationStep1Content = () => {
               className="bg-[#F8F9FB] text-[#262262] placeholder:text-[#262262]"
             />
           </div>
-          <div className="flex justify-between gap-3 items-center">
-            <Button
-              type="button"
-              onClick={() => router.push("/configuration-step2")}
-              className="!bg-transparent !border !border-[#262262] !text-[#262262] hover:!bg-[#99C729] hover:!text-white hover:!border-[#99C729] cursor-pointer whitespace-nowrap"
-            >
-              Skip
-            </Button>
+          <div className="flex justify-end gap-3 items-center">
             <Button
               type="submit"
               className="primary-btn w-full sm:w-[390px] cursor-pointer"

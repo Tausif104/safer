@@ -9,14 +9,13 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import DashboardLayout from "@/components/Layout/DashboardLayout";
 
-export default function DashboardLoginTechnician() {
+export default function DashboardLoginPremises() {
   const [dashboardStats, setDashboardStats] = useState(null);
   const [recentIncidents, setRecentIncidents] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("whats wrong here");
     const fetchData = async () => {
       try {
         const statsResponse = await axios.get(
