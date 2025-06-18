@@ -21,6 +21,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import IncidentSavedDialog from "@/components/Incident/incident-saved-dialog";
 import { Spinner } from "@/components/ui/spinner";
+import useAuthStore from "@/store/useAuthStore";
 
 const FaultyMedication = () => {
   const lfpseCheckbox = [
@@ -155,6 +156,8 @@ const FaultyMedication = () => {
       }),
   });
 
+  const { user, pharmacy } = useAuthStore();
+
   const {
     register,
     handleSubmit,
@@ -210,6 +213,8 @@ const FaultyMedication = () => {
         ...data,
         isDraft: false,
         isDeleted: false,
+        createdBy: user?.id,
+        ownerOdsCode: pharmacy?.odsCode,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };

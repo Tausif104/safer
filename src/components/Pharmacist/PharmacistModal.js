@@ -37,6 +37,7 @@ const PharmacistModal = ({
   onSuccess,
   setRefetchedAt: setParentRefetchedAt,
   type,
+  from,
 }) => {
   const [pharmacist, setPharmacist] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -49,8 +50,7 @@ const PharmacistModal = ({
   const role =
     type === USER_ROLE.DISPENSER ? USER_ROLE.DISPENSER : USER_ROLE.PHARMACIST;
   const roleUi =
-    role.toLowerCase().charAt(0).toUpperCase() +
-    role.toLowerCase().slice(1);
+    role.toLowerCase().charAt(0).toUpperCase() + role.toLowerCase().slice(1);
 
   const {
     register,
@@ -158,10 +158,10 @@ const PharmacistModal = ({
           <DialogHeader>
             <DialogTitle>
               {isCreating
-                ? `Add New ${roleUi}`
+                ? `Add New ${from !== "incident" ? roleUi : ""}`
                 : isEditing
-                ? `Edit ${roleUi}`
-                : `${roleUi} Details`}
+                ? `Edit ${from !== "incident" ? roleUi : ""}`
+                : `${from !== "incident" ? `${roleUi} ` : ""}Details`}
             </DialogTitle>
           </DialogHeader>
 
@@ -306,24 +306,26 @@ const PharmacistModal = ({
                         </p>
                       )}
                     </div>
-                    <div className="space-y-2">
-                      <label
-                        htmlFor="gphcNumber"
-                        className="text-[#262262] text-base font-semibold mb-[14px]"
-                      >
-                        GPHC Number
-                      </label>
-                      <Input
-                        id="gphcNumber"
-                        {...register("gphcNumber")}
-                        error={errors.gphcNumber?.message}
-                      />
-                      {errors.gphcNumber && (
-                        <p className="text-red-500 text-sm">
-                          {errors.gphcNumber.message}
-                        </p>
-                      )}
-                    </div>
+                    {type !== USER_ROLE.DISPENSER && (
+                      <div className="space-y-2">
+                        <label
+                          htmlFor="gphcNumber"
+                          className="text-[#262262] text-base font-semibold mb-[14px]"
+                        >
+                          GPHC Number
+                        </label>
+                        <Input
+                          id="gphcNumber"
+                          {...register("gphcNumber")}
+                          error={errors.gphcNumber?.message}
+                        />
+                        {errors.gphcNumber && (
+                          <p className="text-red-500 text-sm">
+                            {errors.gphcNumber.message}
+                          </p>
+                        )}
+                      </div>
+                    )}
                     <div className="space-y-2">
                       <label
                         htmlFor="managersName"

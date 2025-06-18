@@ -107,6 +107,8 @@ const PrescribingIntervention = () => {
       }),
   });
 
+  const { user, pharmacy } = useAuthStore();
+
   const {
     register,
     handleSubmit,
@@ -134,13 +136,11 @@ const PrescribingIntervention = () => {
     },
   });
 
-  const { pharmacy, user } = useAuthStore();
   const [imagePreview, setImagePreview] = useState(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [incidentReference, setIncidentReference] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [pharmacists, setPharmacists] = useState([]);
-  const [dispenser, setDispenser] = useState([]);
+  const [users, setUsers] = useState([]);
   const [showDispenserModal, setShowDispenserModal] = useState(false);
   const [showPharmacistModal, setShowPharmacistModal] = useState(false);
   const [refetchedAt, setRefetchedAt] = useState(null);
@@ -171,6 +171,8 @@ const PrescribingIntervention = () => {
         type: "prescribing-intervention",
         ...data,
         isDraft: false,
+        createdBy: user?.id,
+        ownerOdsCode: pharmacy?.odsCode,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -243,23 +245,13 @@ const PrescribingIntervention = () => {
   }, [imagePreview]);
 
   useEffect(() => {
-    const fetchPharmacists = async () => {
+    const fetchUsers = async () => {
       const response = await axios.get(
-        `${API_BASE_URL}/api/v1/users?pharmacyId=${pharmacy.id}&role=${USER_ROLE.PHARMACIST}`
+        `${API_BASE_URL}/api/v1/users?pharmacyId=${pharmacy.id}`
       );
-      setPharmacists(response.data.data);
+      setUsers(response.data.data);
     };
-    fetchPharmacists();
-  }, [pharmacy, refetchedAt]);
-
-  useEffect(() => {
-    const fetchDispenser = async () => {
-      const response = await axios.get(
-        `${API_BASE_URL}/api/v1/users?pharmacyId=${pharmacy.id}&role=${USER_ROLE.DISPENSER}`
-      );
-      setDispenser(response.data.data);
-    };
-    fetchDispenser();
+    fetchUsers();
   }, [pharmacy, refetchedAt]);
 
   return (
@@ -597,12 +589,9 @@ const PrescribingIntervention = () => {
                   <SelectValue placeholder="Select One" />
                 </SelectTrigger>
                 <SelectContent>
-                  {dispenser.map((dispenser) => (
-                    <SelectItem
-                      key={dispenser.id}
-                      value={`${dispenser.id};;${dispenser.name}`}
-                    >
-                      {dispenser.name}
+                  {users.map((user) => (
+                    <SelectItem key={user.id} value={`${user.id};;${user.name}`}>
+                      {user.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -640,12 +629,12 @@ const PrescribingIntervention = () => {
                   <SelectValue placeholder="Select One" />
                 </SelectTrigger>
                 <SelectContent>
-                  {pharmacists.map((pharmacist) => (
+                  {users.map((user) => (
                     <SelectItem
-                      key={pharmacist.id}
-                      value={`${pharmacist.id};;${pharmacist.name}`}
+                      key={user.id}
+                      value={`${user.id};;${user.name}`}
                     >
-                      {pharmacist.name}
+                      {user.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -736,12 +725,14 @@ const PrescribingIntervention = () => {
         onClose={() => setShowPharmacistModal(false)}
         setRefetchedAt={handleRefetch}
         type={USER_ROLE.PHARMACIST}
+        from="incident"
       />
       <PharmacistModal
         isOpen={showDispenserModal}
         onClose={() => setShowDispenserModal(false)}
         setRefetchedAt={handleRefetch}
         type={USER_ROLE.DISPENSER}
+        from="incident"
       />
 
       <IncidentSavedDialog

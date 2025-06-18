@@ -21,6 +21,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import IncidentSavedDialog from "@/components/Incident/incident-saved-dialog";
 import { Spinner } from "@/components/ui/spinner";
+import useAuthStore from "@/store/useAuthStore";
 
 const PatientSafetyEvent = () => {
   const accidentCheckbox = [
@@ -180,6 +181,8 @@ const PatientSafetyEvent = () => {
     recordedByName: yup.string().nullable(),
   });
 
+  const { user, pharmacy } = useAuthStore();
+
   const {
     register,
     handleSubmit,
@@ -241,6 +244,8 @@ const PatientSafetyEvent = () => {
         type: "patient-safety-event",
         ...data,
         isDraft: false,
+        createdBy: user?.id,
+        ownerOdsCode: pharmacy?.odsCode,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -958,7 +963,7 @@ const PatientSafetyEvent = () => {
                   </div>
                 </div>
                 <div className="mt-[30px]">
-                  <h5 className="text-[18px] bg-[#F8F9FB] p-3 rounded-md">
+                  <h5 className="text-[18px] bg-[#F8F9FB] p-3 rounded-md text-[#262262] font-semibold relative pl-8 before:content-[''] before:absolute before:left-3 before:top-1/2 before:-translate-y-1/2 before:w-1 before:h-6 before:bg-[#99C729] before:rounded-full">
                     Admin:
                   </h5>
                   <hr className="bg-[#DAECFF] my-[16px]" />
