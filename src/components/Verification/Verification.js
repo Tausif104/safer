@@ -12,7 +12,7 @@ const Verification = ({ queryData }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (queryData.type === "premise") {
+    if (queryData?.type === "premise") {
       router.push("/pricing");
     } else {
       router.push("/registration");

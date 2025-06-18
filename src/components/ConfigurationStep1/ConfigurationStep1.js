@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GoArrowLeft } from "react-icons/go";
@@ -10,7 +10,7 @@ import { API_BASE_URL } from "@/config/constant";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
 
-const ConfigurationStep1 = () => {
+const ConfigurationStep1Content = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isVerifying, setIsVerifying] = useState(true);
@@ -66,8 +66,13 @@ const ConfigurationStep1 = () => {
     const pharmacyData = {
       name: formData.get("name"),
       phone: formData.get("phone"),
-      address: formData.get("address"),
+      addressLine1: formData.get("addressLine1"),
+      town: formData.get("town"),
+      postCode: formData.get("postCode"),
       odsCode: formData.get("ods"),
+      email: pharmacy?.odsCode
+        ? `pharmacy.${pharmacy.odsCode}@nhs.net`
+        : formData.get("email"),
       gphcPremisesNumber: formData.get("gphc"),
     };
 
@@ -167,13 +172,52 @@ const ConfigurationStep1 = () => {
           </div>
           <div className="relative mb-[16px] sm:mb-[20px]">
             <label className="text-[14px] text-[#707B8A] mb-2.5 block">
-              Address
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              id="email"
+              defaultValue={
+                pharmacy?.odsCode ? `pharmacy.${pharmacy.odsCode}@nhs.net` : ""
+              }
+              disabled
+              className="bg-[#F8F9FB] text-[#262262] placeholder:text-[#262262] disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+            />
+          </div>
+          <div className="relative mb-[16px] sm:mb-[20px]">
+            <label className="text-[14px] text-[#707B8A] mb-2.5 block">
+              Address Line 1
             </label>
             <input
               type="text"
-              name="address"
-              id="address"
-              defaultValue={pharmacy?.address}
+              name="addressLine1"
+              id="addressLine1"
+              defaultValue={pharmacy?.addressLine1}
+              className="bg-[#F8F9FB] text-[#262262] placeholder:text-[#262262]"
+            />
+          </div>
+          <div className="relative mb-[16px] sm:mb-[20px]">
+            <label className="text-[14px] text-[#707B8A] mb-2.5 block">
+              Town
+            </label>
+            <input
+              type="text"
+              name="town"
+              id="town"
+              defaultValue={pharmacy?.town}
+              className="bg-[#F8F9FB] text-[#262262] placeholder:text-[#262262]"
+            />
+          </div>
+          <div className="relative mb-[16px] sm:mb-[20px]">
+            <label className="text-[14px] text-[#707B8A] mb-2.5 block">
+              Post Code
+            </label>
+            <input
+              type="text"
+              name="postCode"
+              id="postCode"
+              defaultValue={pharmacy?.postCode}
               className="bg-[#F8F9FB] text-[#262262] placeholder:text-[#262262]"
             />
           </div>
@@ -201,14 +245,7 @@ const ConfigurationStep1 = () => {
               className="bg-[#F8F9FB] text-[#262262] placeholder:text-[#262262]"
             />
           </div>
-          <div className="flex justify-between gap-3 items-center">
-            <Button
-              type="button"
-              onClick={() => router.push("/configuration-step2")}
-              className="!bg-transparent !border !border-[#262262] !text-[#262262] hover:!bg-[#99C729] hover:!text-white hover:!border-[#99C729] cursor-pointer whitespace-nowrap"
-            >
-              Skip
-            </Button>
+          <div className="flex justify-end gap-3 items-center">
             <Button
               type="submit"
               className="primary-btn w-full sm:w-[390px] cursor-pointer"
@@ -227,6 +264,20 @@ const ConfigurationStep1 = () => {
         </form>
       </div>
     </section>
+  );
+};
+
+const ConfigurationStep1 = () => {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex justify-center items-center min-h-screen">
+          Loading...
+        </div>
+      }
+    >
+      <ConfigurationStep1Content />
+    </Suspense>
   );
 };
 

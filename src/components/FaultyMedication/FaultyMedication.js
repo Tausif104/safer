@@ -21,6 +21,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import IncidentSavedDialog from "@/components/Incident/incident-saved-dialog";
 import { Spinner } from "@/components/ui/spinner";
+import useAuthStore from "@/store/useAuthStore";
 
 const FaultyMedication = () => {
   const lfpseCheckbox = [
@@ -46,11 +47,44 @@ const FaultyMedication = () => {
       .string()
       .email("Please enter a valid email")
       .required("Please enter your email address"),
-    dateOfReturn: yup.string().required("Please select date of return"),
+    dateOfReturn: yup
+      .string()
+      .required("Please select date of return")
+      .transform((value) => {
+        if (!value) return value;
+        const [year, month, day] = value.split("-");
+        const date = new Date();
+        date.setUTCDate(parseInt(day, 10));
+        date.setUTCMonth(parseInt(month, 10) - 1);
+        date.setUTCFullYear(parseInt(year, 10));
+        return date.toISOString();
+      }),
     productName: yup.string().required("Please enter the product name"),
     batchNumber: yup.string().required("Please enter the batch number"),
-    expiryDate: yup.string().required("Please select expiry date"),
-    issuedAt: yup.string().required("Please select date issued"),
+    expiryDate: yup
+      .string()
+      .required("Please select expiry date")
+      .transform((value) => {
+        if (!value) return value;
+        const [year, month, day] = value.split("-");
+        const date = new Date();
+        date.setUTCDate(parseInt(day, 10));
+        date.setUTCMonth(parseInt(month, 10) - 1);
+        date.setUTCFullYear(parseInt(year, 10));
+        return date.toISOString();
+      }),
+    issuedAt: yup
+      .string()
+      .required("Please select date issued")
+      .transform((value) => {
+        if (!value) return value;
+        const [year, month, day] = value.split("-");
+        const date = new Date();
+        date.setUTCDate(parseInt(day, 10));
+        date.setUTCMonth(parseInt(month, 10) - 1);
+        date.setUTCFullYear(parseInt(year, 10));
+        return date.toISOString();
+      }),
     quantityReturned: yup
       .number()
       .required("Please enter quantity returned")
@@ -83,10 +117,46 @@ const FaultyMedication = () => {
     actionDetails: yup.string().required("Please provide action details"),
     receivedBy: yup.number().nullable(),
     receivedByName: yup.string().nullable(),
-    receivedDate: yup.string().nullable(),
+    receivedDate: yup
+      .string()
+      .required("Please select received date")
+      .transform((value) => {
+        if (!value) return value;
+        const [year, month, day] = value.split("-");
+        const date = new Date();
+        date.setUTCDate(parseInt(day, 10));
+        date.setUTCMonth(parseInt(month, 10) - 1);
+        date.setUTCFullYear(parseInt(year, 10));
+        return date.toISOString();
+      }),
     picture: yup.mixed().nullable(),
     additionalComments: yup.string().nullable(),
+    dateOfIncident: yup
+      .string()
+      .required("Please enter the date of incident")
+      .transform((value) => {
+        if (!value) return value;
+        const [year, month, day] = value.split("-");
+        const date = new Date();
+        date.setUTCDate(parseInt(day, 10));
+        date.setUTCMonth(parseInt(month, 10) - 1);
+        date.setUTCFullYear(parseInt(year, 10));
+        return date.toISOString();
+      }),
+    timeOfIncident: yup
+      .string()
+      .required("Please enter the time of incident")
+      .transform((value) => {
+        if (!value) return value;
+        const [hours, minutes] = value.split(":");
+        const date = new Date();
+        date.setHours(parseInt(hours, 10));
+        date.setMinutes(parseInt(minutes, 10));
+        return date.toISOString();
+      }),
   });
+
+  const { user, pharmacy } = useAuthStore();
 
   const {
     register,
@@ -125,6 +195,8 @@ const FaultyMedication = () => {
       receivedDate: new Date().toISOString().split("T")[0],
       picture: null,
       additionalComments: "",
+      dateOfIncident: new Date().toISOString().split("T")[0],
+      timeOfIncident: new Date().toTimeString().slice(0, 5),
     },
   });
 
@@ -141,6 +213,8 @@ const FaultyMedication = () => {
         ...data,
         isDraft: false,
         isDeleted: false,
+        createdBy: user?.id,
+        ownerOdsCode: pharmacy?.odsCode,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -360,6 +434,42 @@ const FaultyMedication = () => {
                     )}
                   </div>
                 </div>
+              </div>
+              <div>
+                <label className="text-[#262262] block text-base font-semibold mb-2">
+                  Date of Incident
+                </label>
+                <Input
+                  {...register("dateOfIncident")}
+                  type="date"
+                  placeholder="Date of Incident"
+                  className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
+                    errors.dateOfIncident ? "border-red-500" : ""
+                  }`}
+                />
+                {errors.dateOfIncident && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.dateOfIncident.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="text-[#262262] block text-base font-semibold mb-2">
+                  Time of Incident
+                </label>
+                <Input
+                  {...register("timeOfIncident")}
+                  type="time"
+                  placeholder="Time of Incident"
+                  className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
+                    errors.timeOfIncident ? "border-red-500" : ""
+                  }`}
+                />
+                {errors.timeOfIncident && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.timeOfIncident.message}
+                  </p>
+                )}
               </div>
               <div>
                 <h5 className="text-[18px]">Medication/Device Information:</h5>

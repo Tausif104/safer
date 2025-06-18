@@ -21,8 +21,17 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [ReshowPassword, reSetShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [email, setEmail] = useState("");
   const router = useRouter();
   const { setSigningUpEmail, setUser, setPharmacy, setToken } = useAuthStore();
+
+  const handleOdsCodeBlur = (e) => {
+    const odsCode = e.target.value.trim();
+    if (odsCode) {
+      const generatedEmail = `pharmacy.${odsCode}@nhs.net`;
+      setEmail(generatedEmail);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -81,18 +90,6 @@ const SignUp = () => {
       <form onSubmit={handleSubmit}>
         <div className="relative mb-[20px]">
           <span className="absolute left-[17px] top-[18px] sm:top-[20px]">
-            <HiOutlineEnvelope />
-          </span>
-          <input
-            type="email"
-            name="p_email"
-            id="p_email"
-            placeholder="Pharmacy Email"
-            className="pl-[45px]"
-          />
-        </div>
-        <div className="relative mb-[20px]">
-          <span className="absolute left-[17px] top-[18px] sm:top-[20px]">
             <RiLockPasswordLine />
           </span>
           <input
@@ -101,6 +98,21 @@ const SignUp = () => {
             id="odsCode"
             placeholder="ODS Code"
             className="pl-[45px]"
+            onBlur={handleOdsCodeBlur}
+          />
+        </div>
+        <div className="relative mb-[20px]">
+          <span className="absolute left-[17px] top-[18px] sm:top-[20px]">
+            <HiOutlineEnvelope />
+          </span>
+          <input
+            type="email"
+            name="p_email"
+            id="p_email"
+            placeholder="Pharmacy Email"
+            className="pl-[45px] disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+            value={email}
+            disabled
           />
         </div>
         <div className="relative mb-[20px]">

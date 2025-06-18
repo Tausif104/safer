@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -13,14 +13,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import AddCircle from "@/assets/images/add-circle.svg";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Upload } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { API_BASE_URL } from "@/config/constant";
+import { API_BASE_URL, USER_ROLE } from "@/config/constant";
 import axios from "axios";
 import Image from "next/image";
 import IncidentSavedDialog from "@/components/Incident/incident-saved-dialog";
 import { Spinner } from "@/components/ui/spinner";
+import useAuthStore from "@/store/useAuthStore";
+import PharmacistModal from "../Pharmacist/PharmacistModal";
 
 const PrescribingIntervention = () => {
   const queryCheckbox = [
@@ -79,7 +82,32 @@ const PrescribingIntervention = () => {
     checkedBy: yup.string().nullable(),
     dispensedByName: yup.string().nullable(),
     checkedByName: yup.string().nullable(),
+    dateOfIncident: yup
+      .string()
+      .required("Please enter the date of incident")
+      .transform((value) => {
+        if (!value) return value;
+        const [year, month, day] = value.split("-");
+        const date = new Date();
+        date.setUTCDate(parseInt(day, 10));
+        date.setUTCMonth(parseInt(month, 10) - 1);
+        date.setUTCFullYear(parseInt(year, 10));
+        return date.toISOString();
+      }),
+    timeOfIncident: yup
+      .string()
+      .required("Please enter the time of incident")
+      .transform((value) => {
+        if (!value) return value;
+        const [hours, minutes] = value.split(":");
+        const date = new Date();
+        date.setHours(parseInt(hours, 10));
+        date.setMinutes(parseInt(minutes, 10));
+        return date.toISOString();
+      }),
   });
+
+  const { user, pharmacy } = useAuthStore();
 
   const {
     register,
@@ -103,6 +131,8 @@ const PrescribingIntervention = () => {
       checkedBy: null,
       dispensedByName: null,
       checkedByName: null,
+      dateOfIncident: new Date().toISOString().split("T")[0],
+      timeOfIncident: new Date().toTimeString().slice(0, 5),
     },
   });
 
@@ -110,6 +140,14 @@ const PrescribingIntervention = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [incidentReference, setIncidentReference] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [showDispenserModal, setShowDispenserModal] = useState(false);
+  const [showPharmacistModal, setShowPharmacistModal] = useState(false);
+  const [refetchedAt, setRefetchedAt] = useState(null);
+
+  const handleRefetch = (value) => {
+    setRefetchedAt(value);
+  };
 
   const onSubmit = async (data) => {
     try {
@@ -133,6 +171,8 @@ const PrescribingIntervention = () => {
         type: "prescribing-intervention",
         ...data,
         isDraft: false,
+        createdBy: user?.id,
+        ownerOdsCode: pharmacy?.odsCode,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -203,6 +243,16 @@ const PrescribingIntervention = () => {
       }
     };
   }, [imagePreview]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const response = await axios.get(
+        `${API_BASE_URL}/api/v1/users?pharmacyId=${pharmacy.id}`
+      );
+      setUsers(response.data.data);
+    };
+    fetchUsers();
+  }, [pharmacy, refetchedAt]);
 
   return (
     <section className="mb-[50px] lg:mb-0">
@@ -469,33 +519,124 @@ const PrescribingIntervention = () => {
                 </div>
               </div>
             </div>
+            <div className="mt-[30px]">
+              <label className="text-[#262262] block text-base font-semibold mb-2">
+                Date of Incident
+              </label>
+              <Input
+                {...register("dateOfIncident")}
+                type="date"
+                placeholder="Date of Incident"
+                className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
+                  errors.dateOfIncident ? "border-red-500" : ""
+                }`}
+              />
+              {errors.dateOfIncident && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.dateOfIncident.message}
+                </p>
+              )}
+            </div>
+            <div className="mt-[30px]">
+              <label className="text-[#262262] block text-base font-semibold mb-2">
+                Time of Incident
+              </label>
+              <Input
+                {...register("timeOfIncident")}
+                type="time"
+                placeholder="Time of Incident"
+                className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
+                  errors.timeOfIncident ? "border-red-500" : ""
+                }`}
+              />
+              {errors.timeOfIncident && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.timeOfIncident.message}
+                </p>
+              )}
+            </div>
             <div className="mt-7">
-              <h5 className="text-[18px]">Dispensed by (optional)</h5>
+              <h5 className="text-[18px] flex items-center gap-2">
+                Dispensed by (optional)
+                {[USER_ROLE.PHARMACIST, USER_ROLE.PHARMACY].includes(
+                  user?.role
+                ) && (
+                  <span
+                    className="text-[#707B8A] text-[14px] cursor-pointer"
+                    onClick={() => setShowDispenserModal(true)}
+                  >
+                    <Image
+                      src={AddCircle}
+                      alt="Add"
+                      width={24}
+                      height={24}
+                      style={{
+                        filter:
+                          "brightness(0) saturate(100%) invert(45%) sepia(8%) saturate(1012%) hue-rotate(182deg) brightness(92%) contrast(87%)",
+                      }}
+                    />
+                  </span>
+                )}
+              </h5>
               <hr className="bg-[#DAECFF] my-[16px]" />
               <Select
-                onValueChange={(value) => setValue("dispensedByName", value)}
+                onValueChange={(value) => {
+                  setValue("dispensedBy", Number(value.split(";;")[0]));
+                  setValue("dispensedByName", value.split(";;")[1]);
+                }}
               >
                 <SelectTrigger className="w-full bg-[#F8F9FB] p-[16px] !h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
                   <SelectValue placeholder="Select One" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Demo User 1">Demo User 1</SelectItem>
-                  <SelectItem value="Demo User 2">Demo User 2</SelectItem>
-                  <SelectItem value="Demo User 3">Demo User 3</SelectItem>
+                  {users.map((user) => (
+                    <SelectItem key={user.id} value={`${user.id};;${user.name}`}>
+                      {user.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
-              <h5 className="text-[18px] mt-[20px]">Checked by (optional)</h5>
+              <h5 className="text-[18px] mt-[20px] flex items-center gap-2">
+                Checked by (optional)
+                {[USER_ROLE.PHARMACIST, USER_ROLE.PHARMACY].includes(
+                  user?.role
+                ) && (
+                  <span
+                    className="text-[#707B8A] text-[14px] cursor-pointer"
+                    onClick={() => setShowPharmacistModal(true)}
+                  >
+                    <Image
+                      src={AddCircle}
+                      alt="Add"
+                      width={24}
+                      height={24}
+                      style={{
+                        filter:
+                          "brightness(0) saturate(100%) invert(45%) sepia(8%) saturate(1012%) hue-rotate(182deg) brightness(92%) contrast(87%)",
+                      }}
+                    />
+                  </span>
+                )}
+              </h5>
               <hr className="bg-[#DAECFF] my-[16px]" />
               <Select
-                onValueChange={(value) => setValue("checkedByName", value)}
+                onValueChange={(value) => {
+                  setValue("checkedBy", value.split(";;")[0]);
+                  setValue("checkedByName", value.split(";;")[1]);
+                }}
               >
                 <SelectTrigger className="w-full bg-[#F8F9FB] p-[16px] !h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
                   <SelectValue placeholder="Select One" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Demo User 1">Demo User 1</SelectItem>
-                  <SelectItem value="Demo User 2">Demo User 2</SelectItem>
-                  <SelectItem value="Demo User 3">Demo User 3</SelectItem>
+                  {users.map((user) => (
+                    <SelectItem
+                      key={user.id}
+                      value={`${user.id};;${user.name}`}
+                    >
+                      {user.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -578,6 +719,21 @@ const PrescribingIntervention = () => {
           </form>
         </div>
       </div>
+
+      <PharmacistModal
+        isOpen={showPharmacistModal}
+        onClose={() => setShowPharmacistModal(false)}
+        setRefetchedAt={handleRefetch}
+        type={USER_ROLE.PHARMACIST}
+        from="incident"
+      />
+      <PharmacistModal
+        isOpen={showDispenserModal}
+        onClose={() => setShowDispenserModal(false)}
+        setRefetchedAt={handleRefetch}
+        type={USER_ROLE.DISPENSER}
+        from="incident"
+      />
 
       <IncidentSavedDialog
         isOpen={showSuccessModal}

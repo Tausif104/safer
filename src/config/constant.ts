@@ -1,7 +1,22 @@
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.saferx.syndev.us";
+export const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.saferx.syndev.us";
 export const DEFAULT_PASSWORD = "123456";
 export const USER_ROLE = {
-  PHARMACIST: "pharmacist",
-  PHARMACY: "pharmacy",
+  PHARMACIST: "PHARMACIST",
+  DISPENSER: "DISPENSER",
+  STAFF: "STAFF",
+  PHARMACY: "PHARMACY",
+  ADMIN: "ADMIN",
 };
 
+export const PHARMACIST_STATUS = {
+  APPROVED: "APPROVED",
+  PENDING: "PENDING",
+  REJECTED: "REJECTED",
+};
+
+export const PHARMACY_STATUS = {
+  APPROVED: "APPROVED",
+  PENDING: "PENDING",
+  REJECTED: "REJECTED",
+};

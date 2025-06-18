@@ -1,23 +1,61 @@
-import ErrorsCounter from "@/components/ErrorsCounter/ErrorsCounter";
-import Header2 from "@/components/Header2/Header2";
-import Layout from "@/components/Layout/Layout";
-import LoadingComp from "@/components/LoadingComp/LoadingComp";
-import MobileNav from "@/components/MobileNav/MobileNav";
 import RecentIncedientsLogged from "@/components/RecentIncedentsLogged/RecentIncedientsLogged";
-import RecentIncidents from "@/components/RecentIncidents/RecentIncidents";
-import Image from "next/image";
+import DashboardLayout from "@/components/Layout/DashboardLayout";
+import ErrorsCounter from "../ErrorsCounter/ErrorsCounter";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { API_BASE_URL } from "@/config/constant";
+import LoadingComp from "../LoadingComp/LoadingComp";
+import useAuthStore from "@/store/useAuthStore";
 
-export default function DashboardLoginPremises() {
+export default function DashboardLoginTechnician() {
+  const [dashboardStats, setDashboardStats] = useState(null);
+  const [recentIncidents, setRecentIncidents] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { pharmacy } = useAuthStore();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const statsResponse = await axios.get(
+          `${API_BASE_URL}/api/v1/dashboard/stats?odsCode=${pharmacy?.odsCode}`
+        );
+        setDashboardStats(statsResponse.data.data);
+
+        const incidentsResponse = await axios.get(
+          `${API_BASE_URL}/api/v1/dashboard/recent-incidents?odsCode=${pharmacy?.odsCode}`
+        );
+        setRecentIncidents(incidentsResponse.data.data);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [pharmacy?.odsCode]);
+
   return (
     <>
-      <Layout>
-        <div className='main-layout lg:w-[calc(100%-320px)] lg:float-right p-[20px] pt-0 sm:p-[30px] transition-all duration-600 h-screen overflow-y-auto pb-[180px] sm:pb-[30px]'>
-          <Header2 />
-          <ErrorsCounter />
-          <RecentIncedientsLogged />
-          <MobileNav />
-        </div>
-      </Layout>
+      <DashboardLayout>
+        {loading ? (
+          <LoadingComp />
+        ) : error ? (
+          <div className="text-red-500 p-4">
+            Error loading dashboard data: {error}
+          </div>
+        ) : (
+          <>
+            <ErrorsCounter
+              nearMissErrorCodeStats={dashboardStats.nearMissErrorCodeStats}
+              incidentTypeCount={dashboardStats.incidentTypeCount}
+            />
+            <RecentIncedientsLogged recentIncidents={recentIncidents} />
+          </>
+        )}
+      </DashboardLayout>
     </>
   );
 }

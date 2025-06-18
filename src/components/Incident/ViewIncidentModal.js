@@ -24,6 +24,17 @@ const excludeFields = [
   "receivedBy",
 ];
 
+const onlyDateFields = [
+  "dateOfIncident",
+  "dateOfAccident",
+  "dateOfReturn",
+  "expiryDate",
+  "issuedAt",
+  "receivedDate",
+];
+const onlyTimeFields = ["timeOfIncident", "timeOfAccident"];
+const dateAndTimeFields = ["createdAt", "updatedAt"];
+
 const ViewIncidentModal = ({ incident, onClose }) => {
   const [incidentData, setIncidentData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -70,50 +81,76 @@ const ViewIncidentModal = ({ incident, onClose }) => {
           <div className="space-y-4 mt-4">
             {Object.entries(incidentData)
               .filter(([key]) => !excludeFields.includes(key))
-              .map(([key, value]) => (
-                <div key={key} className="border-b pb-2">
-                  <span className="font-semibold capitalize">
-                    {formatKey(key)}:{" "}
-                  </span>
-                  <span>
-                    {(() => {
-                      if (key === "picture") {
-                        if (value) {
-                          return (
-                            <div className="mt-2">
-                              <Image
-                                src={`${API_BASE_URL}/public/img/${value}`}
-                                alt="Incident picture"
-                                width={400}
-                                height={300}
-                                className="rounded-lg object-cover"
-                              />
-                            </div>
-                          );
+              .map(([key, value]) => {
+                if (key.endsWith("By")) {
+                  return null;
+                }
+                return (
+                  <div key={key} className="border-b pb-2">
+                    <span className="font-semibold capitalize">
+                      {formatKey(key)}:{" "}
+                    </span>
+                    <span>
+                      {(() => {
+                        if (key === "picture") {
+                          if (value) {
+                            return (
+                              <div className="mt-2">
+                                <Image
+                                  src={`${API_BASE_URL}/public/img/${value}`}
+                                  alt="Incident picture"
+                                  width={400}
+                                  height={300}
+                                  className="rounded-lg object-cover"
+                                />
+                              </div>
+                            );
+                          }
+                          return "No image";
                         }
-                        return "No image";
-                      }
-                      if (typeof value === "boolean") {
-                        return value.toString();
-                      }
-                      if (key === "createdAt" || key === "updatedAt") {
-                        return new Date(value)
-                          .toLocaleDateString("en-GB", {
+                        if (typeof value === "boolean") {
+                          return value.toString();
+                        }
+                        if (dateAndTimeFields.includes(key)) {
+                          return new Date(value)
+                            .toLocaleDateString("en-GB", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true,
+                            })
+                            .replace(/(\d+)(?=(st|nd|rd|th))/, "$1$2")
+                            .replace(/(am|pm)/i, (match) =>
+                              match.toUpperCase()
+                            );
+                        }
+                        if (onlyDateFields.includes(key)) {
+                          return new Date(value).toLocaleDateString("en-GB", {
                             day: "numeric",
                             month: "short",
                             year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: true,
-                          })
-                          .replace(/(\d+)(?=(st|nd|rd|th))/, "$1$2")
-                          .replace(/(am|pm)/i, (match) => match.toUpperCase());
-                      }
-                      return value;
-                    })()}
-                  </span>
-                </div>
-              ))}
+                          });
+                        }
+                        if (onlyTimeFields.includes(key)) {
+                          return new Date(value)
+                            .toLocaleTimeString("en-GB", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true,
+                            })
+                            .replace(/(\d+)(?=(st|nd|rd|th))/, "$1$2")
+                            .replace(/(am|pm)/i, (match) =>
+                              match.toUpperCase()
+                            );
+                        }
+                        return value;
+                      })()}
+                    </span>
+                  </div>
+                );
+              })}
           </div>
         )}
       </DialogContent>

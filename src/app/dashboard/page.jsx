@@ -5,6 +5,7 @@ import useAuthStore from "@/store/useAuthStore";
 import { USER_ROLE } from "@/config/constant";
 import DashboardLoginTechnician from "@/components/Dashboard/DashboardLoginTechnician";
 import DashboardLoginPremises from "@/components/Dashboard/DashboardLoginPremises";
+import DashboardLoginAdmin from "@/components/Dashboard/DashboardLoginAdmin";
 
 const Dashboard = () => {
   const router = useRouter();
@@ -16,10 +17,12 @@ const Dashboard = () => {
     }
   }, [isAuthenticated, router]);
 
-  if (user?.role === USER_ROLE.PHARMACIST) {
+  if (user?.role.toLowerCase() === USER_ROLE.PHARMACIST.toLowerCase()) {
     return <DashboardLoginTechnician />;
-  } else if (user?.role === USER_ROLE.PHARMACY) {
+  } else if (user?.role.toLowerCase() === USER_ROLE.PHARMACY.toLowerCase()) {
     return <DashboardLoginPremises />;
+  } else if (user?.role.toLowerCase() === USER_ROLE.ADMIN.toLowerCase()) {
+    return <DashboardLoginAdmin />;
   }
 };
 
