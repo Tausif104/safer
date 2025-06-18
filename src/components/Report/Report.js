@@ -35,6 +35,7 @@ import {
 import { MdOutlineFileDownload } from "react-icons/md";
 import axios from "axios";
 import { API_BASE_URL } from "@/config/constant";
+import useAuthStore from "@/store/useAuthStore";
 
 const iconMap = {
   pharmacy1: Icon1,
@@ -48,6 +49,8 @@ const RecentIncedientsLogged = () => {
   const [incidentReports, setIncidentReports] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedReportType, setSelectedReportType] = useState("MONTHLY");
+  const { pharmacy } = useAuthStore();
 
   const formatDateTime = (dateTimeString) => {
     const date = new Date(dateTimeString);
@@ -68,11 +71,16 @@ const RecentIncedientsLogged = () => {
     return { date: formattedDate, time: formattedTime };
   };
 
+  const handleDownload = () => {
+    const url = `/patient-safety-report?type=${selectedReportType}`;
+    window.open(url, "_blank");
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const incidentsResponse = await axios.get(
-          `${API_BASE_URL}/api/v1/incidents/reports`
+          `${API_BASE_URL}/api/v1/incidents/reports?odsCode=${pharmacy?.odsCode}`
         );
         setIncidentReports(incidentsResponse.data.data);
       } catch (err) {
@@ -84,7 +92,7 @@ const RecentIncedientsLogged = () => {
     };
 
     fetchData();
-  }, []);
+  }, [pharmacy?.odsCode]);
 
   return (
     <section className="bg-white rounded-[16px] px-0 p-[20px] sm:p-[30px] pt-0 sm:pt-[30px] mt-[30px]">
@@ -96,6 +104,7 @@ const RecentIncedientsLogged = () => {
           <div className="flex items-center gap-[8px]">
             <button
               type="submit"
+              onClick={handleDownload}
               className="primary-btn w-full cursor-pointer !border-[#99C729] !bg-transparent !text-[#99C729] !px-[20px] capitalize hover:!bg-[#99C729] hover:!text-white hover:!border-[#99C729]"
             >
               <MdOutlineFileDownload /> Download
@@ -103,14 +112,17 @@ const RecentIncedientsLogged = () => {
             <span className="h-[38px] w-[38px] min-w-[38px] border border-[#DAECFF] rounded-full flex items-center justify-center">
               <IoPrintOutline />
             </span>
-            <Select className="">
+            <Select
+              value={selectedReportType}
+              onValueChange={setSelectedReportType}
+            >
               <SelectTrigger className="w-full bg-white p-[16px] !h-[36px] border rounded-[1000px] flex items-center gap-[10px] text-[14px] font-normal leading-[160%] text-[#262262] placeholder:text-[#262262] placeholder:font-normal placeholder:text-[16px] focus:outline-0 focus:shadow-none">
                 <SelectValue placeholder="Select Report" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="yearly">Yearly Report</SelectItem>
-                <SelectItem value="monthly">Monthly Report</SelectItem>
-                <SelectItem value="weekly">Weekly Report</SelectItem>
+                <SelectItem value="YEARLY">Yearly Report</SelectItem>
+                <SelectItem value="MONTHLY">Monthly Report</SelectItem>
+                <SelectItem value="WEEKLY">Weekly Report</SelectItem>
               </SelectContent>
             </Select>
           </div>

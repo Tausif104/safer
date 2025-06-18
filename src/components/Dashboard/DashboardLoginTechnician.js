@@ -5,23 +5,25 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { API_BASE_URL } from "@/config/constant";
 import LoadingComp from "../LoadingComp/LoadingComp";
+import useAuthStore from "@/store/useAuthStore";
 
 export default function DashboardLoginTechnician() {
   const [dashboardStats, setDashboardStats] = useState(null);
   const [recentIncidents, setRecentIncidents] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { pharmacy } = useAuthStore();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const statsResponse = await axios.get(
-          `${API_BASE_URL}/api/v1/dashboard/stats`
+          `${API_BASE_URL}/api/v1/dashboard/stats?odsCode=${pharmacy?.odsCode}`
         );
         setDashboardStats(statsResponse.data.data);
 
         const incidentsResponse = await axios.get(
-          `${API_BASE_URL}/api/v1/dashboard/recent-incidents`
+          `${API_BASE_URL}/api/v1/dashboard/recent-incidents?odsCode=${pharmacy?.odsCode}`
         );
         setRecentIncidents(incidentsResponse.data.data);
       } catch (err) {
@@ -33,7 +35,7 @@ export default function DashboardLoginTechnician() {
     };
 
     fetchData();
-  }, []);
+  }, [pharmacy?.odsCode]);
 
   return (
     <>

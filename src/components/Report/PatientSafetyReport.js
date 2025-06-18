@@ -14,7 +14,8 @@ import "react-datepicker/dist/react-datepicker.css";
 import { useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
 import useAuthStore from "@/store/useAuthStore";
-import html2pdf from "html2pdf.js";
+import PatientSafetyReportPDF from "./PatientSafetyReportPDF";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 
 const reportType = {
   MONTHLY: "MONTHLY",
@@ -62,6 +63,8 @@ export default function PatientSafetyReport() {
   const type = searchParams.get("type") || "MONTHLY";
   const { user, pharmacy } = useAuthStore();
   const printRef = useRef();
+  const [pdfData, setPdfData] = React.useState(null);
+  const [showPdfLink, setShowPdfLink] = React.useState(false);
 
   const {
     register,
@@ -105,37 +108,11 @@ export default function PatientSafetyReport() {
     },
   });
 
-  const handleDownloadPDF = async () => {
-    console.log("inside handleDownloadPDF");
-
-    try {
-      setIsSubmitting(true); // Add loading state
-
-      const element = printRef.current;
-
-      if (!element) {
-        toast.error("Content not found for PDF generation");
-        return;
-      }
-
-      const opt = {
-        margin: 0.5,
-        filename: `patient-safety-report-${pharmacy?.name}-${type}-${
-          new Date().toISOString().split("T")[0]
-        }.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-      };
-
-      await html2pdf().set(opt).from(element).save();
-      toast.success("PDF generated successfully");
-    } catch (error) {
-      console.error("PDF Error:", error);
-      toast.error("Failed to generate PDF");
-    } finally {
-      setIsSubmitting(false);
-    }
+  const getWeekNumber = (date) => {
+    const dateObj = new Date(date);
+    const firstDayOfYear = new Date(dateObj.getFullYear(), 0, 1);
+    const pastDaysOfYear = (dateObj - firstDayOfYear) / 86400000;
+    return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
   };
 
   useEffect(() => {
@@ -151,17 +128,34 @@ export default function PatientSafetyReport() {
 
   const handleDateChange = (date) => {
     let formattedDate = "";
+    let dateFrom = "";
+    let dateTo = "";
 
     if (type === "MONTHLY") {
       formattedDate = date.toLocaleString("default", {
         month: "long",
         year: "numeric",
       });
+      // Get first and last day of the month
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      dateFrom = new Date(year, month, 1).toISOString().split("T")[0];
+      dateTo = new Date(year, month + 1, 0).toISOString().split("T")[0];
     } else if (type === "YEARLY") {
-      formattedDate = date.getFullYear().toString();
+      formattedDate = new Date(date).getFullYear().toString();
+      const year = date.getFullYear();
+      dateFrom = new Date(year, 0, 1).toISOString().split("T")[0];
+      dateTo = new Date(year, 11, 31).toISOString().split("T")[0];
     } else if (type === "WEEKLY") {
-      const weekNumber = getWeekNumber(date);
-      formattedDate = `Week::${weekNumber}, ${date.getFullYear()}`;
+      formattedDate = date.toISOString();
+      const simple = new Date(date);
+      const day = simple.getDay();
+      const diffToSunday = simple.getDate() - day;
+      const startOfWeek = new Date(simple.setDate(diffToSunday));
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+      dateFrom = startOfWeek.toISOString().split("T")[0];
+      dateTo = endOfWeek.toISOString().split("T")[0];
     }
 
     setValue("monthYearWeek", formattedDate);
@@ -171,7 +165,7 @@ export default function PatientSafetyReport() {
       setIsLoadingPrefill(true);
       try {
         const response = await axios.get(
-          `${API_BASE_URL}/api/v1/reports/prefill-report?odsCode=${pharmacy?.odsCode}`
+          `${API_BASE_URL}/api/v1/reports/prefill-report?odsCode=${pharmacy?.odsCode}&dateFrom=${dateFrom}&dateTo=${dateTo}`
         );
 
         if (response.data?.data) {
@@ -198,13 +192,6 @@ export default function PatientSafetyReport() {
     fetchPrefillData();
   };
 
-  // Helper function to get week number
-  const getWeekNumber = (date) => {
-    const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-    const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
-    return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-  };
-
   const reportTypeLabel =
     reportType[type].charAt(0).toUpperCase() +
     reportType[type].slice(1).toLowerCase();
@@ -224,8 +211,11 @@ export default function PatientSafetyReport() {
       );
 
       if (response.status === 200 || response.status === 201) {
-        handleDownloadPDF();
-        toast.success("Report submitted successfully");
+        setPdfData(payload);
+        setShowPdfLink(true);
+        toast.success(
+          "Report submitted successfully. Click the link to download PDF."
+        );
       } else {
         toast.error(
           `Error: ${response.data.message || "Failed to submit report"}`
@@ -239,6 +229,7 @@ export default function PatientSafetyReport() {
       );
       setIsSubmitting(false);
     } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -273,10 +264,10 @@ export default function PatientSafetyReport() {
             <div>
               <label className="block text-sm font-medium mb-1 text-foreground">
                 {type === reportType.MONTHLY
-                  ? "Choose month and year"
+                  ? "Month and year"
                   : type === reportType.YEARLY
-                  ? "Choose year"
-                  : "Choose week"}
+                  ? "Year"
+                  : "Week"}
               </label>
               <DatePicker
                 selected={
@@ -389,27 +380,27 @@ export default function PatientSafetyReport() {
                             <th className="border border-border p-2 text-left text-foreground">
                               {reportTypeLabel.slice(0, -2)}
                             </th>
-                            <th className="border border-border p-2 text-center text-foreground">
+                            <th className="border border-border p-2 text-center text-foreground align-top">
                               A. Prescribing interventions
                             </th>
-                            <th className="border border-border p-2 text-center text-foreground">
+                            <th className="border border-border p-2 text-center text-foreground align-top">
                               B. Near misses
                             </th>
-                            <th className="border border-border p-2 text-center text-foreground">
+                            <th className="border border-border p-2 text-center text-foreground align-top">
                               C. Near misses involving high-risk LASA* (if
                               known)
                             </th>
-                            <th className="border border-border p-2 text-center text-foreground">
+                            <th className="border border-border p-2 text-center text-foreground align-top">
                               D. Dispensing incidents
                             </th>
-                            <th className="border border-border p-2 text-center text-foreground">
+                            <th className="border border-border p-2 text-center text-foreground align-top">
                               E. Dispensing incidents involving high-risk LASA*
                               (if known)
                             </th>
-                            <th className="border border-border p-2 text-center text-foreground">
+                            <th className="border border-border p-2 text-center text-foreground align-top">
                               F. National safety alerts
                             </th>
-                            <th className="border border-border p-2 text-center text-foreground">
+                            <th className="border border-border p-2 text-center text-foreground align-top">
                               G. Other patient safety activity†
                             </th>
                           </tr>
@@ -421,12 +412,8 @@ export default function PatientSafetyReport() {
                                 {type === reportType.MONTHLY
                                   ? watch("monthYearWeek")?.split(" ")[0]
                                   : type === reportType.YEARLY
-                                  ? watch("monthYearWeek")?.split(" ")[1]
-                                  : `Week ${
-                                      watch("monthYearWeek")
-                                        ?.split("::")[1]
-                                        ?.split(",")[0]
-                                    }`}
+                                  ? watch("monthYearWeek")
+                                  : getWeekNumber(watch("monthYearWeek"))}
                               </div>
                             </td>
                             <td className="border border-border p-2">
@@ -524,7 +511,7 @@ export default function PatientSafetyReport() {
 
                     <div className="grid grid-cols-2 gap-0 border border-border rounded overflow-hidden">
                       <div className="border border-border p-0 flex flex-col h-full">
-                        <label className="block text-sm font-medium bg-muted p-3 border-b border-border text-foreground flex-1 flex items-center w-full h-full">
+                        <label className="block text-sm font-medium bg-muted p-3 border-b border-border text-foreground flex-1 flex flex-start w-full h-full">
                           What were the key learning points for the pharmacy
                           team following the completion of the CPPE reducing
                           look-alike, sound, alike errors e-learning and
@@ -548,7 +535,7 @@ export default function PatientSafetyReport() {
                       </div>
 
                       <div className="border border-border p-0 flex flex-col h-full">
-                        <label className="block text-sm font-medium bg-muted p-3 border-b border-border text-foreground flex-1 flex items-center w-full h-full">
+                        <label className="block text-sm font-medium bg-muted p-3 border-b border-border text-foreground flex-1 flex flex-start w-full h-full">
                           What actions have been implemented to minimise LASA
                           incidents and near misses from your last monthly
                           Patient Safety Report?
@@ -569,7 +556,7 @@ export default function PatientSafetyReport() {
                       </div>
 
                       <div className="border border-border p-0 flex flex-col h-full">
-                        <label className="block text-sm font-medium bg-muted p-3 border-b border-border text-foreground flex-1 flex items-center w-full h-full">
+                        <label className="block text-sm font-medium bg-muted p-3 border-b border-border text-foreground flex-1 flex flex-start w-full h-full">
                           How have these learnings and actions helped to reduce
                           the number of LASA incidents occurring in your
                           pharmacy? Quantify where possible.
@@ -590,7 +577,7 @@ export default function PatientSafetyReport() {
                       </div>
 
                       <div className="border border-border p-0 flex flex-col h-full">
-                        <label className="block text-sm font-medium bg-muted p-3 border-b border-border text-foreground flex-1 flex items-center w-full h-full">
+                        <label className="block text-sm font-medium bg-muted p-3 border-b border-border text-foreground flex-1 flex flex-start w-full h-full">
                           If these learnings have not helped to reduce the
                           number of LASA incidents, why is this the case and
                           what additional actions will you now take?
@@ -633,7 +620,7 @@ export default function PatientSafetyReport() {
 
                       <div className="grid grid-cols-3 gap-0 border border-border rounded overflow-hidden">
                         <div className="border border-border p-0 flex flex-col h-full">
-                          <label className="block text-sm font-medium bg-muted p-3 border-b border-border text-foreground flex-1 flex items-center w-full h-full">
+                          <label className="block text-sm font-medium bg-muted p-3 border-b border-border text-foreground flex-1 flex flex-start w-full h-full">
                             Reviewing patient safety incidents, what was the key
                             learning point and how was it identified?
                           </label>
@@ -653,7 +640,7 @@ export default function PatientSafetyReport() {
                         </div>
 
                         <div className="border border-border p-0 flex flex-col h-full">
-                          <label className="block text-sm font-medium bg-muted p-3 border-b border-border text-foreground flex-1 flex items-center w-full h-full">
+                          <label className="block text-sm font-medium bg-muted p-3 border-b border-border text-foreground flex-1 flex flex-start w-full h-full">
                             What actions have been taken at the pharmacy as a
                             result?
                           </label>
@@ -673,7 +660,7 @@ export default function PatientSafetyReport() {
                         </div>
 
                         <div className="border border-border p-0 flex flex-col h-full">
-                          <label className="block text-sm font-medium bg-muted p-3 border-b border-border text-foreground flex-1 flex items-center w-full h-full">
+                          <label className="block text-sm font-medium bg-muted p-3 border-b border-border text-foreground flex-1 flex flex-start w-full h-full">
                             How has patient safety improved as a result?
                           </label>
                           <Textarea
@@ -702,7 +689,7 @@ export default function PatientSafetyReport() {
 
                       <div className="grid grid-cols-3 gap-0 border border-border rounded overflow-hidden">
                         <div className="border border-border p-0 flex flex-col h-full">
-                          <label className="block text-sm font-medium bg-muted p-3 border-b border-border text-foreground flex-1 flex items-center w-full h-full">
+                          <label className="block text-sm font-medium bg-muted p-3 border-b border-border text-foreground flex-1 flex flex-start w-full h-full">
                             Reviewing patient safety alerts, what was the key
                             learning point and how was it identified?
                           </label>
@@ -722,7 +709,7 @@ export default function PatientSafetyReport() {
                         </div>
 
                         <div className="border border-border p-0 flex flex-col h-full">
-                          <label className="block text-sm font-medium bg-muted p-3 border-b border-border text-foreground flex-1 flex items-center w-full h-full">
+                          <label className="block text-sm font-medium bg-muted p-3 border-b border-border text-foreground flex-1 flex flex-start w-full h-full">
                             What actions have been taken at the pharmacy as a
                             result?
                           </label>
@@ -742,7 +729,7 @@ export default function PatientSafetyReport() {
                         </div>
 
                         <div className="border border-border p-0 flex flex-col h-full">
-                          <label className="block text-sm font-medium bg-muted p-3 border-b border-border text-foreground flex-1 flex items-center w-full h-full">
+                          <label className="block text-sm font-medium bg-muted p-3 border-b border-border text-foreground flex-1 flex flex-start w-full h-full">
                             How has patient safety improved as a result?
                           </label>
                           <Textarea
@@ -853,6 +840,26 @@ export default function PatientSafetyReport() {
                         "Generate Report"
                       )}
                     </Button>
+                    {showPdfLink && pdfData && (
+                      <div className="my-4 flex justify-center">
+                        <PDFDownloadLink
+                          document={
+                            <PatientSafetyReportPDF
+                              data={pdfData}
+                              type={pdfData.type}
+                            />
+                          }
+                          fileName={`patient-safety-report-${pdfData.type}-${
+                            pdfData.pharmacyName
+                          }-${new Date().toISOString().split("T")[0]}.pdf`}
+                          className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 transition-colors"
+                        >
+                          {({ loading }) =>
+                            loading ? "Preparing PDF..." : "Download PDF"
+                          }
+                        </PDFDownloadLink>
+                      </div>
+                    )}
                   </div>
                 </>
               )}
