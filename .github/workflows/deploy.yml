@@ -12,7 +12,7 @@ jobs:
     - name: 📦 Checkout repo
       uses: actions/checkout@v3
 
-    - name: 🛠 Setup Node.js 20 (for build only)
+    - name: 🛠 Setup Node.js 20 for build
       uses: actions/setup-node@v4
       with:
         node-version: 20
@@ -23,12 +23,12 @@ jobs:
     - name: 🔧 Build project
       run: NEXT_DISABLE_ESLINT_PLUGIN=true npm run build
 
-    - name: 📂 Prepare artifact
+    - name: 📂 Prepare deployable folder (no .env)
       run: |
         mkdir deploy
-        cp -r .next public package.json ecosystem.config.js .env deploy/
+        cp -r .next public package.json ecosystem.config.js deploy/
 
-    - name: 🧼 Ensure target folder exists
+    - name: 🧼 Ensure deploy target exists
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.SERVER_HOST }}
@@ -38,7 +38,7 @@ jobs:
           sudo mkdir -p /var/www/html/saferx-temp
           sudo chown -R $USER:$USER /var/www/html/
 
-    - name: 🚀 Upload files to server
+    - name: 🚀 Upload build to server
       uses: appleboy/scp-action@v0.1.7
       with:
         host: ${{ secrets.SERVER_HOST }}
