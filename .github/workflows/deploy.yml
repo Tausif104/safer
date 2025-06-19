@@ -1,4 +1,4 @@
-name: CI/CD for SaferX
+name: CI/CD for SaferX Admin Frontend
 
 on:
   push:
@@ -9,29 +9,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
+    - name: 📦 Checkout repo
       uses: actions/checkout@v3
 
-    - name: Set up Node.js
+    - name: 🛠 Setup Node.js 20 (for build only)
       uses: actions/setup-node@v4
       with:
         node-version: 20
 
-    - name: Install dependencies
+    - name: 📥 Install dependencies
       run: npm install
 
-    - name: Build project
+    - name: 🔧 Build project
       run: NEXT_DISABLE_ESLINT_PLUGIN=true npm run build
 
-    - name: Prepare artifact for deployment
+    - name: 📂 Prepare artifact
       run: |
         mkdir deploy
-        cp -r .next public package.json ecosystem.config.js deploy/
+        cp -r .next public package.json ecosystem.config.js .env deploy/
 
-    - name: Debug deploy folder contents
-      run: ls -la deploy/
-
-    - name: Fix permissions on server before SCP
+    - name: 🧼 Ensure target folder exists
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.SERVER_HOST }}
@@ -41,7 +38,7 @@ jobs:
           sudo mkdir -p /var/www/html/saferx-temp
           sudo chown -R $USER:$USER /var/www/html/
 
-    - name: Deploy built app to saferx.syndev.us
+    - name: 🚀 Upload files to server
       uses: appleboy/scp-action@v0.1.7
       with:
         host: ${{ secrets.SERVER_HOST }}
@@ -50,33 +47,26 @@ jobs:
         source: "deploy/"
         target: "/var/www/html/saferx-temp"
         strip_components: 1
-        debug: true
         overwrite: true
 
-    - name: Restart app with PM2
+    - name: 🔁 Swap, install, and restart with PM2
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
-          # Swap directories
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          nvm use 22
+
           sudo rm -rf /var/www/html/saferx
           sudo mv /var/www/html/saferx-temp /var/www/html/saferx
           sudo chown -R $USER:$USER /var/www/html/saferx
 
           cd /var/www/html/saferx
-
-          # Install production dependencies only
           npm install --omit=dev
 
-          # Restart with PM2
-          if [ -f ecosystem.config.js ]; then
-            pm2 delete saferx || true
-            pm2 start ecosystem.config.js --name safer-next
-          else
-            pm2 delete safer-next || true
-            pm2 start npm --name safer-next -- run start
-          fi
-
+          pm2 delete saferx || true
+          pm2 start ecosystem.config.js
           pm2 save
