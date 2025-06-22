@@ -23,7 +23,7 @@ const schema = yup
     name: yup.string().required("Name is required"),
     email: yup.string().email("Invalid email").required("Email is required"),
     phone: yup.string().required("Phone number is required"),
-    gphcNumber: yup.string().required("GPHC Number is required"),
+    gphcNumber: yup.string(),
     managersName: yup.string(),
     managersPhone: yup.string(),
     managersGphcNumber: yup.string(),
@@ -362,10 +362,18 @@ const PharmacistModal = ({
                   </div>
 
                   <div className="flex justify-end gap-2 mt-6">
-                    <Button variant="outline" onClick={onClose}>
+                    <Button
+                      variant="outline"
+                      onClick={onClose}
+                      className="cursor-pointer"
+                    >
                       Cancel
                     </Button>
-                    <Button type="submit" disabled={loading}>
+                    <Button
+                      type="submit"
+                      className="cursor-pointer"
+                      disabled={loading}
+                    >
                       {isCreating ? "Create" : "Save Changes"}
                     </Button>
                   </div>
