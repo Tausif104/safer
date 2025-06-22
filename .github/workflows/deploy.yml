@@ -1,4 +1,4 @@
-name: CI/CD for SaferX
+name: CI/CD for SaferX Admin Frontend
 
 on:
   push:
@@ -9,55 +9,64 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
+    - name: 📦 Checkout repo
       uses: actions/checkout@v3
 
-    - name: Set up Node.js
+    - name: 🛠 Setup Node.js 20 for build
       uses: actions/setup-node@v4
       with:
         node-version: 20
 
-    - name: Install dependencies
+    - name: 📥 Install dependencies
       run: npm install
 
-    - name: Build project
+    - name: 🔧 Build project
       run: NEXT_DISABLE_ESLINT_PLUGIN=true npm run build
 
-    - name: Deploy full project to saferx.syndev.us
-      uses: appleboy/scp-action@v0.1.7
-      with:
-        host: ${{ secrets.SERVER_HOST }}
-        username: ${{ secrets.SERVER_USER }}
-        key: ${{ secrets.SERVER_SSH_KEY }}
-        source: "." # Transfer everything
-        target: "/var/www/html/saferx-temp"
-        debug: true
+    - name: 📂 Prepare deployable folder (no .env)
+      run: |
+        mkdir deploy
+        cp -r .next public package.json ecosystem.config.js deploy/
 
-    - name: Restart app with PM2
+    - name: 🧼 Ensure deploy target exists
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
-          # Use sudo for permission issues
+          sudo mkdir -p /var/www/html/saferx-temp
+          sudo chown -R $USER:$USER /var/www/html/
+
+    - name: 🚀 Upload build to server
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        source: "deploy/"
+        target: "/var/www/html/saferx-temp"
+        strip_components: 1
+        overwrite: true
+
+    - name: 🔁 Swap, install, and restart with PM2
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        script: |
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          nvm use 22
+
           sudo rm -rf /var/www/html/saferx
           sudo mv /var/www/html/saferx-temp /var/www/html/saferx
           sudo chown -R $USER:$USER /var/www/html/saferx
 
           cd /var/www/html/saferx
-
-          # Install only production deps
           npm install --omit=dev
 
-          # Start PM2 with config or fallback
-          if [ -f ecosystem.config.js ]; then
-            pm2 start ecosystem.config.js --name saferx
-          else
-            pm2 start npm --name saferx -- run start
-          fi
-
+          pm2 delete saferx || true
+          pm2 start ecosystem.config.js
           pm2 save
-
-
-          

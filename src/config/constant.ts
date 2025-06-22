@@ -1,5 +1,5 @@
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.saferx.syndev.us";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.saferx.co.uk";
 export const DEFAULT_PASSWORD = "123456";
 export const USER_ROLE = {
   PHARMACIST: "PHARMACIST",
