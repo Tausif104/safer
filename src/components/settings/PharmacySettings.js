@@ -63,7 +63,7 @@ const PharmacySettings = () => {
         if (response.status === 200 || response.status === 201) {
           setValue(
             "logo",
-            `${API_BASE_URL}/public/img/response.data.data.fileName`,
+            response.data.data.filePath,
             { shouldDirty: true }
           );
         }

@@ -65,7 +65,7 @@ const UserSettings = () => {
         );
 
         if (response.status === 200 || response.status === 201) {
-          setValue("photo", response.data.data.fileName, { shouldDirty: true });
+          setValue("photo", response.data.data.filePath, { shouldDirty: true });
         }
       } catch (error) {
         console.error("Error uploading file:", error);

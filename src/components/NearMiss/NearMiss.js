@@ -212,7 +212,7 @@ const NearMiss = () => {
         );
 
         if (response.status === 200 || response.status === 201) {
-          setValue("picture", response.data.data.fileName);
+          setValue("picture", response.data.data.filePath);
         }
       } catch (error) {
         console.error("Error uploading file:", error);

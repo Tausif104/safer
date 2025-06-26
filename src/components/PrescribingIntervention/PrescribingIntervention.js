@@ -223,7 +223,7 @@ const PrescribingIntervention = () => {
         );
 
         if (response.status === 200 || response.status === 201) {
-          setValue("picture", response.data.data.fileName);
+          setValue("picture", response.data.data.filePath);
         }
       } catch (error) {
         console.error("Error uploading file:", error);
@@ -590,7 +590,10 @@ const PrescribingIntervention = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {users.map((user) => (
-                    <SelectItem key={user.id} value={`${user.id};;${user.name}`}>
+                    <SelectItem
+                      key={user.id}
+                      value={`${user.id};;${user.name}`}
+                    >
                       {user.name}
                     </SelectItem>
                   ))}

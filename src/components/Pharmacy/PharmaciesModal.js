@@ -119,7 +119,7 @@ const PharmaciesModal = ({
         if (response.status === 200 || response.status === 201) {
           setFormData((prev) => ({
             ...prev,
-            logo: response.data.data.fileName,
+            logo: response.data.data.filePath,
           }));
         }
       } catch (error) {
