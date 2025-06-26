@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import userProfile from "@/assets/images/user-profile.svg";
 import userProfile2 from "@/assets/images/user-profile2.svg";
 import userProfile3 from "@/assets/images/user-profile3.svg";
+import { API_BASE_URL } from "@/config/constant";
 
 const PharmacistSwitchOption = () => {
   const { user, logout } = useAuthStore();
@@ -32,11 +33,21 @@ const PharmacistSwitchOption = () => {
         <PopoverTrigger asChild className="cursor-pointer">
           <button className="flex gap-[12px]">
             <div>
-              <Image
-                className="w-[48px] h-[48px]"
-                src={userProfile}
-                alt="bell"
-              />
+              {user?.photo ? (
+                <img
+                  className="w-[48px] h-[48px] rounded-full object-cover"
+                  src={
+                    user?.photo.startsWith("http")
+                      ? user?.photo
+                      : `${API_BASE_URL}/public/img/${user?.photo}`
+                  }
+                  alt="bell"
+                />
+              ) : (
+                <div className="w-[48px] h-[48px] rounded-full bg-gray-200 flex items-center justify-center">
+                  <span className="text-gray-500 text-sm">N/A</span>
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-2.5">
               <div className="text-left">
