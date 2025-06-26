@@ -135,8 +135,12 @@ const ListOfPharmacist = ({ status = PHARMACIST_STATUS.APPROVED }) => {
                       <TableCell className="py-[8px] px-[20px] border-b border-[#DAECFF]">
                         <div className="flex items-center gap-3.5">
                           {pharmacist.photo ? (
-                            <Image
-                              src={pharmacist.photo}
+                            <img
+                              src={
+                                pharmacist.photo.startsWith("http")
+                                  ? pharmacist.photo
+                                  : `${API_BASE_URL}/public/img/${pharmacist.photo}`
+                              }
                               alt={pharmacist.name}
                               width={42}
                               height={42}

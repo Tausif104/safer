@@ -96,7 +96,18 @@ const ViewIncidentModal = ({ incident, onClose }) => {
                           if (value) {
                             return (
                               <div className="mt-2">
-                                <Image
+                                {/* <Image
+                                  src={
+                                    value.startsWith("http")
+                                      ? value
+                                      : `${API_BASE_URL}/public/img/${value}`
+                                  }
+                                  alt="Incident picture"
+                                  width={400}
+                                  height={300}
+                                  className="rounded-lg object-cover"
+                                /> */}
+                                <img
                                   src={
                                     value.startsWith("http")
                                       ? value

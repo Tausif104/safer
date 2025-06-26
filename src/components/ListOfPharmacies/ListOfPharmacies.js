@@ -137,8 +137,12 @@ const ListOfPharmacies = ({ status = PHARMACY_STATUS.APPROVED }) => {
                       <TableCell className="py-[8px] px-[20px] border-b border-[#DAECFF]">
                         <div className="flex items-center gap-3.5">
                           {pharmacy.logo ? (
-                            <Image
-                              src={pharmacy.logo}
+                            <img
+                              src={
+                                pharmacy.logo.startsWith("http")
+                                  ? pharmacy.logo
+                                  : `${API_BASE_URL}/public/img/${pharmacy.logo}`
+                              }
                               alt={pharmacy.name}
                               width={42}
                               height={42}

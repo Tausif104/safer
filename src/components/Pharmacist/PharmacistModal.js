@@ -175,8 +175,12 @@ const PharmacistModal = ({
                 <div className="space-y-4">
                   <div className="flex items-center gap-4 mb-6">
                     {pharmacist?.photo ? (
-                      <Image
-                        src={pharmacist?.photo}
+                      <img
+                        src={
+                          pharmacist?.photo.startsWith("http")
+                            ? pharmacist?.photo
+                            : `${API_BASE_URL}/public/img/${pharmacist?.photo}`
+                        }
                         alt={pharmacist?.name}
                         width={80}
                         height={80}

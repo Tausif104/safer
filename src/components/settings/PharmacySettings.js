@@ -278,7 +278,7 @@ const PharmacySettings = () => {
             </>
           ) : (
             <div className="relative inline-block">
-              <Image
+              <img
                 src={imagePreview}
                 alt="Pharmacy Logo"
                 width={300}
@@ -297,7 +297,7 @@ const PharmacySettings = () => {
           {imagePreview && showUploadBox && (
             <div className="mt-4">
               {console.log("img preview", imagePreview)}
-              <Image
+              <img
                 src={imagePreview}
                 alt="Preview"
                 width={300}

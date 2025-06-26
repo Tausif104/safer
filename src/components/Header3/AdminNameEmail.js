@@ -28,7 +28,7 @@ const AdminNameEmail = ({ user }) => {
           <button className="flex items-center gap-[12px]">
             {user?.photo ? (
               <div className="w-[48px] h-[48px] rounded-full overflow-hidden">
-                <Image
+                <img
                   src={
                     user.photo.startsWith("http")
                       ? user.photo

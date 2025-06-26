@@ -222,7 +222,7 @@ const UserSettings = () => {
             </>
           ) : (
             <div className="relative inline-block">
-              <Image
+              <img
                 src={imagePreview}
                 alt="Profile Picture"
                 width={300}
@@ -240,7 +240,7 @@ const UserSettings = () => {
           )}
           {imagePreview && showUploadBox && (
             <div className="mt-4">
-              <Image
+              <img
                 src={imagePreview}
                 alt="Preview"
                 width={300}

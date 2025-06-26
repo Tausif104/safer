@@ -70,15 +70,11 @@ const PharmaciesModal = ({
 
         // Set image preview
         if (response.data?.data?.logo) {
-          if (response.data.data.logo.startsWith("http")) {
-            setImagePreview(response.data.data.logo);
-          } else {
-            setImagePreview(
-              response.data.data.logo.startsWith("http")
-                ? response.data.data.logo
-                : `${API_BASE_URL}/public/img/${response.data.data.logo}`
-            );
-          }
+          setImagePreview(
+            response.data.data.logo.startsWith("http")
+              ? response.data.data.logo
+              : `${API_BASE_URL}/public/img/${response.data.data.logo}`
+          );
           setShowUploadBox(false);
         }
       } catch (error) {
@@ -206,7 +202,7 @@ const PharmaciesModal = ({
               <div className="space-y-4">
                 <div className="flex items-center gap-4 mb-6">
                   {pharmacy?.logo ? (
-                    <Image
+                    <img
                       src={
                         pharmacy?.logo.startsWith("http")
                           ? pharmacy.logo
@@ -418,7 +414,7 @@ const PharmaciesModal = ({
                     </>
                   ) : (
                     <div className="relative inline-block">
-                      <Image
+                      <img
                         src={imagePreview}
                         alt="Pharmacy Logo"
                         width={300}
@@ -436,7 +432,7 @@ const PharmaciesModal = ({
                   )}
                   {imagePreview && showUploadBox && (
                     <div className="mt-4">
-                      <Image
+                      <img
                         src={imagePreview}
                         alt="Preview"
                         width={300}

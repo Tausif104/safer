@@ -28,7 +28,7 @@ const PremiseNameOds = ({ pharmacy }) => {
           <button className="flex items-center gap-[12px]">
             {pharmacy?.logo ? (
               <div className="w-[48px] h-[48px] rounded-full overflow-hidden">
-                <Image
+                <img
                   src={
                     pharmacy.logo.startsWith("http")
                       ? pharmacy.logo
