@@ -38,7 +38,11 @@ const UserSettings = () => {
     } else if (user?.photo.startsWith("http")) {
       setImagePreview(user?.photo);
     } else {
-      setImagePreview(`${API_BASE_URL}/public/img/${user?.photo}`);
+      setImagePreview(
+        user?.photo.startsWith("http")
+          ? user?.photo
+          : `${API_BASE_URL}/public/img/${user?.photo}`
+      );
     }
   }, [user?.photo]);
 

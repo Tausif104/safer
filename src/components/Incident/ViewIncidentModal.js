@@ -97,7 +97,11 @@ const ViewIncidentModal = ({ incident, onClose }) => {
                             return (
                               <div className="mt-2">
                                 <Image
-                                  src={`${API_BASE_URL}/public/img/${value}`}
+                                  src={
+                                    value.startsWith("http")
+                                      ? value
+                                      : `${API_BASE_URL}/public/img/${value}`
+                                  }
                                   alt="Incident picture"
                                   width={400}
                                   height={300}

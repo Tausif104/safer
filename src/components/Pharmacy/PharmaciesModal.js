@@ -74,7 +74,9 @@ const PharmaciesModal = ({
             setImagePreview(response.data.data.logo);
           } else {
             setImagePreview(
-              `${API_BASE_URL}/public/img/${response.data.data.logo}`
+              response.data.data.logo.startsWith("http")
+                ? response.data.data.logo
+                : `${API_BASE_URL}/public/img/${response.data.data.logo}`
             );
           }
           setShowUploadBox(false);

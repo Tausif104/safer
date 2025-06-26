@@ -6,6 +6,9 @@ const nextConfig = {
       "api.saferx.syndev.us",
       "saferx.syndev.us",
       "syndev.us",
+      "api.saferx.co.uk",
+      "saferx.co.uk",
+      "saferx.blob.core.windows.net",
     ],
   },
   eslint: {

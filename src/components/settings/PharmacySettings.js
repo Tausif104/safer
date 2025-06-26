@@ -34,7 +34,11 @@ const PharmacySettings = () => {
     } else if (pharmacy?.logo.startsWith("http")) {
       setImagePreview(pharmacy?.logo);
     } else {
-      setImagePreview(`${API_BASE_URL}/public/img/${pharmacy?.logo}`);
+      setImagePreview(
+        pharmacy?.logo.startsWith("http")
+          ? pharmacy?.logo
+          : `${API_BASE_URL}/public/img/${pharmacy?.logo}`
+      );
     }
   }, [pharmacy?.logo]);
 
