@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { API_BASE_URL, USER_ROLE } from "@/config/constant";
+import { API_BASE_URL, PHARMACIST_STATUS, USER_ROLE } from "@/config/constant";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -649,7 +649,9 @@ const NearMiss = () => {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={
+                    isSubmitting || user?.status !== PHARMACIST_STATUS.APPROVED
+                  }
                   className="flex items-center gap-[16px] text-[#fff] transition-all duration-300 hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group max-w-[365px] w-full text-[18px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? (

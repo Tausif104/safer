@@ -18,15 +18,17 @@ const Otp = () => {
   const [isResending, setIsResending] = useState(false);
   const [resendCountdown, setResendCountdown] = useState(0);
   const [hasEmailBeenSent, setHasEmailBeenSent] = useState(false);
+  const [isInitialEmailSent, setIsInitialEmailSent] = useState(false);
   const inputRefs = useRef([]);
   const { user } = useAuthStore();
   const router = useRouter();
 
   useEffect(() => {
-    if (user?.email) {
+    if (user?.email && !isInitialEmailSent) {
       sendOtpEmail();
+      setIsInitialEmailSent(true);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.email]);
 
   useEffect(() => {

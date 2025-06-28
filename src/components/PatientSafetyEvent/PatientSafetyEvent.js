@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { API_BASE_URL } from "@/config/constant";
+import { API_BASE_URL, PHARMACIST_STATUS } from "@/config/constant";
 import axios from "axios";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
@@ -1240,7 +1240,9 @@ const PatientSafetyEvent = () => {
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={
+                  isSubmitting || user?.status !== PHARMACIST_STATUS.APPROVED
+                }
                 className="flex items-center gap-[16px] text-[#fff] transition-all duration-300 hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group max-w-[365px] w-full text-[18px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (

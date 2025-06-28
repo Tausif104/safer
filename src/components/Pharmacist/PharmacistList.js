@@ -78,34 +78,46 @@ const PharmacistList = ({ type }) => {
     }
   }, [isModalOpen]);
 
-  const handleApprove = async (id) => {
+  const handleApprove = async (user) => {
     try {
-      await axios.post(
-        `${API_BASE_URL}/api/v1/pharmacies/approve-user`,
-        { pharmacyUserId: id },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      if (user?.pharmacyUserId) {
+        await axios.post(
+          `${API_BASE_URL}/api/v1/pharmacies/approve-user`,
+          { pharmacyUserId: user?.pharmacyUserId },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      } else if (user?.userId) {
+        await axios.put(`${API_BASE_URL}/api/v1/users/${user?.userId}`, {
+          status: PHARMACIST_STATUS.APPROVED,
+        });
+      }
       setRefetchedAt(Date.now());
     } catch (error) {
       console.error("Error approving pharmacist:", error);
     }
   };
 
-  const handleReject = async (id) => {
+  const handleReject = async (user) => {
     try {
-      await axios.post(
-        `${API_BASE_URL}/api/v1/pharmacies/reject-user`,
-        { pharmacyUserId: id },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      if (user?.pharmacyUserId) {
+        await axios.post(
+          `${API_BASE_URL}/api/v1/pharmacies/reject-user`,
+          { pharmacyUserId: user?.pharmacyUserId },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      } else if (user?.userId) {
+        await axios.put(`${API_BASE_URL}/api/v1/users/${user?.userId}`, {
+          status: PHARMACIST_STATUS.REJECTED,
+        });
+      }
       setRefetchedAt(Date.now());
     } catch (error) {
       console.error("Error rejecting pharmacist:", error);
@@ -289,7 +301,15 @@ const PharmacistList = ({ type }) => {
                               <>
                                 <DropdownMenuItem
                                   onClick={() =>
-                                    handleApprove(pharmacist?.pharmacyUserId)
+                                    handleApprove({
+                                      ...(pharmacist?.pharmacyUserId && {
+                                        pharmacyUserId:
+                                          pharmacist?.pharmacyUserId,
+                                      }),
+                                      ...(pharmacist?.id && {
+                                        userId: pharmacist?.id,
+                                      }),
+                                    })
                                   }
                                   className="cursor-pointer"
                                 >
@@ -297,7 +317,15 @@ const PharmacistList = ({ type }) => {
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                   onClick={() =>
-                                    handleReject(pharmacist?.pharmacyUserId)
+                                    handleReject({
+                                      ...(pharmacist?.pharmacyUserId && {
+                                        pharmacyUserId:
+                                          pharmacist?.pharmacyUserId,
+                                      }),
+                                      ...(pharmacist?.id && {
+                                        userId: pharmacist?.id,
+                                      }),
+                                    })
                                   }
                                   className="cursor-pointer"
                                 >

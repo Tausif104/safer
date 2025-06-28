@@ -112,7 +112,6 @@ const SignUp = () => {
             placeholder="Pharmacy Email"
             className="pl-[45px] disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
             value={email}
-            disabled
           />
         </div>
         <div className="relative mb-[20px]">

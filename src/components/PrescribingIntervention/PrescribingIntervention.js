@@ -17,7 +17,7 @@ import AddCircle from "@/assets/images/add-circle.svg";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Upload } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { API_BASE_URL, USER_ROLE } from "@/config/constant";
+import { API_BASE_URL, PHARMACIST_STATUS, USER_ROLE } from "@/config/constant";
 import axios from "axios";
 import Image from "next/image";
 import IncidentSavedDialog from "@/components/Incident/incident-saved-dialog";
@@ -706,7 +706,9 @@ const PrescribingIntervention = () => {
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={
+                  isSubmitting || user?.status !== PHARMACIST_STATUS.APPROVED
+                }
                 className="flex items-center gap-[16px] text-[#fff] transition-all duration-300 hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group w-full sm:w-auto sm:!text-[18px] !text-[16px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
