@@ -70,9 +70,7 @@ const ConfigurationStep1Content = () => {
       town: formData.get("town"),
       postCode: formData.get("postCode"),
       odsCode: formData.get("ods"),
-      email: pharmacy?.odsCode
-        ? `pharmacy.${pharmacy.odsCode}@nhs.net`
-        : formData.get("email"),
+      email: formData.get("email"),
       gphcPremisesNumber: formData.get("gphc"),
     };
 
@@ -178,9 +176,7 @@ const ConfigurationStep1Content = () => {
               type="email"
               name="email"
               id="email"
-              defaultValue={
-                pharmacy?.odsCode ? `pharmacy.${pharmacy.odsCode}@nhs.net` : ""
-              }
+              defaultValue={pharmacy?.email}
               disabled
               className="bg-[#F8F9FB] text-[#262262] placeholder:text-[#262262] disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
             />
