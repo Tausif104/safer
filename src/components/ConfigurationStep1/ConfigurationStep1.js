@@ -70,7 +70,7 @@ const ConfigurationStep1Content = () => {
       town: formData.get("town"),
       postCode: formData.get("postCode"),
       odsCode: formData.get("ods"),
-      email: formData.get("email"),
+      email: formData.get("email") || pharmacy?.email,
       gphcPremisesNumber: formData.get("gphc"),
     };
 
