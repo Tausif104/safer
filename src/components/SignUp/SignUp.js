@@ -62,7 +62,13 @@ const SignUp = () => {
         setSigningUpEmail(email);
         setUser(response.data?.data?.user);
         setToken(response.data?.data?.token);
-        setPharmacy(response.data?.data?.pharmacy);
+        setPharmacy({
+          ...response.data?.data?.pharmacy,
+          email:
+            response.data?.data?.pharmacy?.email ||
+            response.data?.data?.pharmacy?.pharmacyEmail ||
+            email,
+        });
         router.push("/signup-premises/premises-verification?type=premise");
       }
     } catch (error) {
