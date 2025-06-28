@@ -52,14 +52,14 @@ const SignUp = () => {
       const response = await axios.post(
         `${API_BASE_URL}/api/v1/auth/signup-premise`,
         {
-          pharmacyEmail: e.target.p_email.value,
+          pharmacyEmail: email,
           odsCode: e.target.odsCode.value,
           password,
         }
       );
 
       if (response.status === 200) {
-        setSigningUpEmail(e.target.p_email.value);
+        setSigningUpEmail(email);
         setUser(response.data?.data?.user);
         setToken(response.data?.data?.token);
         setPharmacy(response.data?.data?.pharmacy);
@@ -111,7 +111,8 @@ const SignUp = () => {
             id="p_email"
             placeholder="Pharmacy Email"
             className="pl-[45px] disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
-            value={email}
+            defaultValue={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
         </div>
         <div className="relative mb-[20px]">

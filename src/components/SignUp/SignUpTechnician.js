@@ -38,7 +38,7 @@ const SignUpTechnician = () => {
 
     const formData = {
       email: e.target.p_email.value,
-      gphc: e.target.gphc.value,
+      gphcNumber: e.target.gphcNumber.value,
       password: password,
     };
     setSigningUpEmail(formData.email);
@@ -93,8 +93,8 @@ const SignUpTechnician = () => {
           </span>
           <input
             type="text"
-            name="gphc"
-            id="gphc"
+            name="gphcNumber"
+            id="gphcNumber"
             placeholder="GPHC Number"
             className="pl-[45px]"
           />
