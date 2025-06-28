@@ -1,15 +1,11 @@
-"use client";
 import Verification from "@/components/Verification/Verification";
+import { USER_ROLE } from "@/config/constant";
 import React from "react";
-import { useSearchParams } from "next/navigation";
 
 const SignupPremisesVerification = () => {
-  const searchParams = useSearchParams();
-  const queryData = Object.fromEntries(searchParams.entries());
-
   return (
     <>
-      <Verification queryData={queryData} />
+      <Verification queryData={{ userType: USER_ROLE.PHARMACY }} />
     </>
   );
 };
