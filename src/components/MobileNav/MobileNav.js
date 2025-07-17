@@ -30,25 +30,25 @@ const MobileNav = () => {
             <PopoverContent className="w-80 rounded-[10px] p-[16px] border-b-2 border-b-[#99C729]">
               <div className="flex flex-col gap-4">
                 <Link
-                  href="#"
+                  href="/incident/prescribing-intervention"
                   className="primary-btn !bg-[#F3F4F6] !border-[#C8CFDA] !text-[#707B8A] hover:!bg-[#99C729] hover:!text-white"
                 >
                   Prescribing Intervention
                 </Link>
                 <Link
-                  href="#"
+                  href="/incident/patient-safety-event"
                   className="primary-btn !bg-[#F3F4F6] !border-[#C8CFDA] !text-[#707B8A] hover:!bg-[#99C729] hover:!text-white"
                 >
                   Patient Safety Event
                 </Link>
                 <Link
-                  href="#"
+                  href="/incident/near-miss"
                   className="primary-btn !bg-[#F3F4F6] !border-[#C8CFDA] !text-[#707B8A] hover:!bg-[#99C729] hover:!text-white"
                 >
                   Near Miss
                 </Link>
                 <Link
-                  href="#"
+                  href="/incident/faulty-medication"
                   className="primary-btn !bg-[#F3F4F6] !border-[#C8CFDA] !text-[#707B8A] hover:!bg-[#99C729] hover:!text-white"
                 >
                   Faulty Medication

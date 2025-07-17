@@ -21,8 +21,8 @@ import UserCreatedWithPasswordDialog from "../User/UserCreatedWithPasswordDialog
 const schema = yup
   .object({
     name: yup.string().required("Name is required"),
-    email: yup.string().email("Invalid email").required("Email is required"),
-    phone: yup.string().required("Phone number is required"),
+    email: yup.string().email("Invalid email"),
+    phone: yup.string(),
     gphcNumber: yup.string(),
     managersName: yup.string(),
     managersPhone: yup.string(),
@@ -117,6 +117,7 @@ const PharmacistModal = ({
           `${API_BASE_URL}/api/v1/users?pharmacyId=${pharmacy?.id}`,
           {
             ...data,
+            email: data.email || `no-email-${Date.now()}@saferx.co.uk`,
             role,
             password: password,
             status: PHARMACIST_STATUS.APPROVED,

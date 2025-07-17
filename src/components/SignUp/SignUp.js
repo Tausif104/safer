@@ -73,6 +73,7 @@ const SignUp = () => {
       }
     } catch (error) {
       console.error("Signup error:", error);
+      alert(error.response.data.message || "Signup failed");
     } finally {
       setIsSubmitting(false);
     }

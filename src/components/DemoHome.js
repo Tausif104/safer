@@ -10,11 +10,8 @@ const DemoHome = () => {
         {/* Greeting Section */}
         <div className="text-center mb-12">
           <h1 className="text-3xl md:text-4xl font-bold text-[#262262] mb-4 mt-7">
-            Hey there, have a good day!
+            Hey there, Welcome to SafeRx
           </h1>
-          <p className="text-[#707B8A] text-lg">
-            Welcome to SafeRx - Your trusted platform for pharmacy safety
-          </p>
         </div>
 
         {/* Cards Grid */}
@@ -26,7 +23,7 @@ const DemoHome = () => {
                 <HiOutlineUser className="text-[#3B82F6] text-xl" />
               </div>
               <h3 className="text-xl font-semibold text-[#262262]">
-                Signup as Technician (Pharmacist)
+                Signup as Pharmacist/Technician
               </h3>
             </div>
             <p className="text-[#707B8A] mb-6">
@@ -37,7 +34,7 @@ const DemoHome = () => {
               href="/signup-technician"
               className="inline-block bg-[#3B82F6] text-white px-6 py-2 rounded-md hover:bg-[#2563EB] transition-colors"
             >
-              Get Started
+              Register Now
             </Link>
           </div>
 
@@ -48,7 +45,7 @@ const DemoHome = () => {
                 <HiOutlineBuildingOffice2 className="text-[#3B82F6] text-xl" />
               </div>
               <h3 className="text-xl font-semibold text-[#262262]">
-                Signup as Pharmacy Premise
+                Signup as Pharmacy Premises
               </h3>
             </div>
             <p className="text-[#707B8A] mb-6">
@@ -70,11 +67,11 @@ const DemoHome = () => {
                 <HiOutlineUser className="text-[#3B82F6] text-xl" />
               </div>
               <h3 className="text-xl font-semibold text-[#262262]">
-                Login as Technician (Pharmacist)
+                Login as Pharmacist/Technician
               </h3>
             </div>
             <p className="text-[#707B8A] mb-6">
-              Access your technician dashboard and manage your safety reports
+              Access your personal dashboard and manage your safety reports
             </p>
             <Link
               href="/login-technician"
@@ -91,11 +88,11 @@ const DemoHome = () => {
                 <HiOutlineBuildingOffice2 className="text-[#3B82F6] text-xl" />
               </div>
               <h3 className="text-xl font-semibold text-[#262262]">
-                Login as Pharmacy Premise
+                Login as Pharmacy Premises
               </h3>
             </div>
             <p className="text-[#707B8A] mb-6">
-              Access your pharmacy dashboard and manage your safety protocols
+              Access your pharmacy dashboard and manage your safety reports
             </p>
             <Link
               href="/login-premises"
