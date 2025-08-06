@@ -38,7 +38,8 @@ const Header = () => {
   const router = useRouter();
   const { handleToggle } = useRootContext();
   const [searchResult, setSearchResult] = useState(null);
-  const [showNoResultDialog, setShowNoResultDialog] = useState(false);
+  const [showResultDialog, setShowResultDialog] = useState(false);
+  const [selectedIncident, setSelectedIncident] = useState(null);
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -46,21 +47,16 @@ const Header = () => {
 
     try {
       const response = await axios.get(
-        `${API_BASE_URL}/api/v1/incidents/search?query=${encodeURIComponent(
+        `${API_BASE_URL}/api/v1/incidents/full-search?query=${encodeURIComponent(
           searchQuery
-        )}`
+        )}&odsCode=${pharmacy?.odsCode}`
       );
 
       if (response.status === 200) {
-        if (response.data.data?.incidentData) {
-          console.log("reached here", response.data.data.incidentData);
-          setSearchResult({
-            ...response.data.data.incidentData,
-            incidentType: response.data.data.incidentType,
-          });
-        } else {
-          setShowNoResultDialog(true);
+        if (response.data.data) {
+          setSearchResult(response.data.data);
         }
+        setShowResultDialog(true);
       } else {
         console.error("Search failed:", response.data.message);
       }
@@ -76,8 +72,32 @@ const Header = () => {
     setSearchResult(null);
   };
 
-  const handleCloseNoResultDialog = () => {
-    setShowNoResultDialog(false);
+  const handleCloseResultDialog = () => {
+    setShowResultDialog(false);
+  };
+
+  const handleIncidentClick = async (item) => {
+    const incidentForModal = {
+      id: item.id,
+      incidentType: item.source.toUpperCase().replace("-", "_"),
+    };
+    setSelectedIncident(incidentForModal);
+  };
+
+  const handleCloseIncidentModal = () => {
+    setSelectedIncident(null);
+  };
+
+  const formatDateTime = (dateTimeString) => {
+    const date = new Date(dateTimeString);
+    return date.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
   };
 
   const showSecondDiv = user?.role !== USER_ROLE.ADMIN;
@@ -187,21 +207,59 @@ const Header = () => {
         )}
       </header>
 
-      {searchResult && (
-        <ViewIncidentModal incident={searchResult} onClose={handleCloseModal} />
-      )}
-
-      <Dialog
-        open={showNoResultDialog}
-        onOpenChange={handleCloseNoResultDialog}
-      >
-        <DialogContent className="sm:max-w-[425px]">
+      <Dialog open={showResultDialog} onOpenChange={handleCloseResultDialog}>
+        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Search Result</DialogTitle>
+            <DialogTitle>Search Results</DialogTitle>
           </DialogHeader>
-          <div className="py-4">No Incident found</div>
+          {Array.isArray(searchResult) && searchResult.length > 0 ? (
+            <div className="py-4 space-y-3">
+              {searchResult.map((item, index) => (
+                <div
+                  key={index}
+                  onClick={() => handleIncidentClick(item)}
+                  className="bg-white border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-50 transition-colors duration-200 shadow-sm"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full capitalize">
+                        {item.source.replace("-", " ")}
+                      </span>
+                      <span className="text-sm font-medium text-gray-600">
+                        {item.referenceNumber}
+                      </span>
+                    </div>
+                    <span className="text-xs text-gray-500">
+                      {formatDateTime(item.createdAt)}
+                    </span>
+                  </div>
+                  <p
+                    className="text-sm text-gray-700 overflow-hidden"
+                    style={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                    }}
+                  >
+                    {item.description || "No description available"}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-4 text-center text-gray-500">
+              No incidents found
+            </div>
+          )}
         </DialogContent>
       </Dialog>
+
+      {selectedIncident && (
+        <ViewIncidentModal
+          incident={selectedIncident}
+          onClose={handleCloseIncidentModal}
+        />
+      )}
     </>
   );
 };
