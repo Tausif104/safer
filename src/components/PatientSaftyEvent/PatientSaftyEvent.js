@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DatePicker } from "./DatePicker";
 
 const PatientSaftyEvent = () => {
   const accidentCheckbox = [
@@ -122,15 +123,11 @@ const PatientSaftyEvent = () => {
                     </SelectContent>
                   </Select>
 
+                  <DatePicker placeholder='Date of Accident' />
                   <Input
-                    type='text'
-                    placeholder='Date of Accident'
-                    className=' bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]'
-                  />
-                  <Input
-                    type='text'
+                    type='time'
                     placeholder='Time of Accident'
-                    className=' bg-[#F8F9FB] p-[16px] h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]'
+                    className=' bg-[#F8F9FB] p-[16px] h-[56px] w-full border  rounded-[6px]  block text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]'
                   />
                 </div>
               </div>
@@ -415,7 +412,7 @@ const PatientSaftyEvent = () => {
                   </div>
                 </div>
                 <div className='mt-[30px]'>
-                  <h5 className='text-[18px]'>Admin:</h5>
+                  <h5 className='text-[18px] hidden'>Admin:</h5>
                   <hr className='bg-[#DAECFF] my-[16px]' />
                   <div className='flex flex-col space-y-4'>
                     <label
@@ -565,7 +562,9 @@ const PatientSaftyEvent = () => {
               </div>
             </div>
             <div className='flex justify-end flex-wrap gap-4 mb-5 mt-[30px] items-end'>
-              <Button className="primary-btn !bg-transparent !border-[#262262] !text-[#262262] !py-[24px] max-w-[365px] w-full sm:!text-[18px] !text-[16px] cursor-pointer capitalize hover:!bg-[#99C729] hover:!text-white hover:!border-[#99C729]">save draft</Button>
+              <Button className='primary-btn !bg-transparent !border-[#262262] !text-[#262262] !py-[24px] max-w-[365px] w-full sm:!text-[18px] !text-[16px] cursor-pointer capitalize hover:!bg-[#99C729] hover:!text-white hover:!border-[#99C729]'>
+                save draft
+              </Button>
               <Button className='flex items-center gap-[16px] text-[#fff] transition-all duration-300  hover:opacity-[1] py-[26px] px-[15px] lg:px-[20px] rounded-full group max-w-[365px] w-full text-[18px] cursor-pointer'>
                 Submit Incident
               </Button>
