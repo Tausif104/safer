@@ -6,6 +6,7 @@ import {
   View,
   StyleSheet,
   Font,
+  Image,
 } from "@react-pdf/renderer";
 
 // Custom font registration (optional, can use default fonts)
@@ -17,6 +18,13 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontFamily: "Helvetica",
     backgroundColor: "#fff",
+  },
+  logo: {
+    position: "absolute",
+    top: 14,
+    left: 24,
+    width: 80,
+    height: 40,
   },
   header: {
     textAlign: "center",
@@ -235,6 +243,7 @@ const PatientSafetyReportPDF = ({ data, type }) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
+        <Image src="/logo-black.png" alt="" style={styles.logo} />
         <Text style={styles.header}>
           {reportTypeLabel} Patient Safety Report
         </Text>
