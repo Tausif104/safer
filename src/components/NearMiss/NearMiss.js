@@ -73,10 +73,7 @@ const NearMiss = () => {
       .array()
       .min(1, "Please select at least one error type")
       .required(),
-    highRisk: yup
-      .array()
-      .min(1, "Please select at least one high risk type")
-      .required(),
+    highRisk: yup.array(),
     errorCode: yup
       .array()
       .min(1, "Please select at least one error code")

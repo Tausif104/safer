@@ -57,9 +57,9 @@ const PatientSafetyEvent = () => {
   ];
 
   const ageOptions = [
-    { id: "12-18", label: "12-18 years old" },
     { id: "0-5", label: "0-5 years old" },
     { id: "5-12", label: "5-12 years old" },
+    { id: "12-18", label: "12-18 years old" },
     { id: "19-64", label: "19-64 years old" },
     { id: "65+", label: "Over 65 years old" },
   ];
@@ -963,9 +963,6 @@ const PatientSafetyEvent = () => {
                   </div>
                 </div>
                 <div className="mt-[30px]">
-                  <h5 className="text-[18px] bg-[#F8F9FB] p-3 rounded-md text-[#262262] font-semibold relative pl-8 before:content-[''] before:absolute before:left-3 before:top-1/2 before:-translate-y-1/2 before:w-1 before:h-6 before:bg-[#99C729] before:rounded-full">
-                    Admin:
-                  </h5>
                   <hr className="bg-[#DAECFF] my-[16px]" />
                   <div className="flex flex-col space-y-4">
                     <label
@@ -1010,7 +1007,12 @@ const PatientSafetyEvent = () => {
                       className="text-[#262262] text-base font-semibold mb-[14px]"
                     >
                       If the event is medication related has a{" "}
-                      <Link href="" className="text-[#3B82F6] underline">
+                      <Link
+                        href="https://yellowcard.mhra.gov.uk/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#3B82F6] underline"
+                      >
                         yellow card
                       </Link>{" "}
                       been filled?

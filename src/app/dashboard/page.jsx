@@ -17,7 +17,13 @@ const Dashboard = () => {
     }
   }, [isAuthenticated, router]);
 
-  if (user?.role.toLowerCase() === USER_ROLE.PHARMACIST.toLowerCase()) {
+  if (
+    [
+      USER_ROLE.PHARMACIST.toLowerCase(),
+      USER_ROLE.DISPENSER.toLowerCase(),
+      USER_ROLE.STAFF.toLowerCase(),
+    ].includes(user?.role.toLowerCase())
+  ) {
     return <DashboardLoginTechnician />;
   } else if (user?.role.toLowerCase() === USER_ROLE.PHARMACY.toLowerCase()) {
     return <DashboardLoginPremises />;

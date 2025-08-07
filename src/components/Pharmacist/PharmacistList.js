@@ -279,7 +279,7 @@ const PharmacistList = ({ type }) => {
                             : "bg-yellow-100 text-yellow-800"
                         }`}
                       >
-                        {pharmacist?.pharmacyUserStatus || pharmacist?.status}
+                        {pharmacist?.status}
                       </span>
                     </TableCell>
                     <TableCell className="text-right py-[8px] px-[20px] border-b border-[#DAECFF]">

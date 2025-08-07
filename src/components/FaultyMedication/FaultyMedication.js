@@ -30,9 +30,9 @@ const FaultyMedication = () => {
   ];
 
   const ageOptions = [
-    { id: "12-18", label: "12-18 years old" },
     { id: "0-5", label: "0-5 years old" },
     { id: "5-12", label: "5-12 years old" },
+    { id: "12-18", label: "12-18 years old" },
     { id: "19-64", label: "19-64 years old" },
     { id: "65+", label: "Over 65 years old" },
   ];
@@ -850,6 +850,8 @@ const FaultyMedication = () => {
                       Yellow card Reported{" "}
                       <Link
                         href="https://yellowcard.mhra.gov.uk/"
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="text-[#3B82F6] underline"
                       >
                         https://yellowcard.mhra.gov.uk/

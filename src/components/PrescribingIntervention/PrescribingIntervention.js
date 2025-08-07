@@ -55,9 +55,9 @@ const PrescribingIntervention = () => {
   ];
 
   const ageOptions = [
-    { id: "12-18", label: "12-18 years old" },
     { id: "0-5", label: "0-5 years old" },
     { id: "5-12", label: "5-12 years old" },
+    { id: "12-18", label: "12-18 years old" },
     { id: "19-64", label: "19-64 years old" },
     { id: "65+", label: "Over 65 years old" },
   ];
@@ -442,8 +442,15 @@ const PrescribingIntervention = () => {
               <div className="lg:col-span-2">
                 <div>
                   <h5 className="text-[16px]">
-                    Record Submitted to Patient to LFPSE?
-                    https://record.learn-from-patient-safety-events.nhs.uk/
+                    Record Submitted to Patient to LFPSE?{" "}
+                    <Link
+                      href="https://record.learn-from-patient-safety-events.nhs.uk/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#3B82F6] underline"
+                    >
+                      https://record.learn-from-patient-safety-events.nhs.uk/
+                    </Link>
                   </h5>
                   <hr className="bg-[#DAECFF] my-[16px]" />
                   <div className="flex flex-col space-y-4">
