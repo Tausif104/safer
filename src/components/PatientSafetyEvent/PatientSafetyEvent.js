@@ -1218,6 +1218,7 @@ const PatientSafetyEvent = () => {
                   id="file-upload"
                   onChange={handleFileUpload}
                   accept="image/*"
+                  capture
                   style={{ display: "none" }}
                 />
               </label>
