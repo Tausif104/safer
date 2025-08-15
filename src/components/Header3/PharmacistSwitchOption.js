@@ -229,7 +229,7 @@ const PharmacistSwitchOption = () => {
             <ul className="flex flex-col gap-[15px] mb-[20px] text-[#514E81] border-b border-b-[#DAECFF] mb-[15px] pb-[15px]">
               <li className="">
                 <Link
-                  href="/"
+                  href="/profile"
                   className="flex items-center gap-[15px] text-[16px]"
                 >
                   <Image

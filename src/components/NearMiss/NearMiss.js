@@ -367,7 +367,7 @@ const NearMiss = () => {
                     user?.role
                   ) && (
                     <span
-                      className="text-[#707B8A] text-[14px] cursor-pointer"
+                      className="text-[#707B8A] text-[14px] cursor-pointer flex items-center gap-2"
                       onClick={() => setShowDispenserModal(true)}
                     >
                       <Image
@@ -380,6 +380,7 @@ const NearMiss = () => {
                             "brightness(0) saturate(100%) invert(45%) sepia(8%) saturate(1012%) hue-rotate(182deg) brightness(92%) contrast(87%)",
                         }}
                       />
+                      Add new
                     </span>
                   )}
                 </h5>
@@ -414,7 +415,7 @@ const NearMiss = () => {
                     user?.role
                   ) && (
                     <span
-                      className="text-[#707B8A] text-[14px] cursor-pointer"
+                      className="text-[#707B8A] text-[14px] cursor-pointer flex items-center gap-2"
                       onClick={() => setShowPharmacistModal(true)}
                     >
                       <Image
@@ -427,6 +428,7 @@ const NearMiss = () => {
                             "brightness(0) saturate(100%) invert(45%) sepia(8%) saturate(1012%) hue-rotate(182deg) brightness(92%) contrast(87%)",
                         }}
                       />
+                      Add new
                     </span>
                   )}
                 </h5>
