@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
     top: 14,
     left: 24,
     width: 80,
-    height: 40,
+    marginTop: 10
   },
   header: {
     textAlign: "center",
