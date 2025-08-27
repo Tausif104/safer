@@ -136,7 +136,6 @@ export default function PatientSafetyReport() {
         month: "long",
         year: "numeric",
       });
-      // Get first and last day of the month
       const year = date.getFullYear();
       const month = date.getMonth();
       dateFrom = new Date(year, month, 1).toISOString().split("T")[0];
@@ -147,7 +146,7 @@ export default function PatientSafetyReport() {
       dateFrom = new Date(year, 0, 1).toISOString().split("T")[0];
       dateTo = new Date(year, 11, 31).toISOString().split("T")[0];
     } else if (type === "WEEKLY") {
-      formattedDate = date.toISOString();
+      formattedDate = date.toISOString().split("T")[0];
       const simple = new Date(date);
       const day = simple.getDay();
       const diffToSunday = simple.getDate() - day;
@@ -272,7 +271,48 @@ export default function PatientSafetyReport() {
               <DatePicker
                 selected={
                   watch("monthYearWeek")
-                    ? new Date(watch("monthYearWeek"))
+                    ? (() => {
+                        const dateStr = watch("monthYearWeek");
+                        if (type === "MONTHLY") {
+                          const parts = dateStr.split(" ");
+                          if (parts.length === 2) {
+                            const monthNames = [
+                              "January",
+                              "February",
+                              "March",
+                              "April",
+                              "May",
+                              "June",
+                              "July",
+                              "August",
+                              "September",
+                              "October",
+                              "November",
+                              "December",
+                            ];
+                            const monthIndex = monthNames.indexOf(parts[0]);
+                            if (monthIndex !== -1) {
+                              return new Date(
+                                parseInt(parts[1]),
+                                monthIndex,
+                                1
+                              );
+                            }
+                          }
+                        } else if (type === "YEARLY") {
+                          return new Date(parseInt(dateStr), 0, 1);
+                        } else if (type === "WEEKLY") {
+                          const parts = dateStr.split("-");
+                          if (parts.length === 3) {
+                            return new Date(
+                              parseInt(parts[0]),
+                              parseInt(parts[1]) - 1,
+                              parseInt(parts[2])
+                            );
+                          }
+                        }
+                        return new Date(dateStr);
+                      })()
                     : null
                 }
                 onChange={handleDateChange}
@@ -413,7 +453,20 @@ export default function PatientSafetyReport() {
                                   ? watch("monthYearWeek")?.split(" ")[0]
                                   : type === reportType.YEARLY
                                   ? watch("monthYearWeek")
-                                  : getWeekNumber(watch("monthYearWeek"))}
+                                  : (() => {
+                                      const dateStr = watch("monthYearWeek");
+                                      if (!dateStr) return "";
+                                      const parts = dateStr.split("-");
+                                      if (parts.length === 3) {
+                                        const date = new Date(
+                                          parseInt(parts[0]),
+                                          parseInt(parts[1]) - 1,
+                                          parseInt(parts[2])
+                                        );
+                                        return getWeekNumber(date);
+                                      }
+                                      return getWeekNumber(new Date(dateStr));
+                                    })()}
                               </div>
                             </td>
                             <td className="border border-border p-2">
