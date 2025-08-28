@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
@@ -16,6 +16,8 @@ import { toast } from "react-hot-toast";
 import useAuthStore from "@/store/useAuthStore";
 import PatientSafetyReportPDF from "./PatientSafetyReportPDF";
 import { PDFDownloadLink } from "@react-pdf/renderer";
+import IncidentComparisonChart from "./Charts/IncidentComparisonChart";
+import IncidentPieChart from "./Charts/IncidentPieChart";
 
 const reportType = {
   MONTHLY: "MONTHLY",
@@ -65,6 +67,12 @@ export default function PatientSafetyReport() {
   const printRef = useRef();
   const [pdfData, setPdfData] = React.useState(null);
   const [showPdfLink, setShowPdfLink] = React.useState(false);
+  const [incidentPieChartDataset, setIncidentPieChartDataset] = useState([]);
+  const [incidentComparisonChartDataset, setIncidentComparisonChartDataset] =
+    useState([]);
+  const [incidentPieChartPng, setIncidentPieChartPng] = useState(null);
+  const [incidentComparisonChartPng, setIncidentComparisonPieChartPng] =
+    useState(null);
 
   const {
     register,
@@ -179,6 +187,33 @@ export default function PatientSafetyReport() {
             "otherPatientSafetyActivity",
             data.other_patient_safety_activity
           );
+          setIncidentPieChartDataset([
+            {
+              name: "Prescribing interventions",
+              value: Number(data.prescribing_interventions),
+            },
+            { name: "Near misses", value: Number(data.near_misses) },
+            {
+              name: "Near misses involving high-risk LASA",
+              value: Number(data.near_misses_lasa),
+            },
+            {
+              name: "Dispensing incidents",
+              value: Number(data.dispensing_incidents),
+            },
+            {
+              name: "Dispensing incidents involving high-risk LASA",
+              value: Number(data.dispensing_incidents_lasa),
+            },
+            {
+              name: "National safety alerts",
+              value: Number(data.national_safety_alerts),
+            },
+            {
+              name: "Other patient safety activity",
+              value: Number(data.other_patient_safety_activity),
+            },
+          ]);
         }
       } catch (error) {
         console.error("Error fetching prefill data:", error);
@@ -210,7 +245,11 @@ export default function PatientSafetyReport() {
       );
 
       if (response.status === 200 || response.status === 201) {
-        setPdfData(payload);
+        setPdfData({
+          ...payload,
+          incidentPieChartPng,
+          incidentComparisonChartPng,
+        });
         setShowPdfLink(true);
         toast.success(
           "Report submitted successfully. Click the link to download PDF."
@@ -530,6 +569,26 @@ export default function PatientSafetyReport() {
                         (SALAD).
                       </p>
                       <p>† Including drug recalls.</p>
+                    </div>
+                  </div>
+
+                  <div className="charts-section grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div className="h-80 border border-border rounded-lg p-4">
+                      <h3 className="text-lg font-semibold mb-4 text-foreground">
+                        Incident Distribution
+                      </h3>
+                      <IncidentPieChart
+                        dataset={incidentPieChartDataset}
+                        setChartPng={setIncidentPieChartPng}
+                      />
+                    </div>
+                    <div className="h-80 border border-border rounded-lg p-4">
+                      <h3 className="text-lg font-semibold mb-4 text-foreground">
+                        Incident Comparison
+                      </h3>
+                      <IncidentComparisonChart
+                        setChartPng={setIncidentComparisonPieChartPng}
+                      />
                     </div>
                   </div>
 

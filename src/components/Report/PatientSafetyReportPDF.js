@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
     top: 14,
     left: 24,
     width: 80,
-    marginTop: 10
+    marginTop: 10,
   },
   header: {
     textAlign: "center",
@@ -193,6 +193,40 @@ const styles = StyleSheet.create({
   },
   pageBreak: {
     break: true,
+  },
+  // Chart styles
+  chartsGrid: {
+    flexDirection: "row",
+    gap: 24,
+    marginBottom: 16,
+  },
+  chartContainer: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#d1d5db",
+    borderRadius: 8,
+    padding: 16,
+    minHeight: 320,
+  },
+  chartTitle: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginBottom: 16,
+    color: "#222",
+  },
+  chartBorder: {
+    borderWidth: 1,
+    borderColor: "#d1d5db",
+    borderRadius: 8,
+    padding: 16,
+    height: 280,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  chartImage: {
+    width: "100%",
+    height: "100%",
+    objectFit: "contain",
   },
 });
 
@@ -400,6 +434,32 @@ const PatientSafetyReportPDF = ({ data, type }) => {
             referred to as Sound Alike Look Alike Drugs (SALAD).
           </Text>
           <Text style={styles.muted}>† Including drug recalls.</Text>
+        </View>
+
+        {/* Charts Section */}
+        <View style={styles.section}>
+          <View style={styles.chartsGrid}>
+            <View style={styles.chartContainer}>
+              <Text style={styles.chartTitle}>Incident Distribution</Text>
+              <View style={styles.chartBorder}>
+                <Image
+                  alt="pie-chart"
+                  src={data.incidentPieChartPng}
+                  style={styles.chartImage}
+                />
+              </View>
+            </View>
+            <View style={styles.chartContainer}>
+              <Text style={styles.chartTitle}>Incident Comparison</Text>
+              <View style={styles.chartBorder}>
+                <Image
+                  alt="comparison-chart"
+                  src={data.incidentComparisonChartPng}
+                  style={styles.chartImage}
+                />
+              </View>
+            </View>
+          </View>
         </View>
 
         {/* Section 2 */}
