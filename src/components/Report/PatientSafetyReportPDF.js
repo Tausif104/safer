@@ -225,8 +225,9 @@ const styles = StyleSheet.create({
   },
   chartImage: {
     width: "100%",
-    height: "100%",
+    height: 280,
     objectFit: "contain",
+    marginTop: 8,
   },
 });
 
@@ -441,27 +442,25 @@ const PatientSafetyReportPDF = ({ data, type }) => {
           <View style={styles.chartsGrid}>
             <View style={styles.chartContainer}>
               <Text style={styles.chartTitle}>Incident Distribution</Text>
-              <View style={styles.chartBorder}>
-                <Image
-                  alt="pie-chart"
-                  src={data.incidentPieChartPng}
-                  style={styles.chartImage}
-                />
-              </View>
+              <Image
+                alt="incident-pie-chart"
+                src={data.incidentPieChartPng}
+                style={styles.chartImage}
+              />
             </View>
             <View style={styles.chartContainer}>
               <Text style={styles.chartTitle}>Incident Comparison</Text>
-              <View style={styles.chartBorder}>
-                <Image
-                  alt="comparison-chart"
-                  src={data.incidentComparisonChartPng}
-                  style={styles.chartImage}
-                />
-              </View>
+              <Image
+                alt="incident-comparison-chart"
+                src={data.incidentComparisonChartPng}
+                style={styles.chartImage}
+              />
             </View>
           </View>
         </View>
+      </Page>
 
+      <Page size="A4" style={styles.page}>
         {/* Section 2 */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
@@ -515,10 +514,6 @@ const PatientSafetyReportPDF = ({ data, type }) => {
             </View>
           </View>
         </View>
-      </Page>
-
-      <Page size="A4" style={styles.page}>
-        {/* Section 3 continued */}
         <View style={styles.section}>
           <View style={styles.gridContainer}>
             <View style={styles.tableRow}>
@@ -611,8 +606,12 @@ const PatientSafetyReportPDF = ({ data, type }) => {
               </View>
             </View>
           </View>
+        </View>
+      </Page>
 
-          {/* Section 4.2 */}
+      {/* Section 4.2 */}
+      <Page size="A4" style={styles.page}>
+        <View style={styles.section}>
           <Text style={styles.subSectionTitle}>
             4.2. Improvement 2: National patient safety alerts (refer to column
             F in the monthly summary table above).
@@ -670,9 +669,6 @@ const PatientSafetyReportPDF = ({ data, type }) => {
             {data.sharingLearnings || ""}
           </Text>
         </View>
-      </Page>
-
-      <Page size="A4" style={styles.page}>
         {/* Section 6 */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>

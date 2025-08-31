@@ -73,6 +73,9 @@ export default function PatientSafetyReport() {
   const [incidentPieChartPng, setIncidentPieChartPng] = useState(null);
   const [incidentComparisonChartPng, setIncidentComparisonPieChartPng] =
     useState(null);
+  const [incidentComparisonPvName, setIncidentComparisonPvName] = useState("");
+  const [incidentComparisonUvName, setIncidentComparisonUvName] = useState("");
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   const {
     register,
@@ -123,6 +126,46 @@ export default function PatientSafetyReport() {
     return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
   };
 
+  const transformDataForComparisonChart = (currentData, previousData) => {
+    const categories = [
+      {
+        keys: ["prescribing_interventions"],
+        name: "Prescribing Intervention",
+      },
+      {
+        name: "Near Miss",
+        keys: [
+          "near_misses",
+          "near_misses_lasa",
+          "dispensing_incidents",
+          "dispensing_incidents_lasa",
+        ],
+      },
+      {
+        keys: ["national_safety_alerts"],
+        name: "Faulty Medication",
+      },
+      {
+        keys: ["other_patient_safety_activity"],
+        name: "Patient Safety Event",
+      },
+    ];
+
+    return categories.map((category) => ({
+      name: category.name,
+      uv: Number(
+        category.keys
+          .map((key) => currentData[key])
+          .reduce((acc, curr) => acc + Number(curr), 0) || 0
+      ),
+      pv: Number(
+        category.keys
+          .map((key) => previousData[key])
+          .reduce((acc, curr) => acc + Number(curr), 0) || 0
+      ),
+    }));
+  };
+
   useEffect(() => {
     if (pharmacy) {
       setValue("pharmacyName", pharmacy.name);
@@ -134,7 +177,39 @@ export default function PatientSafetyReport() {
     }
   }, [pharmacy, setValue, user]);
 
+  useEffect(() => {
+    if (type.toLowerCase() === "monthly") {
+      setIncidentComparisonPvName(
+        new Date(new Date(selectedDate).setMonth(new Date(selectedDate).getMonth() - 1)).toLocaleString(
+          "default",
+          { month: "long" }
+        )
+      );
+      setIncidentComparisonUvName(
+        new Date(selectedDate).toLocaleString("default", { month: "long" })
+      );
+    } else if (type.toLowerCase() === "yearly") {
+      setIncidentComparisonPvName(
+        new Date(new Date(selectedDate).setFullYear(new Date(selectedDate).getFullYear() - 1))
+          .getFullYear()
+          .toString()
+      );
+      setIncidentComparisonUvName(new Date(selectedDate).getFullYear().toString());
+    } else if (type.toLowerCase() === "weekly") {
+      setIncidentComparisonPvName(
+        new Date(new Date(selectedDate).setDate(new Date(selectedDate).getDate() - 7)).toLocaleString(
+          "default",
+          { week: "numeric" }
+        )
+      );
+      setIncidentComparisonUvName(
+        new Date(selectedDate).toLocaleString("default", { week: "numeric" })
+      );
+    }
+  }, [type, selectedDate]);
+
   const handleDateChange = (date) => {
+    setSelectedDate(new Date(date));
     let formattedDate = "";
     let dateFrom = "";
     let dateTo = "";
@@ -146,8 +221,8 @@ export default function PatientSafetyReport() {
       });
       const year = date.getFullYear();
       const month = date.getMonth();
-      dateFrom = new Date(year, month, 1).toISOString().split("T")[0];
-      dateTo = new Date(year, month + 1, 0).toISOString().split("T")[0];
+      dateFrom = new Date(Date.UTC(year, month, 1)).toISOString().split("T")[0];
+      dateTo = new Date(Date.UTC(year, month + 1, 0)).toISOString().split("T")[0];
     } else if (type === "YEARLY") {
       formattedDate = new Date(date).getFullYear().toString();
       const year = date.getFullYear();
@@ -172,11 +247,14 @@ export default function PatientSafetyReport() {
       setIsLoadingPrefill(true);
       try {
         const response = await axios.get(
-          `${API_BASE_URL}/api/v1/reports/prefill-report?odsCode=${pharmacy?.odsCode}&dateFrom=${dateFrom}&dateTo=${dateTo}`
+          `${API_BASE_URL}/api/v1/reports/prefill-report?odsCode=${
+            pharmacy?.odsCode
+          }&dateFrom=${dateFrom}&dateTo=${dateTo}&type=${type.toLowerCase()}`
         );
 
         if (response.data?.data) {
-          const { data } = response.data;
+          const { prefillReport: data, prevPrefillReport: prevData } =
+            response.data.data;
           setValue("prescribingInterventions", data.prescribing_interventions);
           setValue("nearMisses", data.near_misses);
           setValue("nearMissesLASA", data.near_misses_lasa);
@@ -189,31 +267,33 @@ export default function PatientSafetyReport() {
           );
           setIncidentPieChartDataset([
             {
-              name: "Prescribing interventions",
+              name: "Prescribing intervention",
               value: Number(data.prescribing_interventions),
             },
-            { name: "Near misses", value: Number(data.near_misses) },
             {
-              name: "Near misses involving high-risk LASA",
-              value: Number(data.near_misses_lasa),
+              name: "Near miss",
+              value:
+                Number(data.near_misses) +
+                Number(data.near_misses_lasa) +
+                Number(data.dispensing_incidents) +
+                Number(data.dispensing_incidents_lasa),
             },
             {
-              name: "Dispensing incidents",
-              value: Number(data.dispensing_incidents),
-            },
-            {
-              name: "Dispensing incidents involving high-risk LASA",
-              value: Number(data.dispensing_incidents_lasa),
-            },
-            {
-              name: "National safety alerts",
+              name: "Faulty Medication",
               value: Number(data.national_safety_alerts),
             },
             {
-              name: "Other patient safety activity",
+              name: "Patient Safety Event",
               value: Number(data.other_patient_safety_activity),
             },
           ]);
+
+          // Set comparison chart dataset
+          const comparisonData = transformDataForComparisonChart(
+            data,
+            prevData
+          );
+          setIncidentComparisonChartDataset(comparisonData);
         }
       } catch (error) {
         console.error("Error fetching prefill data:", error);
@@ -588,6 +668,11 @@ export default function PatientSafetyReport() {
                       </h3>
                       <IncidentComparisonChart
                         setChartPng={setIncidentComparisonPieChartPng}
+                        dataset={incidentComparisonChartDataset}
+                        options={{
+                          pvName: incidentComparisonPvName,
+                          uvName: incidentComparisonUvName,
+                        }}
                       />
                     </div>
                   </div>
