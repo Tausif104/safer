@@ -197,6 +197,12 @@ const RoleBasedMenu = ({ userRole }) => {
         show: true,
       },
       {
+        href: "/rss",
+        icon: Pricing,
+        label: "RSS",
+        show: true,
+      },
+      {
         href: "/",
         icon: Pricing,
         label: (
