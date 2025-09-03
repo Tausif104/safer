@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Warning from "@/assets/images/warning.svg";
 import toast from "react-hot-toast";
+import useAuthStore from "@/store/useAuthStore";
 
 const RSS = () => {
   const [loading, setLoading] = useState(true);
@@ -13,11 +14,12 @@ const RSS = () => {
   const [pageTitle, setPageTitle] = useState("");
   const [responses, setResponses] = useState({});
   const [submittedResponses, setSubmittedResponses] = useState({});
+  const { user, pharmacy } = useAuthStore();
 
   useEffect(() => {
     const fetchRSS = async () => {
       try {
-        const res = await axios.get(`${API_BASE_URL}/api/v1/common/rss`);
+        const res = await axios.get(`${API_BASE_URL}/api/v1/rss`);
         setRSSFeed(res.data?.data?.items || []);
         setPageTitle(res.data?.data?.title);
       } catch (error) {
@@ -29,6 +31,28 @@ const RSS = () => {
     };
     fetchRSS();
   }, []);
+
+  useEffect(() => {
+    const fetchMyResponses = async () => {
+      if (!user?.id || !pharmacy?.id) return;
+      const res = await axios.get(`${API_BASE_URL}/api/v1/rss/my-responses`, {
+        params: {
+          userId: user?.id,
+          pharmacyId: pharmacy?.id,
+        },
+      });
+      const mappedData = {};
+      res.data?.data.forEach((item) => {
+        mappedData[item.rssFeedId] = {
+          action: item.isAcknowledged ? "acknowledge" : "deny",
+          comments: item.comment,
+          submittedAt: item.createdAt,
+        };
+      });
+      setSubmittedResponses(mappedData);
+    };
+    fetchMyResponses();
+  }, [pharmacy?.id, user?.id]);
 
   const formatDate = (dateString) => {
     if (!dateString) return "";
@@ -71,7 +95,6 @@ const RSS = () => {
       return;
     }
 
-    // Save the submitted response
     setSubmittedResponses((prev) => ({
       ...prev,
       [itemId]: {
@@ -80,14 +103,18 @@ const RSS = () => {
       },
     }));
 
-    // Clear the form
     setResponses((prev) => ({
       ...prev,
       [itemId]: {},
     }));
 
-    // Here you would typically send the response to your backend
-    console.log("Submitting response for item:", itemId, response);
+    axios.post(`${API_BASE_URL}/api/v1/rss/response`, {
+      rssFeedId: itemId,
+      isAcknowledged: response.action === "acknowledge",
+      comment: response.comments,
+      userId: user?.id,
+      pharmacyId: pharmacy?.id,
+    });
     toast.success(`Response ${response.action.toLowerCase()}d successfully`);
   };
 
