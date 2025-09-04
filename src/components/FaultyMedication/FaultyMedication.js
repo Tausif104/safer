@@ -22,6 +22,7 @@ import * as yup from "yup";
 import IncidentSavedDialog from "@/components/Incident/incident-saved-dialog";
 import { Spinner } from "@/components/ui/spinner";
 import useAuthStore from "@/store/useAuthStore";
+import DrugSelect from "../common/DrugSelect";
 
 const FaultyMedication = () => {
   const lfpseCheckbox = [
@@ -476,13 +477,16 @@ const FaultyMedication = () => {
                 <hr className="bg-[#DAECFF] my-[16px]" />
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div>
-                    <Input
-                      {...register("productName")}
-                      type="text"
+                  <DrugSelect
+                      value={watch("productName")}
+                      onChange={(value) => {console.log(value);setValue("productName", value)}}
+                      name="productName"
+                      id="productName"
                       placeholder="Product Name (Medication/Device)"
-                      className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
-                        errors.productName ? "border-red-500" : ""
-                      }`}
+                      minSearchLength={3}
+                      debounceMs={300}
+                      error={errors.productName?.message}
+                      className="h-[56px] text-[16px]"
                     />
                     {errors.productName && (
                       <p className="text-red-500 text-sm mt-1">

@@ -7,6 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Upload } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import DrugSelect from "@/components/common/DrugSelect";
 import axios from "axios";
 import {
   Select,
@@ -541,21 +542,17 @@ const NearMiss = () => {
                     >
                       Name and Brand or Drug (supposed to be)
                     </label>
-                    <Input
-                      {...register("drugName")}
-                      type="text"
+                    <DrugSelect
+                      value={watch("drugName")}
+                      onChange={(value) => {console.log(value);setValue("drugName", value)}}
                       name="drugName"
                       id="drugName"
-                      placeholder="Write a short answer here."
-                      className={`bg-[#F8F9FB] p-[16px] h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px] ${
-                        errors.drugName ? "border-red-500" : ""
-                      }`}
+                      placeholder="Search for a drug name..."
+                      minSearchLength={3}
+                      debounceMs={300}
+                      error={errors.drugName?.message}
+                      className="h-[56px] text-[16px]"
                     />
-                    {errors.drugName && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.drugName.message}
-                      </p>
-                    )}
                   </div>
                   <div className="space-y-3 flex flex-col justify-between">
                     <label
