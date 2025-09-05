@@ -15,7 +15,7 @@ import { toPng } from "html-to-image";
 const IncidentComparisonChart = ({
   setChartPng,
   dataset = [],
-  options = { pvName: "Previous Period", uvName: "Current Period" },
+  options = { pvName: "Previous Period", uvName: "Current Period", avgName: "Average Period" },
 }) => {
   const chartRef = useRef(null);
 
@@ -98,6 +98,13 @@ const IncidentComparisonChart = ({
           isAnimationActive={false}
           activeBar={<Rectangle fill="gold" stroke="purple" />}
           name={options.uvName}
+        />
+        <Bar
+          dataKey="avg"
+          fill="#1abc9c"
+          isAnimationActive={false}
+          activeBar={<Rectangle fill="lightgreen" stroke="darkgreen" />}
+          name={options.avgName}
         />
       </BarChart>
     </ResponsiveContainer>

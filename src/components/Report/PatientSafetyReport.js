@@ -75,6 +75,7 @@ export default function PatientSafetyReport() {
     useState(null);
   const [incidentComparisonPvName, setIncidentComparisonPvName] = useState("");
   const [incidentComparisonUvName, setIncidentComparisonUvName] = useState("");
+  const [incidentComparisonAvgName, setIncidentComparisonAvgName] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   const {
@@ -126,7 +127,7 @@ export default function PatientSafetyReport() {
     return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
   };
 
-  const transformDataForComparisonChart = (currentData, previousData) => {
+  const transformDataForComparisonChart = (currentData, previousData, avgData) => {
     const categories = [
       {
         keys: ["prescribing_interventions"],
@@ -151,6 +152,15 @@ export default function PatientSafetyReport() {
       },
     ];
 
+    let avgDivisor = 1;
+    if (type.toLowerCase() === "monthly") {
+      avgDivisor = new Date().getMonth() + 1;
+    } else if (type.toLowerCase() === "yearly") {
+      avgDivisor = 10;
+    } else if (type.toLowerCase() === "weekly") {
+      avgDivisor = new Date().getDate();
+    }
+
     return categories.map((category) => ({
       name: category.name,
       uv: Number(
@@ -163,6 +173,11 @@ export default function PatientSafetyReport() {
           .map((key) => previousData[key])
           .reduce((acc, curr) => acc + Number(curr), 0) || 0
       ),
+      avg: (Number(
+        category.keys
+          .map((key) => avgData[key])
+          .reduce((acc, curr) => acc + Number(curr), 0) || 0
+      ) / avgDivisor).toFixed(2),
     }));
   };
 
@@ -188,6 +203,7 @@ export default function PatientSafetyReport() {
       setIncidentComparisonUvName(
         new Date(selectedDate).toLocaleString("default", { month: "long" })
       );
+      setIncidentComparisonAvgName("Average");
     } else if (type.toLowerCase() === "yearly") {
       setIncidentComparisonPvName(
         new Date(new Date(selectedDate).setFullYear(new Date(selectedDate).getFullYear() - 1))
@@ -195,6 +211,7 @@ export default function PatientSafetyReport() {
           .toString()
       );
       setIncidentComparisonUvName(new Date(selectedDate).getFullYear().toString());
+      setIncidentComparisonAvgName("Average 10y");
     } else if (type.toLowerCase() === "weekly") {
       setIncidentComparisonPvName(
         new Date(new Date(selectedDate).setDate(new Date(selectedDate).getDate() - 7)).toLocaleString(
@@ -205,6 +222,7 @@ export default function PatientSafetyReport() {
       setIncidentComparisonUvName(
         new Date(selectedDate).toLocaleString("default", { week: "numeric" })
       );
+      setIncidentComparisonAvgName("Average");
     }
   }, [type, selectedDate]);
 
@@ -253,45 +271,28 @@ export default function PatientSafetyReport() {
         );
 
         if (response.data?.data) {
-          const { prefillReport: data, prevPrefillReport: prevData } =
+          const { prefillReport: data, prevPrefillReport: prevData, nearMissErrorCodeStats, avgPrefillReport: avgData, nationalSafetyAlerts } =
             response.data.data;
           setValue("prescribingInterventions", data.prescribing_interventions);
           setValue("nearMisses", data.near_misses);
           setValue("nearMissesLASA", data.near_misses_lasa);
           setValue("dispensingIncidents", data.dispensing_incidents);
           setValue("dispensingIncidentsLASA", data.dispensing_incidents_lasa);
-          setValue("nationalSafetyAlerts", data.national_safety_alerts);
+          setValue("nationalSafetyAlerts", nationalSafetyAlerts);
           setValue(
             "otherPatientSafetyActivity",
             data.other_patient_safety_activity
           );
-          setIncidentPieChartDataset([
-            {
-              name: "Prescribing intervention",
-              value: Number(data.prescribing_interventions),
-            },
-            {
-              name: "Near miss",
-              value:
-                Number(data.near_misses) +
-                Number(data.near_misses_lasa) +
-                Number(data.dispensing_incidents) +
-                Number(data.dispensing_incidents_lasa),
-            },
-            {
-              name: "Faulty Medication",
-              value: Number(data.national_safety_alerts),
-            },
-            {
-              name: "Patient Safety Event",
-              value: Number(data.other_patient_safety_activity),
-            },
-          ]);
+          setIncidentPieChartDataset(nearMissErrorCodeStats.map((item) => ({
+            name: item.errorCode,
+            value: Number(item.count),
+          })));
 
           // Set comparison chart dataset
           const comparisonData = transformDataForComparisonChart(
             data,
-            prevData
+            prevData,
+            avgData
           );
           setIncidentComparisonChartDataset(comparisonData);
         }
@@ -560,7 +561,7 @@ export default function PatientSafetyReport() {
                               F. National safety alerts
                             </th>
                             <th className="border border-border p-2 text-center text-foreground align-top">
-                              G. Other patient safety activity†
+                              G. Other patient safety activity
                             </th>
                           </tr>
                         </thead>
@@ -648,7 +649,6 @@ export default function PatientSafetyReport() {
                         also referred to as Sound Alike Look Alike Drugs
                         (SALAD).
                       </p>
-                      <p>† Including drug recalls.</p>
                     </div>
                   </div>
 
@@ -672,6 +672,7 @@ export default function PatientSafetyReport() {
                         options={{
                           pvName: incidentComparisonPvName,
                           uvName: incidentComparisonUvName,
+                          avgName: incidentComparisonAvgName,
                         }}
                       />
                     </div>

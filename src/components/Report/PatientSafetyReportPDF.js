@@ -400,7 +400,7 @@ const PatientSafetyReportPDF = ({ data, type }) => {
                   styles.tableCellData,
                 ]}
               >
-                G. Other patient safety activity†
+                G. Other patient safety activity
               </Text>
             </View>
             <View style={styles.tableRow}>
@@ -434,7 +434,6 @@ const PatientSafetyReportPDF = ({ data, type }) => {
             * &apos;Look-Alike, Sound-Alike&apos; (LASA), [sometimes also
             referred to as Sound Alike Look Alike Drugs (SALAD).
           </Text>
-          <Text style={styles.muted}>† Including drug recalls.</Text>
         </View>
 
         {/* Charts Section */}
