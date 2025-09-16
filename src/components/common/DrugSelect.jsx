@@ -190,11 +190,6 @@ const DrugSelect = ({
                 <div className="font-medium text-gray-900">
                   {option.drugName}
                 </div>
-                {option.category && (
-                  <div className="text-xs text-gray-500">
-                    {option.category}
-                  </div>
-                )}
               </button>
             ))
           ) : searchTerm.length >= minSearchLength ? (
