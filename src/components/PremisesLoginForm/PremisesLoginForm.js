@@ -43,7 +43,11 @@ const PremisesLoginForm = () => {
       setToken(response.data?.data?.token);
       setIsAuthenticated(true);
       toast.success("Login successful!");
-      router.push("/login-premises/premises-otp");
+      if (response.data?.data?.pharmacy?.status === "DEMO") {
+        router.push("/dashboard");
+      } else {
+        router.push("/login-premises/premises-otp");
+      }
     } catch (error) {
       console.error("Login failed:", error);
       const errorMessage =

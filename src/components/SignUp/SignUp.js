@@ -12,7 +12,7 @@ import Google from "@/assets/images/google.svg";
 import Facebook from "@/assets/images/facebook.svg";
 import { RiLockPasswordLine } from "react-icons/ri";
 import axios from "axios";
-import { API_BASE_URL } from "@/config/constant";
+import { API_BASE_URL, PHARMACY_STATUS } from "@/config/constant";
 import { useRouter } from "next/navigation";
 import useAuthStore from "@/store/useAuthStore";
 import { Spinner } from "../ui/spinner";
@@ -69,7 +69,11 @@ const SignUp = () => {
             response.data?.data?.pharmacy?.pharmacyEmail ||
             email,
         });
-        router.push("/signup-premises/premises-verification?type=premise");
+        if (response.data?.data?.pharmacy?.status === PHARMACY_STATUS.DEMO) {
+          router.push("/configuration-step1");
+        } else {
+          router.push("/signup-premises/premises-verification?type=premise");
+        }
       }
     } catch (error) {
       console.error("Signup error:", error);
