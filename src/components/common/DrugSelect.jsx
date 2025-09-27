@@ -70,6 +70,10 @@ const DrugSelect = ({
     setSearchTerm(option.drugName);
     onChange(option.drugName);
     setIsOpen(false);
+    // Ensure focus returns to input for mobile keyboards
+    setTimeout(() => {
+      inputRef.current?.blur();
+    }, 100);
   };
 
   const handleClear = () => {
@@ -92,7 +96,10 @@ const DrugSelect = ({
     if (dropdownRef.current?.contains(e.relatedTarget)) {
       return;
     }
-    setIsOpen(false);
+    // Add delay for mobile devices to allow touch events to complete
+    setTimeout(() => {
+      setIsOpen(false);
+    }, 150);
   };
 
   useEffect(() => {
@@ -106,8 +113,22 @@ const DrugSelect = ({
       }
     };
 
+    const handleTouchOutside = (event) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target) &&
+        !inputRef.current?.contains(event.target)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleTouchOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleTouchOutside);
+    };
   }, []);
 
   useEffect(() => {
@@ -139,6 +160,12 @@ const DrugSelect = ({
             error && "border-red-500 focus:ring-red-500",
             className
           )}
+          style={{
+            WebkitAppearance: "none",
+            WebkitTouchCallout: "none",
+            WebkitUserSelect: "text",
+            touchAction: "manipulation",
+          }}
           name={name}
           id={id}
           autoComplete="off"
@@ -173,6 +200,10 @@ const DrugSelect = ({
         <div
           ref={dropdownRef}
           className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto"
+          style={{
+            WebkitOverflowScrolling: "touch",
+            touchAction: "manipulation",
+          }}
         >
           {loading ? (
             <div className="px-3 py-2 text-sm text-gray-500 flex items-center">
@@ -185,7 +216,21 @@ const DrugSelect = ({
                 key={option.id || i}
                 type="button"
                 onClick={() => handleOptionSelect(option)}
-                className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                onTouchStart={(e) => {
+                  // Prevent default to avoid double-tap zoom on iOS
+                  e.preventDefault();
+                }}
+                onTouchEnd={(e) => {
+                  // Handle touch selection
+                  e.preventDefault();
+                  handleOptionSelect(option);
+                }}
+                className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 focus:bg-gray-100 focus:outline-none touch-manipulation"
+                style={{
+                  WebkitTouchCallout: "none",
+                  WebkitUserSelect: "none",
+                  userSelect: "none",
+                }}
               >
                 <div className="font-medium text-gray-900">
                   {option.drugName}
