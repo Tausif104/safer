@@ -7,6 +7,7 @@ import {
   FaCalendarAlt,
   FaCheckCircle,
   FaTimesCircle,
+  FaHistory,
 } from "react-icons/fa";
 import useAuthStore from "@/store/useAuthStore";
 import { paymentAPI } from "@/services/paymentService";
@@ -239,6 +240,15 @@ const SubscriptionManager = () => {
           >
             {actionLoading ? <Spinner size="sm" /> : <FaCreditCard />}
             Manage Billing
+          </Button>
+
+          <Button
+            onClick={() => (window.location.href = "/payment-history")}
+            variant="outline"
+            className="border-gray-300 text-gray-600 hover:bg-gray-50 flex items-center gap-2"
+          >
+            <FaHistory />
+            Payment History
           </Button>
 
           {subscription.status === "ACTIVE" && !subscription.canceledAt && (

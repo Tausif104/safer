@@ -5,13 +5,16 @@ import { FaCircleCheck } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { paymentAPI } from "@/services/paymentService";
+import useAuthStore from "@/store/useAuthStore";
 
 export default function PaymentSuccess() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [sessionData, setSessionData] = useState(null);
+  const [subscriptionData, setSubscriptionData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { token } = useAuthStore();
 
   useEffect(() => {
     const sessionId = searchParams.get("session_id");
@@ -24,8 +27,29 @@ export default function PaymentSuccess() {
 
     const fetchSessionData = async () => {
       try {
-        const response = await paymentAPI.getCheckoutSession(sessionId);
-        setSessionData(response.data);
+        // First, get the session data
+        const sessionResponse = await paymentAPI.getCheckoutSession(sessionId);
+        setSessionData(sessionResponse.data);
+
+        // Then create the subscription in our database
+        if (token) {
+          try {
+            const subscriptionResponse =
+              await paymentAPI.createSubscriptionFromSession(sessionId, token);
+            setSubscriptionData(subscriptionResponse.data);
+            console.log(
+              "✅ Subscription created in database:",
+              subscriptionResponse.data
+            );
+          } catch (subscriptionError) {
+            console.error(
+              "Warning: Failed to create subscription in database:",
+              subscriptionError
+            );
+            // Don't fail the entire flow if subscription creation fails
+            // The webhook will handle it eventually
+          }
+        }
       } catch (err) {
         console.error("Error fetching session data:", err);
         setError("Failed to verify payment");
@@ -35,7 +59,7 @@ export default function PaymentSuccess() {
     };
 
     fetchSessionData();
-  }, [searchParams]);
+  }, [searchParams, token]);
 
   const handleContinue = () => {
     router.push("/dashboard");

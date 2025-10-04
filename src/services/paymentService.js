@@ -61,6 +61,34 @@ export const paymentAPI = {
     return response.data;
   },
 
+  // Create subscription from checkout session
+  createSubscriptionFromSession: async (sessionId, token) => {
+    const response = await axios.post(
+      `${API_BASE_URL}/api/v1/payments/checkout-sessions/${sessionId}/create-subscription`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  },
+
+  // Get user payment history
+  getUserPaymentHistory: async (token) => {
+    const response = await axios.get(
+      `${API_BASE_URL}/api/v1/payments/users/payments`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  },
+
   // Get all pricing plans
   getPricingPlans: async () => {
     const response = await axios.get(`${API_BASE_URL}/api/v1/pricing-plans`);
