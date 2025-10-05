@@ -8,8 +8,6 @@ import { paymentAPI } from "@/services/paymentService";
 import useAuthStore from "@/store/useAuthStore";
 
 function PaymentSuccessContent() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
   const [sessionData, setSessionData] = useState(null);
   const [subscriptionData, setSubscriptionData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,7 +15,9 @@ function PaymentSuccessContent() {
   const { token } = useAuthStore();
 
   useEffect(() => {
-    const sessionId = searchParams.get("session_id");
+    // Get search params from URL on client side
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get("session_id");
 
     if (!sessionId) {
       setError("No session ID found");
@@ -59,7 +59,9 @@ function PaymentSuccessContent() {
     };
 
     fetchSessionData();
-  }, [searchParams, token]);
+  }, [token]);
+
+  const router = useRouter();
 
   const handleContinue = () => {
     router.push("/dashboard");
