@@ -31,10 +31,21 @@ const PharmacistList = ({ type }) => {
   const [selectedPharmacistId, setSelectedPharmacistId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
-  const { token, pharmacy, user } = useAuthStore();
+  const { token, pharmacy, user, _hasHydrated } = useAuthStore();
   const [refetchedAt, setRefetchedAt] = useState(null);
 
   useEffect(() => {
+    // Wait for store to hydrate before making API calls
+    if (!_hasHydrated || !token) {
+      return;
+    }
+
+    // For non-admin users, wait for pharmacy to be loaded
+    // Otherwise we'd fetch ALL pharmacists instead of just this pharmacy's
+    if (user?.role !== USER_ROLE.ADMIN && !pharmacy?.id) {
+      return;
+    }
+
     let query = "";
     const pharmacyId = pharmacy?.id ? `pharmacyId=${pharmacy.id}&` : "";
     if (type === "approval-pending") {
@@ -70,7 +81,7 @@ const PharmacistList = ({ type }) => {
       }
     };
     fetchPharmacists();
-  }, [pharmacy?.id, token, refetchedAt, type]);
+  }, [pharmacy?.id, token, refetchedAt, type, _hasHydrated, user?.role]);
 
   useEffect(() => {
     if (!isModalOpen) {

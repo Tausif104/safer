@@ -50,7 +50,7 @@ const RecentIncedientsLogged = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedReportType, setSelectedReportType] = useState("MONTHLY");
-  const { pharmacy } = useAuthStore();
+  const { pharmacy, _hasHydrated } = useAuthStore();
 
   const formatDateTime = (dateTimeString) => {
     const date = new Date(dateTimeString);
@@ -77,6 +77,11 @@ const RecentIncedientsLogged = () => {
   };
 
   useEffect(() => {
+    // Wait for store to hydrate before making API calls
+    if (!_hasHydrated || !pharmacy?.odsCode) {
+      return;
+    }
+
     const fetchData = async () => {
       try {
         const incidentsResponse = await api.get(
@@ -92,7 +97,7 @@ const RecentIncedientsLogged = () => {
     };
 
     fetchData();
-  }, [pharmacy?.odsCode]);
+  }, [pharmacy?.odsCode, _hasHydrated]);
 
   return (
     <section className="bg-white rounded-[16px] px-0 p-[20px] sm:p-[30px] pt-0 sm:pt-[30px] mt-[30px]">

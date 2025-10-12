@@ -12,9 +12,14 @@ export default function DashboardLoginTechnician() {
   const [recentIncidents, setRecentIncidents] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { pharmacy } = useAuthStore();
+  const { pharmacy, _hasHydrated } = useAuthStore();
 
   useEffect(() => {
+    // Wait for store to hydrate before making API calls
+    if (!_hasHydrated || !pharmacy?.odsCode) {
+      return;
+    }
+
     const fetchData = async () => {
       try {
         const statsResponse = await api.get(
@@ -35,7 +40,7 @@ export default function DashboardLoginTechnician() {
     };
 
     fetchData();
-  }, [pharmacy?.odsCode]);
+  }, [pharmacy?.odsCode, _hasHydrated]);
 
   return (
     <>

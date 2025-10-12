@@ -37,7 +37,7 @@ const PharmaciesList = ({ type }) => {
   const [loading, setLoading] = useState(true);
   const [selectedPharmacyId, setSelectedPharmacyId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { token } = useAuthStore();
+  const { token, _hasHydrated } = useAuthStore();
   const [refetchedAt, setRefetchedAt] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -45,6 +45,11 @@ const PharmaciesList = ({ type }) => {
   const itemsPerPage = 10;
 
   useEffect(() => {
+    // Wait for store to hydrate before making API calls
+    if (!_hasHydrated || !token) {
+      return;
+    }
+
     const fetchPharmacies = async () => {
       try {
         const response = await api.get(
@@ -69,7 +74,7 @@ const PharmaciesList = ({ type }) => {
       }
     };
     fetchPharmacies();
-  }, [token, refetchedAt, type, currentPage]);
+  }, [token, refetchedAt, type, currentPage, _hasHydrated]);
 
   useEffect(() => {
     if (!isModalOpen) {

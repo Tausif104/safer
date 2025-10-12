@@ -17,10 +17,15 @@ export default function DashboardLoginPremises() {
   const [recentIncidents, setRecentIncidents] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { pharmacy } = useAuthStore();
+  const { pharmacy, _hasHydrated } = useAuthStore();
   const { canAccess, subscription, isTrialExpired } = useSubscriptionStatus();
 
   useEffect(() => {
+    // Wait for store to hydrate before making API calls
+    if (!_hasHydrated || !pharmacy?.odsCode) {
+      return;
+    }
+
     const fetchData = async () => {
       try {
         const statsResponse = await api.get(
@@ -45,7 +50,7 @@ export default function DashboardLoginPremises() {
     } else {
       setLoading(false);
     }
-  }, [pharmacy?.odsCode, canAccess]);
+  }, [pharmacy?.odsCode, canAccess, _hasHydrated]);
 
   return (
     <>

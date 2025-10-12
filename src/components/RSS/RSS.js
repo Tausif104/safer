@@ -13,9 +13,14 @@ const RSS = () => {
   const [pageTitle, setPageTitle] = useState("");
   const [responses, setResponses] = useState({});
   const [submittedResponses, setSubmittedResponses] = useState({});
-  const { user, pharmacy } = useAuthStore();
+  const { user, pharmacy, _hasHydrated } = useAuthStore();
 
   useEffect(() => {
+    // Wait for store to hydrate before making API calls
+    if (!_hasHydrated) {
+      return;
+    }
+
     const fetchRSS = async () => {
       try {
         const res = await api.get(`/api/v1/rss`);
@@ -29,11 +34,15 @@ const RSS = () => {
       }
     };
     fetchRSS();
-  }, []);
+  }, [_hasHydrated]);
 
   useEffect(() => {
+    // Wait for store to hydrate before making API calls
+    if (!_hasHydrated || !user?.id || !pharmacy?.id) {
+      return;
+    }
+
     const fetchMyResponses = async () => {
-      if (!user?.id || !pharmacy?.id) return;
       const res = await api.get(`/api/v1/rss/my-responses`, {
         params: {
           userId: user?.id,
@@ -51,7 +60,7 @@ const RSS = () => {
       setSubmittedResponses(mappedData);
     };
     fetchMyResponses();
-  }, [pharmacy?.id, user?.id]);
+  }, [pharmacy?.id, user?.id, _hasHydrated]);
 
   const formatDate = (dateString) => {
     if (!dateString) return "";

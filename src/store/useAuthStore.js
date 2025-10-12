@@ -17,6 +17,8 @@ const useAuthStore = create(
       setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
       signingUpEmail: null,
       setSigningUpEmail: (signingUpEmail) => set({ signingUpEmail }),
+      _hasHydrated: false,
+      setHasHydrated: (state) => set({ _hasHydrated: state }),
       // Fetch subscription status
       fetchSubscription: async () => {
         const { user, token } = get();
@@ -44,6 +46,9 @@ const useAuthStore = create(
     }),
     {
       name: "auth-storage",
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     }
   )
 );
