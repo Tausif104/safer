@@ -39,7 +39,14 @@ const TechnicianLoginForm = () => {
   const [showPharmacyModal, setShowPharmacyModal] = useState(false);
   const [selectedPharmacy, setSelectedPharmacy] = useState(null);
   const [loginData, setLoginData] = useState(null);
-  const { setUser, setIsAuthenticated, setToken, setPharmacy } = useAuthStore();
+  const {
+    setUser,
+    setIsAuthenticated,
+    setToken,
+    setPharmacy,
+    setSubscription,
+    fetchSubscription,
+  } = useAuthStore();
   const router = useRouter();
 
   const {
@@ -86,8 +93,13 @@ const TechnicianLoginForm = () => {
       });
       setUser(response.data?.data?.user);
       setPharmacy(response.data?.data?.pharmacy);
+      setSubscription(response.data?.data?.subscription);
       setToken(response.data?.data?.token);
       setIsAuthenticated(true);
+
+      // Fetch latest subscription status for lock icon display
+      await fetchSubscription();
+
       toast.success("Login successful!");
       router.push("/login-technician/technician-otp");
     } catch (error) {

@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import api from "@/lib/api-interceptor";
 import { API_BASE_URL, USER_ROLE, PHARMACIST_STATUS } from "@/config/constant";
 import useAuthStore from "@/store/useAuthStore";
 import AddCircle from "@/assets/images/add-circle.svg";
@@ -54,7 +54,7 @@ const PharmacistList = ({ type }) => {
     }
     const fetchPharmacists = async () => {
       try {
-        const response = await axios.get(
+        const response = await api.get(
           `${API_BASE_URL}/api/v1/users?${query}`,
           {
             headers: {
@@ -81,7 +81,7 @@ const PharmacistList = ({ type }) => {
   const handleApprove = async (user) => {
     try {
       if (user?.pharmacyUserId) {
-        await axios.post(
+        await api.post(
           `${API_BASE_URL}/api/v1/pharmacies/approve-user`,
           { pharmacyUserId: user?.pharmacyUserId },
           {
@@ -91,7 +91,7 @@ const PharmacistList = ({ type }) => {
           }
         );
       } else if (user?.userId) {
-        await axios.put(`${API_BASE_URL}/api/v1/users/${user?.userId}`, {
+        await api.put(`${API_BASE_URL}/api/v1/users/${user?.userId}`, {
           status: PHARMACIST_STATUS.APPROVED,
         });
       }
@@ -104,7 +104,7 @@ const PharmacistList = ({ type }) => {
   const handleReject = async (user) => {
     try {
       if (user?.pharmacyUserId) {
-        await axios.post(
+        await api.post(
           `${API_BASE_URL}/api/v1/pharmacies/reject-user`,
           { pharmacyUserId: user?.pharmacyUserId },
           {
@@ -114,7 +114,7 @@ const PharmacistList = ({ type }) => {
           }
         );
       } else if (user?.userId) {
-        await axios.put(`${API_BASE_URL}/api/v1/users/${user?.userId}`, {
+        await api.put(`${API_BASE_URL}/api/v1/users/${user?.userId}`, {
           status: PHARMACIST_STATUS.REJECTED,
         });
       }
@@ -126,7 +126,7 @@ const PharmacistList = ({ type }) => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${API_BASE_URL}/api/v1/users/${id}`, {
+      await api.delete(`${API_BASE_URL}/api/v1/users/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

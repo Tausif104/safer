@@ -4,10 +4,10 @@ import { FaCircleCheck } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import useAuthStore from "@/store/useAuthStore";
-import { paymentAPI } from "@/services/paymentService";
+import { subscriptionAPI } from "@/services/paymentService";
 import getStripe from "@/lib/stripe";
 
-const PricingCard = ({ plan, planType, onPlanSelect }) => {
+const PricingCard = ({ plan, planType, onPlanSelect, isUpgrade = false }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { token, user } = useAuthStore();
 
@@ -19,7 +19,11 @@ const PricingCard = ({ plan, planType, onPlanSelect }) => {
 
     setIsLoading(true);
     try {
-      const response = await paymentAPI.createCheckoutSession(plan.id, token);
+      const response = await subscriptionAPI.createCheckoutSession(
+        plan.id,
+        token,
+        isUpgrade // Pass isUpgrade flag
+      );
 
       const stripe = await getStripe();
       if (!stripe) {
@@ -61,9 +65,11 @@ const PricingCard = ({ plan, planType, onPlanSelect }) => {
             <span className="text-[14px] text-[#707B8A] font-normal">
               /{getDisplayPeriod()}
             </span>
-            <button className="text-[12px] bg-[#99c7291c] text-[#99C729] px-[10px] py-[8px] rounded-full cursor-pointer ml-2">
-              7 days free trial
-            </button>
+            {!isUpgrade && (
+              <button className="text-[12px] bg-[#99c7291c] text-[#99C729] px-[10px] py-[8px] rounded-full cursor-pointer ml-2">
+                30 days free trial
+              </button>
+            )}
           </h3>
           <span className="text-[12px] font-medium text-[#3B82F6] uppercase bg-[#E3EDFD] inline-block py-[4px] px-[10px] rounded-full">
             {plan.name}
@@ -93,6 +99,8 @@ const PricingCard = ({ plan, planType, onPlanSelect }) => {
             <Spinner size="sm" />
             <span>Processing...</span>
           </div>
+        ) : isUpgrade ? (
+          "Upgrade to This Plan"
         ) : (
           "Choose This Plan"
         )}

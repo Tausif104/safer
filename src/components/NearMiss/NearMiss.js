@@ -8,7 +8,7 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight, Upload } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import DrugSelect from "@/components/common/DrugSelect";
-import axios from "axios";
+import api from "@/lib/api-interceptor";
 import {
   Select,
   SelectContent,
@@ -163,7 +163,7 @@ const NearMiss = () => {
         updatedAt: new Date().toISOString(),
       };
 
-      const response = await axios.post(
+      const response = await api.post(
         `${API_BASE_URL}/api/v1/incidents`,
         payload
       );
@@ -199,7 +199,7 @@ const NearMiss = () => {
         const formData = new FormData();
         formData.append("file", file);
 
-        const response = await axios.post(
+        const response = await api.post(
           `${API_BASE_URL}/api/v1/common/upload-image`,
           formData,
           {
@@ -237,7 +237,7 @@ const NearMiss = () => {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const response = await axios.get(
+      const response = await api.get(
         `${API_BASE_URL}/api/v1/users?pharmacyId=${pharmacy.id}`
       );
       setUsers(response.data.data);
@@ -544,7 +544,10 @@ const NearMiss = () => {
                     </label>
                     <DrugSelect
                       value={watch("drugName")}
-                      onChange={(value) => {console.log(value);setValue("drugName", value)}}
+                      onChange={(value) => {
+                        console.log(value);
+                        setValue("drugName", value);
+                      }}
                       name="drugName"
                       id="drugName"
                       placeholder="Search for a drug name..."

@@ -123,6 +123,7 @@ const SignUp = () => {
             placeholder="Pharmacy Email"
             className="pl-[45px] disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
             defaultValue={email}
+            disabled={true}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>

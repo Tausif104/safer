@@ -10,7 +10,7 @@ import {
   FaHistory,
 } from "react-icons/fa";
 import useAuthStore from "@/store/useAuthStore";
-import { paymentAPI } from "@/services/paymentService";
+import { subscriptionAPI } from "@/services/paymentService";
 
 const SubscriptionManager = () => {
   const [subscription, setSubscription] = useState(null);
@@ -24,7 +24,10 @@ const SubscriptionManager = () => {
 
       try {
         setLoading(true);
-        const response = await paymentAPI.getUserSubscription(user.id, token);
+        const response = await subscriptionAPI.getUserSubscription(
+          user.id,
+          token
+        );
         setSubscription(response.data);
       } catch (error) {
         console.error("Error fetching subscription:", error);
@@ -41,7 +44,7 @@ const SubscriptionManager = () => {
 
     try {
       setActionLoading(true);
-      const response = await paymentAPI.createPortalSession(
+      const response = await subscriptionAPI.createPortalSession(
         subscription.stripeCustomerId,
         token
       );
@@ -67,10 +70,12 @@ const SubscriptionManager = () => {
 
     try {
       setActionLoading(true);
-      await paymentAPI.cancelSubscription(subscription.id, false, token);
+      await subscriptionAPI.cancelSubscription(subscription.id, false, token);
 
-      // Refresh subscription data
-      const response = await paymentAPI.getUserSubscription(user.id, token);
+      const response = await subscriptionAPI.getUserSubscription(
+        user.id,
+        token
+      );
       setSubscription(response.data);
 
       alert(

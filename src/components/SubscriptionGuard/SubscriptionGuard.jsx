@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { FaExclamationTriangle, FaCreditCard, FaClock } from "react-icons/fa";
 import useAuthStore from "@/store/useAuthStore";
-import { paymentAPI } from "@/services/paymentService";
+import { subscriptionAPI } from "@/services/paymentService";
 
 const SubscriptionGuard = ({ children, allowTrial = false }) => {
   const [subscriptionStatus, setSubscriptionStatus] = useState(null);
@@ -24,7 +24,10 @@ const SubscriptionGuard = ({ children, allowTrial = false }) => {
 
       try {
         setLoading(true);
-        const response = await paymentAPI.getUserSubscription(user.id, token);
+        const response = await subscriptionAPI.getUserSubscription(
+          user.id,
+          token
+        );
         const subscription = response.data;
 
         if (!subscription) {

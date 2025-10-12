@@ -3,8 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Search, ChevronDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import axios from "axios";
-import { API_BASE_URL } from "@/config/constant";
+import api from "@/lib/api-interceptor";
 
 const DrugSelect = ({
   value,
@@ -38,8 +37,8 @@ const DrugSelect = ({
         if (term.length >= minSearchLength) {
           setLoading(true);
           try {
-            const response = await axios.get(
-              `${API_BASE_URL}/api/v1/drugs/search`,
+            const response = await api.get(
+              `/api/v1/drugs/search`,
               {
                 params: { query: term },
               }

@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import axios from "axios";
+import api from "@/lib/api-interceptor";
 import { API_BASE_URL } from "@/config/constant";
 import useAuthStore from "@/store/useAuthStore";
 import Image from "next/image";
@@ -47,7 +47,7 @@ const PharmaciesModal = ({
     const fetchPharmacyDetails = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
+        const response = await api.get(
           `${API_BASE_URL}/api/v1/pharmacies/${pharmacyId}`,
           {
             headers: {
@@ -103,7 +103,7 @@ const PharmaciesModal = ({
         const formData = new FormData();
         formData.append("file", file);
 
-        const response = await axios.post(
+        const response = await api.post(
           `${API_BASE_URL}/api/v1/common/upload-image`,
           formData,
           {
@@ -149,13 +149,13 @@ const PharmaciesModal = ({
     try {
       setLoading(true);
       if (isCreating) {
-        await axios.post(`${API_BASE_URL}/api/v1/pharmacies`, formData, {
+        await api.post(`${API_BASE_URL}/api/v1/pharmacies`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
       } else {
-        await axios.put(
+        await api.put(
           `${API_BASE_URL}/api/v1/pharmacies/${pharmacyId}`,
           formData,
           {

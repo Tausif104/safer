@@ -17,7 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import axios from "axios";
+import api from "@/lib/api-interceptor";
 import { API_BASE_URL, PHARMACY_STATUS } from "@/config/constant";
 import useAuthStore from "@/store/useAuthStore";
 import AddCircle from "@/assets/images/add-circle.svg";
@@ -47,7 +47,7 @@ const PharmaciesList = ({ type }) => {
   useEffect(() => {
     const fetchPharmacies = async () => {
       try {
-        const response = await axios.get(
+        const response = await api.get(
           `${API_BASE_URL}/api/v1/pharmacies${
             type === "approval-pending"
               ? `?status=${PHARMACY_STATUS.PENDING}&page=${currentPage}&limit=${itemsPerPage}`
@@ -79,7 +79,7 @@ const PharmaciesList = ({ type }) => {
 
   const handleApprove = async (id) => {
     try {
-      await axios.post(
+      await api.post(
         `${API_BASE_URL}/api/v1/pharmacies/${id}/approve`,
         {},
         {
@@ -96,7 +96,7 @@ const PharmaciesList = ({ type }) => {
 
   const handleReject = async (id) => {
     try {
-      await axios.post(
+      await api.post(
         `${API_BASE_URL}/api/v1/pharmacies/${id}/reject`,
         {},
         {
@@ -113,7 +113,7 @@ const PharmaciesList = ({ type }) => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${API_BASE_URL}/api/v1/pharmacies/${id}`, {
+      await api.delete(`${API_BASE_URL}/api/v1/pharmacies/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

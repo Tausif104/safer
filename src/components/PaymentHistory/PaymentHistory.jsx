@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { FaCreditCard, FaCalendarAlt, FaCheckCircle } from "react-icons/fa";
 import useAuthStore from "@/store/useAuthStore";
-import { paymentAPI } from "@/services/paymentService";
+import { subscriptionAPI } from "@/services/paymentService";
 
 const PaymentHistory = () => {
   const [payments, setPayments] = useState([]);
@@ -22,7 +22,7 @@ const PaymentHistory = () => {
 
       try {
         setLoading(true);
-        const response = await paymentAPI.getUserPaymentHistory(token);
+        const response = await subscriptionAPI.getUserPaymentHistory(token);
         setPayments(response.data || []);
       } catch (error) {
         console.error("Error fetching payment history:", error);

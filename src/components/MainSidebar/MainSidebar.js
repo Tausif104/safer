@@ -19,8 +19,8 @@ import Settings from "@/assets/images/settings.svg";
 import Payment from "@/assets/images/payment.svg";
 import { useRootContext } from "@/provider/context";
 import { BsArrowBarLeft } from "react-icons/bs";
-import { FaChevronDown, FaChevronUp } from "react-icons/fa";
-import { usePathname } from "next/navigation";
+import { FaChevronDown, FaChevronUp, FaLock } from "react-icons/fa";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Collapsible,
   CollapsibleContent,
@@ -39,39 +39,72 @@ const MenuItem = ({
   isCollapsible,
   isOpen,
   onOpenChange,
+  isLocked,
+  onLockedClick,
 }) => {
   if (isCollapsible) {
     return (
       <li>
-        <Collapsible open={isOpen} onOpenChange={onOpenChange}>
+        <Collapsible
+          open={isOpen}
+          onOpenChange={!isLocked ? onOpenChange : undefined}
+        >
           <CollapsibleTrigger asChild>
             <button
-              className={`menu-link flex items-center justify-between gap-[16px] w-full text-[#D4D3E0] transition-all duration-300 cursor-pointer hover:text-[#99C729] hover:opacity-[1] py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group ${
-                isOpen ? "!text-[#99C729]" : ""
-              }`}
+              onClick={isLocked ? () => onLockedClick(href) : undefined}
+              className={`menu-link flex items-center justify-between gap-[16px] w-full text-[#D4D3E0] transition-all duration-300 py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group ${
+                isLocked
+                  ? "opacity-50 cursor-pointer hover:opacity-70"
+                  : "cursor-pointer hover:text-[#99C729] hover:opacity-[1]"
+              } ${isOpen ? "!text-[#99C729]" : ""}`}
             >
               <div className="flex items-center gap-[16px]">
                 <Image
-                  className={`brightness-0 invert-100 group-hover:brightness-100 group-hover:invert-0 transition-all duration-300 ${
-                    isOpen ? "!brightness-100 !invert-0" : ""
-                  }`}
+                  className={`brightness-0 invert-100 transition-all duration-300 ${
+                    !isLocked &&
+                    "group-hover:brightness-100 group-hover:invert-0"
+                  } ${isOpen ? "!brightness-100 !invert-0" : ""}`}
                   width={26}
                   src={icon}
                   alt=""
                 />
                 {label}
               </div>
-              {isOpen ? (
+              {isLocked ? (
+                <FaLock className="text-sm" />
+              ) : isOpen ? (
                 <FaChevronUp className="transition duration-300" />
               ) : (
                 <FaChevronDown className="transition duration-300" />
               )}
             </button>
           </CollapsibleTrigger>
-          <CollapsibleContent className="dropdown-menu pl-[28px] border-l border-[#454178] ml-[33px] space-y-4 mt-2">
-            {children}
-          </CollapsibleContent>
+          {!isLocked && (
+            <CollapsibleContent className="dropdown-menu pl-[28px] border-l border-[#454178] ml-[33px] space-y-4 mt-2">
+              {children}
+            </CollapsibleContent>
+          )}
         </Collapsible>
+      </li>
+    );
+  }
+
+  if (isLocked) {
+    return (
+      <li>
+        <button
+          onClick={() => onLockedClick(href)}
+          className="menu-link flex items-center gap-[16px] w-full text-[#D4D3E0] opacity-50 cursor-pointer hover:opacity-70 transition-opacity py-[10px] lg:py-[14px] px-[15px] lg:px-[20px] rounded-full group"
+        >
+          <Image
+            className="brightness-0 invert-100"
+            width={26}
+            src={icon}
+            alt=""
+          />
+          <span className="flex-1 text-left">{label}</span>
+          <FaLock className="text-sm" />
+        </button>
       </li>
     );
   }
@@ -97,7 +130,7 @@ const MenuItem = ({
   );
 };
 
-const RoleBasedMenu = ({ userRole }) => {
+const RoleBasedMenu = ({ userRole, isLocked, onLockedClick }) => {
   const pathname = usePathname();
   const [isIncidentOpen, setIsIncidentOpen] = useState(false);
 
@@ -161,6 +194,7 @@ const RoleBasedMenu = ({ userRole }) => {
     [USER_ROLE.PHARMACIST]: [
       {
         isCollapsible: true,
+        href: "/incident/prescribing-intervention", // fallback href when locked
         icon: AddSquare,
         label: "Add Incident",
         show: true,
@@ -217,6 +251,7 @@ const RoleBasedMenu = ({ userRole }) => {
     [USER_ROLE.PHARMACY]: [
       {
         isCollapsible: true,
+        href: "/incident/prescribing-intervention", // fallback href when locked
         icon: AddSquare,
         label: "Add Incident",
         show: true,
@@ -272,6 +307,8 @@ const RoleBasedMenu = ({ userRole }) => {
               isCollapsible={item.isCollapsible}
               isOpen={isIncidentOpen}
               onOpenChange={setIsIncidentOpen}
+              isLocked={isLocked}
+              onLockedClick={onLockedClick}
             >
               {item.children}
             </MenuItem>
@@ -284,7 +321,24 @@ const RoleBasedMenu = ({ userRole }) => {
 const MainSidebar = () => {
   const { isExpanded, handleToggle } = useRootContext();
   const pathname = usePathname();
-  const { user, isAuthenticated } = useAuthStore();
+  const router = useRouter();
+  const { user, isAuthenticated, subscription } = useAuthStore();
+
+  // Determine if user has access based on subscription status
+  // Only PHARMACY users need subscription, others always have access
+  const hasSubscriptionAccess =
+    subscription?.isActive && subscription?.status !== "CANCELED";
+
+  const hasAccess = user?.role !== USER_ROLE.PHARMACY || hasSubscriptionAccess;
+
+  const handleLockedClick = (href) => {
+    // Navigate to the route - API will return error code if subscription needed
+    if (href) {
+      router.push(href);
+    } else {
+      router.push("/pricing");
+    }
+  };
 
   return (
     <div
@@ -318,8 +372,14 @@ const MainSidebar = () => {
             icon={DashboardIcon}
             label="Dashboard"
             isActive={pathname === "/dashboard"}
+            isLocked={false}
+            onLockedClick={handleLockedClick}
           />
-          <RoleBasedMenu userRole={user?.role} />
+          <RoleBasedMenu
+            userRole={user?.role}
+            isLocked={!hasAccess}
+            onLockedClick={handleLockedClick}
+          />
         </ul>
 
         {/* User Portal Section */}
@@ -361,13 +421,68 @@ const MainSidebar = () => {
           </li>
         </ul>
       </div>
-      {user?.role !== USER_ROLE.ADMIN && (
+      {user?.role === USER_ROLE.PHARMACY &&
+        subscription &&
+        subscription.isActive && (
+          <div className="bg-[#99C729]/20 border border-[#99C729]/40 rounded-[14px] text-center px-[24px] py-[22px] w-[220px] mx-auto">
+            <p className="text-[12px] lg:text-[14px] font-medium mb-[8px] text-[#99C729]">
+              {subscription.status === "TRIALING"
+                ? "Trial Active"
+                : "Subscription Active"}
+            </p>
+            <p className="text-[11px] lg:text-[12px] text-[#D4D3E0] mb-[12px]">
+              {subscription.status === "TRIALING"
+                ? `Trial ends: ${new Date(
+                    subscription.trialEnd
+                  ).toLocaleDateString()}`
+                : `Next billing: ${new Date(
+                    subscription.currentPeriodEnd
+                  ).toLocaleDateString()}`}
+            </p>
+            {subscription.status === "TRIALING" ? (
+              <>
+                <Link
+                  className="primary-btn mt-[8px] inline-block w-full text-center"
+                  href="/pricing?upgrade=true"
+                >
+                  Upgrade Now
+                </Link>
+                <Link
+                  className="text-[12px] text-[#99C729] hover:text-white mt-[8px] inline-block transition-colors"
+                  href="/payment-history"
+                >
+                  View Payment History →
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  className="text-[12px] text-[#99C729] hover:text-white inline-block transition-colors border-b border-[#99C729]/30"
+                  href="/payment-history"
+                >
+                  Manage Subscription
+                </Link>
+                <span className="text-[#D4D3E0] mx-2">•</span>
+                <Link
+                  className="text-[12px] text-[#D4D3E0] hover:text-white inline-block transition-colors"
+                  href="/pricing?upgrade=true"
+                >
+                  Upgrade Plan
+                </Link>
+              </>
+            )}
+          </div>
+        )}
+      {user?.role === USER_ROLE.PHARMACY && !subscription && (
         <div className="bg-[#3B82F6] rounded-[14px] text-center px-[24px] py-[22px] w-[220px] mx-auto">
           <Image className="mx-auto mb-4" src={Stars} alt="" />
           <p className="text-[14px] lg:text-[16px] font-semibold mb-[25px] text-white">
-            Upgrade to PRO to get access to all features!
+            Get Full Access
           </p>
-          <Link className="primary-btn" href="/">
+          <p className="text-[12px] lg:text-[14px] mb-[20px] text-white/90">
+            Start your free trial to access all features!
+          </p>
+          <Link className="primary-btn" href="/pricing">
             Get Started
           </Link>
         </div>

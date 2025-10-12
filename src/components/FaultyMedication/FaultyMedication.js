@@ -13,8 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { API_BASE_URL, PHARMACIST_STATUS } from "@/config/constant";
-import axios from "axios";
+import { PHARMACIST_STATUS } from "@/config/constant";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -23,6 +22,7 @@ import IncidentSavedDialog from "@/components/Incident/incident-saved-dialog";
 import { Spinner } from "@/components/ui/spinner";
 import useAuthStore from "@/store/useAuthStore";
 import DrugSelect from "../common/DrugSelect";
+import api from "@/lib/api-interceptor";
 
 const FaultyMedication = () => {
   const lfpseCheckbox = [
@@ -220,8 +220,8 @@ const FaultyMedication = () => {
         updatedAt: new Date().toISOString(),
       };
 
-      const response = await axios.post(
-        `${API_BASE_URL}/api/v1/incidents`,
+      const response = await api.post(
+        `/api/v1/incidents`,
         payload
       );
 
@@ -255,8 +255,8 @@ const FaultyMedication = () => {
         const formData = new FormData();
         formData.append("file", file);
 
-        const response = await axios.post(
-          `${API_BASE_URL}/api/v1/common/upload-image`,
+        const response = await api.post(
+          `/api/v1/common/upload-image`,
           formData,
           {
             headers: {

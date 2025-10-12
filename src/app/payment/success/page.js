@@ -4,7 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { FaCircleCheck } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { paymentAPI } from "@/services/paymentService";
+import { subscriptionAPI } from "@/services/paymentService";
 import useAuthStore from "@/store/useAuthStore";
 
 function PaymentSuccessContent() {
@@ -12,7 +12,7 @@ function PaymentSuccessContent() {
   const [subscriptionData, setSubscriptionData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { token } = useAuthStore();
+  const { token, user, fetchSubscription } = useAuthStore();
 
   useEffect(() => {
     // Get search params from URL on client side
@@ -28,19 +28,27 @@ function PaymentSuccessContent() {
     const fetchSessionData = async () => {
       try {
         // First, get the session data
-        const sessionResponse = await paymentAPI.getCheckoutSession(sessionId);
+        const sessionResponse = await subscriptionAPI.getCheckoutSession(
+          sessionId
+        );
         setSessionData(sessionResponse.data);
 
-        // Then create the subscription in our database
         if (token) {
           try {
             const subscriptionResponse =
-              await paymentAPI.createSubscriptionFromSession(sessionId, token);
+              await subscriptionAPI.createSubscriptionFromSession(
+                sessionId,
+                token
+              );
             setSubscriptionData(subscriptionResponse.data);
             console.log(
               "✅ Subscription created in database:",
               subscriptionResponse.data
             );
+
+            // Immediately fetch updated subscription to remove lock icons
+            await fetchSubscription();
+            console.log("✅ Subscription status refreshed");
           } catch (subscriptionError) {
             console.error(
               "Warning: Failed to create subscription in database:",
@@ -59,12 +67,19 @@ function PaymentSuccessContent() {
     };
 
     fetchSessionData();
-  }, [token]);
+  }, [token, fetchSubscription]);
 
   const router = useRouter();
 
-  const handleContinue = () => {
-    router.push("/dashboard");
+  const handleContinue = async () => {
+    // Fetch subscription one more time before redirecting to ensure it's up to date
+    await fetchSubscription();
+
+    if (user) {
+      router.push("/dashboard");
+    } else {
+      router.push("/configuration-step1");
+    }
   };
 
   if (loading) {
@@ -143,7 +158,7 @@ function PaymentSuccessContent() {
         )}
 
         <Button onClick={handleContinue} className="primary-btn w-full">
-          Continue to Dashboard
+          Continue
         </Button>
       </div>
     </div>

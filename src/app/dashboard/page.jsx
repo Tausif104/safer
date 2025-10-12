@@ -30,6 +30,8 @@ const Dashboard = () => {
   } else if (user?.role.toLowerCase() === USER_ROLE.ADMIN.toLowerCase()) {
     return <DashboardLoginAdmin />;
   }
+  
+  return null;
 };
 
 export default Dashboard;

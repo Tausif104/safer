@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { GoArrowLeft } from "react-icons/go";
 import { FaPlus } from "react-icons/fa6";
-import axios from "axios";
+import api from "@/lib/api-interceptor";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -69,7 +69,7 @@ const ConfigurationStep2 = () => {
     };
 
     try {
-      await axios.post(
+      await api.post(
         `${API_BASE_URL}/api/v1/users?pharmacyId=${pharmacy.id}`,
         userData,
         {

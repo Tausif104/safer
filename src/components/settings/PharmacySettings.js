@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import axios from "axios";
+import api from "@/lib/api-interceptor";
 import { API_BASE_URL } from "@/config/constant";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
@@ -53,7 +53,7 @@ const PharmacySettings = () => {
         const formData = new FormData();
         formData.append("file", file);
 
-        const response = await axios.post(
+        const response = await api.post(
           `${API_BASE_URL}/api/v1/common/upload-image`,
           formData,
           {
@@ -65,11 +65,7 @@ const PharmacySettings = () => {
         );
 
         if (response.status === 200 || response.status === 201) {
-          setValue(
-            "logo",
-            response.data.data.filePath,
-            { shouldDirty: true }
-          );
+          setValue("logo", response.data.data.filePath, { shouldDirty: true });
         }
       } catch (error) {
         console.error("Error uploading file:", error);
@@ -121,7 +117,7 @@ const PharmacySettings = () => {
         return;
       }
 
-      await axios.put(
+      await api.put(
         `${API_BASE_URL}/api/v1/pharmacies/${pharmacy?.id}`,
         updatedData,
         {

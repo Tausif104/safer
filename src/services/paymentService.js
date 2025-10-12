@@ -1,16 +1,15 @@
-import axios from "axios";
-import { API_BASE_URL } from "@/config/constant";
+import api from "@/lib/api-interceptor";
 
-export const paymentAPI = {
-  // Create checkout session for subscription
-  createCheckoutSession: async (pricingPlanId, token) => {
-    const response = await axios.post(
-      `${API_BASE_URL}/api/v1/payments/checkout-sessions`,
+export const subscriptionAPI = {
+  createCheckoutSession: async (pricingPlanId, token, isUpgrade = false) => {
+    const response = await api.post(
+      "/api/v1/subscription/checkout-sessions",
       {
         pricingPlanId,
         successUrl: `${window.location.origin}/payment/success`,
         cancelUrl: `${window.location.origin}/pricing`,
-        trialDays: 7,
+        trialDays: isUpgrade ? 0 : 30, // No trial for upgrades
+        isUpgrade,
       },
       {
         headers: {
@@ -22,10 +21,9 @@ export const paymentAPI = {
     return response.data;
   },
 
-  // Create portal session for subscription management
   createPortalSession: async (customerId, token) => {
-    const response = await axios.post(
-      `${API_BASE_URL}/api/v1/payments/portal-sessions`,
+    const response = await api.post(
+      "/api/v1/subscription/portal-sessions",
       {
         customerId,
         returnUrl: `${window.location.origin}/dashboard`,
@@ -40,10 +38,9 @@ export const paymentAPI = {
     return response.data;
   },
 
-  // Get user's active subscription
   getUserSubscription: async (userId, token) => {
-    const response = await axios.get(
-      `${API_BASE_URL}/api/v1/payments/users/${userId}/subscription`,
+    const response = await api.get(
+      `/api/v1/subscription/users/${userId}/subscription`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -53,18 +50,16 @@ export const paymentAPI = {
     return response.data;
   },
 
-  // Get checkout session details
   getCheckoutSession: async (sessionId) => {
-    const response = await axios.get(
-      `${API_BASE_URL}/api/v1/payments/checkout-sessions/${sessionId}`
+    const response = await api.get(
+      `/api/v1/subscription/checkout-sessions/${sessionId}`
     );
     return response.data;
   },
 
-  // Create subscription from checkout session
   createSubscriptionFromSession: async (sessionId, token) => {
-    const response = await axios.post(
-      `${API_BASE_URL}/api/v1/payments/checkout-sessions/${sessionId}/create-subscription`,
+    const response = await api.post(
+      `/api/v1/subscription/checkout-sessions/${sessionId}/create-subscription`,
       {},
       {
         headers: {
@@ -76,29 +71,23 @@ export const paymentAPI = {
     return response.data;
   },
 
-  // Get user payment history
   getUserPaymentHistory: async (token) => {
-    const response = await axios.get(
-      `${API_BASE_URL}/api/v1/payments/users/payments`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await api.get("/api/v1/subscription/users/payments", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   },
 
-  // Get all pricing plans
   getPricingPlans: async () => {
-    const response = await axios.get(`${API_BASE_URL}/api/v1/pricing-plans`);
+    const response = await api.get("/api/v1/pricing-plans");
     return response.data;
   },
 
-  // Cancel subscription
   cancelSubscription: async (subscriptionId, immediately = false, token) => {
-    const response = await axios.delete(
-      `${API_BASE_URL}/api/v1/payments/subscriptions/${subscriptionId}?immediately=${immediately}`,
+    const response = await api.delete(
+      `/api/v1/subscription/subscriptions/${subscriptionId}?immediately=${immediately}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -108,10 +97,9 @@ export const paymentAPI = {
     return response.data;
   },
 
-  // Update subscription
   updateSubscription: async (subscriptionId, updateData, token) => {
-    const response = await axios.patch(
-      `${API_BASE_URL}/api/v1/payments/subscriptions/${subscriptionId}`,
+    const response = await api.patch(
+      `/api/v1/subscription/subscriptions/${subscriptionId}`,
       updateData,
       {
         headers: {
@@ -122,4 +110,74 @@ export const paymentAPI = {
     );
     return response.data;
   },
+
+  checkEligibility: async (userId, token) => {
+    const response = await api.get(
+      `/api/v1/subscription/trial/eligibility/${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  },
+
+  startTrial: async (pricingPlanId, token) => {
+    const response = await api.post(
+      "/api/v1/subscription/trial/start",
+      {
+        pricingPlanId,
+        trialDays: 30,
+        reason: "User initiated trial",
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  },
+
+  getTrialStatus: async (userId, token) => {
+    const response = await api.get(
+      `/api/v1/subscription/trial/status/${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  },
+
+  extendTrial: async (additionalDays, reason, token) => {
+    const response = await api.post(
+      "/api/v1/subscription/trial/extend",
+      {
+        additionalDays,
+        reason,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  },
+
+  cancelTrial: async (userId, token) => {
+    const response = await api.delete(`/api/v1/subscription/trial/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  },
 };
+
+export const paymentAPI = subscriptionAPI;

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "@/lib/api-interceptor";
 import Image from "next/image";
 import { API_BASE_URL } from "@/config/constant";
 import {
@@ -43,7 +43,7 @@ const ViewIncidentModal = ({ incident, onClose }) => {
   useEffect(() => {
     const fetchIncident = async () => {
       try {
-        const response = await axios.get(
+        const response = await api.get(
           `${API_BASE_URL}/api/v1/incidents/${incident?.id}?type=${toKebabCase(
             incident?.incidentType
           )}`

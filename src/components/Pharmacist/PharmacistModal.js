@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import axios from "axios";
+import api from "@/lib/api-interceptor";
 import { API_BASE_URL, PHARMACIST_STATUS, USER_ROLE } from "@/config/constant";
 import useAuthStore from "@/store/useAuthStore";
 import Image from "next/image";
@@ -74,7 +74,7 @@ const PharmacistModal = ({
     const fetchPharmacistDetails = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
+        const response = await api.get(
           `${API_BASE_URL}/api/v1/users/${pharmacistId}`,
           {
             headers: {
@@ -113,7 +113,7 @@ const PharmacistModal = ({
       if (isCreating) {
         const password = generateRandomPassword();
         setGeneratedPassword(password);
-        await axios.post(
+        await api.post(
           `${API_BASE_URL}/api/v1/users?pharmacyId=${pharmacy?.id}`,
           {
             ...data,
@@ -130,7 +130,7 @@ const PharmacistModal = ({
         );
         setShowPasswordModal(true);
       } else {
-        await axios.put(`${API_BASE_URL}/api/v1/users/${pharmacistId}`, data, {
+        await api.put(`${API_BASE_URL}/api/v1/users/${pharmacistId}`, data, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

@@ -21,7 +21,14 @@ import toast from "react-hot-toast";
 const PremisesLoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { setUser, setIsAuthenticated, setToken, setPharmacy } = useAuthStore();
+  const {
+    setUser,
+    setIsAuthenticated,
+    setToken,
+    setPharmacy,
+    setSubscription,
+    fetchSubscription,
+  } = useAuthStore();
   const router = useRouter();
 
   const handleSubmit = async (e) => {
@@ -40,8 +47,13 @@ const PremisesLoginForm = () => {
       console.log("data", response.data);
       setUser(response.data?.data?.user);
       setPharmacy(response.data?.data?.pharmacy);
+      setSubscription(response.data?.data?.subscription);
       setToken(response.data?.data?.token);
       setIsAuthenticated(true);
+
+      // Fetch latest subscription status for lock icon display
+      await fetchSubscription();
+
       toast.success("Login successful!");
       if (response.data?.data?.pharmacy?.status === "DEMO") {
         router.push("/dashboard");

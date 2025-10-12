@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { HiDotsVertical } from "react-icons/hi";
-import axios from "axios";
+import api from "@/lib/api-interceptor";
 import { API_BASE_URL, PHARMACIST_STATUS } from "@/config/constant";
 import useAuthStore from "@/store/useAuthStore";
 
@@ -44,7 +44,7 @@ const ListOfPharmacist = ({ status = PHARMACIST_STATUS.APPROVED }) => {
   useEffect(() => {
     const fetchPharmacists = async () => {
       try {
-        const response = await axios.get(
+        const response = await api.get(
           `${API_BASE_URL}/api/v1/users?role=pharmacist&status=${status}`,
           {
             headers: {
@@ -64,7 +64,7 @@ const ListOfPharmacist = ({ status = PHARMACIST_STATUS.APPROVED }) => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${API_BASE_URL}/api/v1/users/${id}`, {
+      await api.delete(`${API_BASE_URL}/api/v1/users/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

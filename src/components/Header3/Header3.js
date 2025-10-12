@@ -7,7 +7,7 @@ import Bell from "@/assets/images/bell.svg";
 import userProfile from "@/assets/images/user-profile.svg";
 import userProfile2 from "@/assets/images/user-profile2.svg";
 import userProfile3 from "@/assets/images/user-profile3.svg";
-import { API_BASE_URL, USER_ROLE } from "@/config/constant";
+import { USER_ROLE } from "@/config/constant";
 import {
   Popover,
   PopoverContent,
@@ -19,7 +19,6 @@ import { useRootContext } from "@/provider/context";
 import { GiCheckMark } from "react-icons/gi";
 import { useRouter } from "next/navigation";
 import useAuthStore from "@/store/useAuthStore";
-import axios from "axios";
 import ViewIncidentModal from "@/components/Incident/ViewIncidentModal";
 import {
   Dialog,
@@ -32,6 +31,7 @@ import PharmacistSwitchOption from "./PharmacistSwitchOption";
 import PremiseNameOds from "./PremiseNameOds";
 import toast, { Toaster } from "react-hot-toast";
 import AdminNameEmail from "./AdminNameEmail";
+import api from "@/lib/api-interceptor";
 
 const Header = () => {
   const { user, pharmacy, logout } = useAuthStore();
@@ -46,8 +46,8 @@ const Header = () => {
     const searchQuery = e.target.search.value;
 
     try {
-      const response = await axios.get(
-        `${API_BASE_URL}/api/v1/incidents/full-search?query=${encodeURIComponent(
+      const response = await api.get(
+        `/api/v1/incidents/full-search?query=${encodeURIComponent(
           searchQuery
         )}&odsCode=${pharmacy?.odsCode}`
       );

@@ -1,12 +1,11 @@
 "use client";
-import { API_BASE_URL } from "@/config/constant";
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import Warning from "@/assets/images/warning.svg";
 import toast from "react-hot-toast";
 import useAuthStore from "@/store/useAuthStore";
+import api from "@/lib/api-interceptor";
 
 const RSS = () => {
   const [loading, setLoading] = useState(true);
@@ -19,7 +18,7 @@ const RSS = () => {
   useEffect(() => {
     const fetchRSS = async () => {
       try {
-        const res = await axios.get(`${API_BASE_URL}/api/v1/rss`);
+        const res = await api.get(`/api/v1/rss`);
         setRSSFeed(res.data?.data?.items || []);
         setPageTitle(res.data?.data?.title);
       } catch (error) {
@@ -35,7 +34,7 @@ const RSS = () => {
   useEffect(() => {
     const fetchMyResponses = async () => {
       if (!user?.id || !pharmacy?.id) return;
-      const res = await axios.get(`${API_BASE_URL}/api/v1/rss/my-responses`, {
+      const res = await api.get(`/api/v1/rss/my-responses`, {
         params: {
           userId: user?.id,
           pharmacyId: pharmacy?.id,
@@ -108,7 +107,7 @@ const RSS = () => {
       [itemId]: {},
     }));
 
-    axios.post(`${API_BASE_URL}/api/v1/rss/response`, {
+    api.post(`/api/v1/rss/response`, {
       rssFeedId: itemId,
       isAcknowledged: response.action === "acknowledge",
       comment: response.comments,

@@ -2,7 +2,7 @@ import RecentIncedientsLogged from "@/components/RecentIncedentsLogged/RecentInc
 import DashboardLayout from "@/components/Layout/DashboardLayout";
 import ErrorsCounter from "../ErrorsCounter/ErrorsCounter";
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "@/lib/api-interceptor";
 import { API_BASE_URL } from "@/config/constant";
 import LoadingComp from "../LoadingComp/LoadingComp";
 import useAuthStore from "@/store/useAuthStore";
@@ -17,13 +17,13 @@ export default function DashboardLoginTechnician() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const statsResponse = await axios.get(
-          `${API_BASE_URL}/api/v1/dashboard/stats?odsCode=${pharmacy?.odsCode}`
+        const statsResponse = await api.get(
+          `/api/v1/dashboard/stats?odsCode=${pharmacy?.odsCode}`
         );
         setDashboardStats(statsResponse.data.data);
 
-        const incidentsResponse = await axios.get(
-          `${API_BASE_URL}/api/v1/dashboard/recent-incidents?odsCode=${pharmacy?.odsCode}`
+        const incidentsResponse = await api.get(
+          `/api/v1/dashboard/recent-incidents?odsCode=${pharmacy?.odsCode}`
         );
         setRecentIncidents(incidentsResponse.data.data);
       } catch (err) {
@@ -39,7 +39,7 @@ export default function DashboardLoginTechnician() {
 
   return (
     <>
-      <DashboardLayout>
+      <DashboardLayout requireSubscription={false}>
         {loading ? (
           <LoadingComp />
         ) : error ? (

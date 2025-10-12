@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { GoArrowLeft } from "react-icons/go";
 import { FaCircleCheck } from "react-icons/fa6";
 import { FaPlus } from "react-icons/fa6";
-import axios from "axios";
+import api from "@/lib/api-interceptor";
 import { API_BASE_URL } from "@/config/constant";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
@@ -26,7 +26,7 @@ const ConfigurationStep3 = () => {
 
     setIsSubmitting(true);
     try {
-      await axios.put(
+      await api.put(
         `${API_BASE_URL}/api/v1/pharmacies/${pharmacy.id}`,
         { hasAgreedTnc: true },
         {

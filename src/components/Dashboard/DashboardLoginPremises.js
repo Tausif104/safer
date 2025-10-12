@@ -6,9 +6,11 @@ import MobileNav from "@/components/MobileNav/MobileNav";
 import RecentIncedientsLogged from "@/components/RecentIncedentsLogged/RecentIncedientsLogged";
 import { API_BASE_URL } from "@/config/constant";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "@/lib/api-interceptor";
 import DashboardLayout from "@/components/Layout/DashboardLayout";
 import useAuthStore from "@/store/useAuthStore";
+import { useSubscriptionStatus } from "@/hooks/useSubscriptionStatus";
+import SubscriptionStatusScreen from "../SubscriptionStatusScreen/SubscriptionStatusScreen";
 
 export default function DashboardLoginPremises() {
   const [dashboardStats, setDashboardStats] = useState(null);
@@ -16,17 +18,18 @@ export default function DashboardLoginPremises() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const { pharmacy } = useAuthStore();
+  const { canAccess, subscription, isTrialExpired } = useSubscriptionStatus();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const statsResponse = await axios.get(
-          `${API_BASE_URL}/api/v1/dashboard/stats?odsCode=${pharmacy?.odsCode}`
+        const statsResponse = await api.get(
+          `/api/v1/dashboard/stats?odsCode=${pharmacy?.odsCode}`
         );
         setDashboardStats(statsResponse.data.data);
 
-        const incidentsResponse = await axios.get(
-          `${API_BASE_URL}/api/v1/dashboard/recent-incidents?odsCode=${pharmacy?.odsCode}`
+        const incidentsResponse = await api.get(
+          `/api/v1/dashboard/recent-incidents?odsCode=${pharmacy?.odsCode}`
         );
         setRecentIncidents(incidentsResponse.data.data);
       } catch (err) {
@@ -37,12 +40,16 @@ export default function DashboardLoginPremises() {
       }
     };
 
-    fetchData();
-  }, [pharmacy?.odsCode]);
+    if (canAccess) {
+      fetchData();
+    } else {
+      setLoading(false);
+    }
+  }, [pharmacy?.odsCode, canAccess]);
 
   return (
     <>
-      <DashboardLayout>
+      <DashboardLayout requireSubscription={false}>
         {loading ? (
           <LoadingComp />
         ) : error ? (
@@ -51,11 +58,21 @@ export default function DashboardLoginPremises() {
           </div>
         ) : (
           <>
-            <ErrorsCounter
-              nearMissErrorCodeStats={dashboardStats.nearMissErrorCodeStats}
-              incidentTypeCount={dashboardStats.incidentTypeCount}
-            />
-            <RecentIncedientsLogged recentIncidents={recentIncidents} />
+            {canAccess ? (
+              <>
+                <ErrorsCounter
+                  nearMissErrorCodeStats={dashboardStats.nearMissErrorCodeStats}
+                  incidentTypeCount={dashboardStats.incidentTypeCount}
+                />
+                <RecentIncedientsLogged recentIncidents={recentIncidents} />
+              </>
+            ) : (
+              <SubscriptionStatusScreen
+                subscription={subscription}
+                isTrialExpired={isTrialExpired}
+                canAccess={canAccess}
+              />
+            )}
           </>
         )}
       </DashboardLayout>

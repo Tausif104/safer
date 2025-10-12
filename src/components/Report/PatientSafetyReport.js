@@ -7,7 +7,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import axios from "axios";
+import api from "@/lib/api-interceptor";
 import { API_BASE_URL } from "@/config/constant";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -75,7 +75,8 @@ export default function PatientSafetyReport() {
     useState(null);
   const [incidentComparisonPvName, setIncidentComparisonPvName] = useState("");
   const [incidentComparisonUvName, setIncidentComparisonUvName] = useState("");
-  const [incidentComparisonAvgName, setIncidentComparisonAvgName] = useState("");
+  const [incidentComparisonAvgName, setIncidentComparisonAvgName] =
+    useState("");
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   const {
@@ -127,7 +128,11 @@ export default function PatientSafetyReport() {
     return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
   };
 
-  const transformDataForComparisonChart = (currentData, previousData, avgData) => {
+  const transformDataForComparisonChart = (
+    currentData,
+    previousData,
+    avgData
+  ) => {
     const categories = [
       {
         keys: ["prescribing_interventions"],
@@ -173,11 +178,13 @@ export default function PatientSafetyReport() {
           .map((key) => previousData[key])
           .reduce((acc, curr) => acc + Number(curr), 0) || 0
       ),
-      avg: (Number(
-        category.keys
-          .map((key) => avgData[key])
-          .reduce((acc, curr) => acc + Number(curr), 0) || 0
-      ) / avgDivisor).toFixed(2),
+      avg: (
+        Number(
+          category.keys
+            .map((key) => avgData[key])
+            .reduce((acc, curr) => acc + Number(curr), 0) || 0
+        ) / avgDivisor
+      ).toFixed(2),
     }));
   };
 
@@ -195,10 +202,9 @@ export default function PatientSafetyReport() {
   useEffect(() => {
     if (type.toLowerCase() === "monthly") {
       setIncidentComparisonPvName(
-        new Date(new Date(selectedDate).setMonth(new Date(selectedDate).getMonth() - 1)).toLocaleString(
-          "default",
-          { month: "long" }
-        )
+        new Date(
+          new Date(selectedDate).setMonth(new Date(selectedDate).getMonth() - 1)
+        ).toLocaleString("default", { month: "long" })
       );
       setIncidentComparisonUvName(
         new Date(selectedDate).toLocaleString("default", { month: "long" })
@@ -206,18 +212,23 @@ export default function PatientSafetyReport() {
       setIncidentComparisonAvgName("Average");
     } else if (type.toLowerCase() === "yearly") {
       setIncidentComparisonPvName(
-        new Date(new Date(selectedDate).setFullYear(new Date(selectedDate).getFullYear() - 1))
+        new Date(
+          new Date(selectedDate).setFullYear(
+            new Date(selectedDate).getFullYear() - 1
+          )
+        )
           .getFullYear()
           .toString()
       );
-      setIncidentComparisonUvName(new Date(selectedDate).getFullYear().toString());
+      setIncidentComparisonUvName(
+        new Date(selectedDate).getFullYear().toString()
+      );
       setIncidentComparisonAvgName("Average 10y");
     } else if (type.toLowerCase() === "weekly") {
       setIncidentComparisonPvName(
-        new Date(new Date(selectedDate).setDate(new Date(selectedDate).getDate() - 7)).toLocaleString(
-          "default",
-          { week: "numeric" }
-        )
+        new Date(
+          new Date(selectedDate).setDate(new Date(selectedDate).getDate() - 7)
+        ).toLocaleString("default", { week: "numeric" })
       );
       setIncidentComparisonUvName(
         new Date(selectedDate).toLocaleString("default", { week: "numeric" })
@@ -240,7 +251,9 @@ export default function PatientSafetyReport() {
       const year = date.getFullYear();
       const month = date.getMonth();
       dateFrom = new Date(Date.UTC(year, month, 1)).toISOString().split("T")[0];
-      dateTo = new Date(Date.UTC(year, month + 1, 0)).toISOString().split("T")[0];
+      dateTo = new Date(Date.UTC(year, month + 1, 0))
+        .toISOString()
+        .split("T")[0];
     } else if (type === "YEARLY") {
       formattedDate = new Date(date).getFullYear().toString();
       const year = date.getFullYear();
@@ -264,15 +277,20 @@ export default function PatientSafetyReport() {
     const fetchPrefillData = async () => {
       setIsLoadingPrefill(true);
       try {
-        const response = await axios.get(
+        const response = await api.get(
           `${API_BASE_URL}/api/v1/reports/prefill-report?odsCode=${
             pharmacy?.odsCode
           }&dateFrom=${dateFrom}&dateTo=${dateTo}&type=${type.toLowerCase()}`
         );
 
         if (response.data?.data) {
-          const { prefillReport: data, prevPrefillReport: prevData, nearMissErrorCodeStats, avgPrefillReport: avgData, nationalSafetyAlerts } =
-            response.data.data;
+          const {
+            prefillReport: data,
+            prevPrefillReport: prevData,
+            nearMissErrorCodeStats,
+            avgPrefillReport: avgData,
+            nationalSafetyAlerts,
+          } = response.data.data;
           setValue("prescribingInterventions", data.prescribing_interventions);
           setValue("nearMisses", data.near_misses);
           setValue("nearMissesLASA", data.near_misses_lasa);
@@ -283,10 +301,12 @@ export default function PatientSafetyReport() {
             "otherPatientSafetyActivity",
             data.other_patient_safety_activity
           );
-          setIncidentPieChartDataset(nearMissErrorCodeStats.map((item) => ({
-            name: item.errorCode,
-            value: Number(item.count),
-          })));
+          setIncidentPieChartDataset(
+            nearMissErrorCodeStats.map((item) => ({
+              name: item.errorCode,
+              value: Number(item.count),
+            }))
+          );
 
           // Set comparison chart dataset
           const comparisonData = transformDataForComparisonChart(
@@ -320,7 +340,7 @@ export default function PatientSafetyReport() {
         updatedAt: new Date().toISOString(),
       };
 
-      const response = await axios.post(
+      const response = await api.post(
         `${API_BASE_URL}/api/v1/reports/patient-safety-report`,
         payload
       );

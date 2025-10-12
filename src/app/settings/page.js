@@ -11,7 +11,7 @@ const SettingsPage = () => {
   const isPharmacy = user?.role === USER_ROLE.PHARMACY;
 
   return (
-    <DashboardLayout>
+    <DashboardLayout requireSubscription={false}>
       <section className="pt-[20px] sm:pt0">
         <div className="flex justify-center sm:justify-between items-center flex-wrap sm:flex-nowrap gap-4 mb-[30px]">
           <div className="flex items-center gap-4">

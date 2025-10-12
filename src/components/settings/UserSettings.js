@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import axios from "axios";
+import api from "@/lib/api-interceptor";
 import { API_BASE_URL, USER_ROLE } from "@/config/constant";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
@@ -57,7 +57,7 @@ const UserSettings = () => {
         const formData = new FormData();
         formData.append("file", file);
 
-        const response = await axios.post(
+        const response = await api.post(
           `${API_BASE_URL}/api/v1/common/upload-image`,
           formData,
           {
@@ -118,7 +118,7 @@ const UserSettings = () => {
         return;
       }
 
-      await axios.put(`${API_BASE_URL}/api/v1/users/${user.id}`, updatedData, {
+      await api.put(`${API_BASE_URL}/api/v1/users/${user.id}`, updatedData, {
         headers: {
           Authorization: `Bearer ${storeToken}`,
         },

@@ -8,7 +8,7 @@ import DashboardLayout from "../Layout/DashboardLayout";
 
 const DashboardLoginAdmin = () => {
   return (
-    <DashboardLayout>
+    <DashboardLayout requireSubscription={false}>
       <ErrorsCounterFull />
       <ErrorsCounter2 />
       <ListOfPharmacies />

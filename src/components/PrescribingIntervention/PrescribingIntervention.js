@@ -18,7 +18,7 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight, Upload } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { API_BASE_URL, PHARMACIST_STATUS, USER_ROLE } from "@/config/constant";
-import axios from "axios";
+import api from "@/lib/api-interceptor";
 import Image from "next/image";
 import IncidentSavedDialog from "@/components/Incident/incident-saved-dialog";
 import { Spinner } from "@/components/ui/spinner";
@@ -177,7 +177,7 @@ const PrescribingIntervention = () => {
         updatedAt: new Date().toISOString(),
       };
 
-      const response = await axios.post(
+      const response = await api.post(
         `${API_BASE_URL}/api/v1/incidents`,
         payload
       );
@@ -212,7 +212,7 @@ const PrescribingIntervention = () => {
         const formData = new FormData();
         formData.append("file", file);
 
-        const response = await axios.post(
+        const response = await api.post(
           `${API_BASE_URL}/api/v1/common/upload-image`,
           formData,
           {
@@ -246,7 +246,7 @@ const PrescribingIntervention = () => {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const response = await axios.get(
+      const response = await api.get(
         `${API_BASE_URL}/api/v1/users?pharmacyId=${pharmacy.id}`
       );
       setUsers(response.data.data);

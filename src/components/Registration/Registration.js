@@ -4,7 +4,7 @@ import Link from "next/link";
 import { GoArrowLeft } from "react-icons/go";
 import { FaCircleCheck } from "react-icons/fa6";
 import { FaPlus } from "react-icons/fa6";
-import axios from "axios";
+import api from "@/lib/api-interceptor";
 import useAuthStore from "@/store/useAuthStore";
 import { useRouter } from "next/navigation";
 import { API_BASE_URL } from "@/config/constant";

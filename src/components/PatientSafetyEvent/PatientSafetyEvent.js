@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { API_BASE_URL, PHARMACIST_STATUS } from "@/config/constant";
-import axios from "axios";
+import api from "@/lib/api-interceptor";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -250,7 +250,7 @@ const PatientSafetyEvent = () => {
         updatedAt: new Date().toISOString(),
       };
 
-      const response = await axios.post(
+      const response = await api.post(
         `${API_BASE_URL}/api/v1/incidents`,
         payload
       );
@@ -323,7 +323,7 @@ const PatientSafetyEvent = () => {
         const formData = new FormData();
         formData.append("file", file);
 
-        const response = await axios.post(
+        const response = await api.post(
           `${API_BASE_URL}/api/v1/common/upload-image`,
           formData,
           {

@@ -17,7 +17,7 @@ import useAuthStore from "@/store/useAuthStore";
 import { useRouter } from "next/navigation";
 import userProfile from "@/assets/images/user-profile.svg";
 import { API_BASE_URL } from "@/config/constant";
-import axios from "axios";
+import api from "@/lib/api-interceptor";
 import PharmacySwitchPasswordModal from "./PharmacySwitchPasswordModal";
 import { useRootContext } from "@/provider/context";
 import toast from "react-hot-toast";
@@ -31,6 +31,8 @@ const PharmacistSwitchOption = () => {
     setPharmacy,
     setToken,
     setIsAuthenticated,
+    setSubscription,
+    fetchSubscription,
   } = useAuthStore();
   const [userPharmacies, setUserPharmacies] = useState([]);
   const [selectedPharmacy, setSelectedPharmacy] = useState(null);
@@ -65,7 +67,7 @@ const PharmacistSwitchOption = () => {
     setSelectedPharmacy(null);
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/v1/auth/login`, {
+      const response = await api.post(`/api/v1/auth/login`, {
         email: user.email,
         passwordOrPin: password,
         odsCode: selectedPharmacy.odsCode,
@@ -75,12 +77,17 @@ const PharmacistSwitchOption = () => {
         const {
           user: newUser,
           pharmacy: newPharmacy,
+          subscription: newSubscription,
           token: newToken,
         } = response.data.data;
         setUser(newUser);
         setPharmacy(newPharmacy);
+        setSubscription(newSubscription);
         setToken(newToken);
         setIsAuthenticated(true);
+
+        // Fetch latest subscription status for lock icon display
+        await fetchSubscription();
 
         toast.success(`Successfully switched to ${newPharmacy.name}`);
 
@@ -108,11 +115,9 @@ const PharmacistSwitchOption = () => {
 
   useEffect(() => {
     if (user) {
-      axios
-        .get(`${API_BASE_URL}/api/v1/users/${user?.id}/pharmacies`)
-        .then((res) => {
-          setUserPharmacies(res?.data?.data);
-        });
+      api.get(`/api/v1/users/${user?.id}/pharmacies`).then((res) => {
+        setUserPharmacies(res?.data?.data);
+      });
     }
   }, [user]);
 

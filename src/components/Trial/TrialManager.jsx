@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { FaClock, FaCheckCircle, FaTimesCircle, FaGift } from "react-icons/fa";
 import useAuthStore from "@/store/useAuthStore";
-import { trialAPI } from "@/services/trialService";
+import { subscriptionAPI } from "@/services/paymentService";
 
 const TrialManager = () => {
   const [trialStatus, setTrialStatus] = useState(null);
@@ -18,7 +18,7 @@ const TrialManager = () => {
 
       try {
         setLoading(true);
-        const response = await trialAPI.getTrialStatus(user.id, token);
+        const response = await subscriptionAPI.getTrialStatus(user.id, token);
         setTrialStatus(response.data);
       } catch (error) {
         console.error("Error fetching trial status:", error);
@@ -35,10 +35,12 @@ const TrialManager = () => {
 
     try {
       setActionLoading(true);
-      const response = await trialAPI.startTrial(pricingPlanId, token);
+      const response = await subscriptionAPI.startTrial(pricingPlanId, token);
 
-      // Refresh trial status
-      const statusResponse = await trialAPI.getTrialStatus(user.id, token);
+      const statusResponse = await subscriptionAPI.getTrialStatus(
+        user.id,
+        token
+      );
       setTrialStatus(statusResponse.data);
 
       alert(

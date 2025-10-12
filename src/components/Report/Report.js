@@ -33,7 +33,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MdOutlineFileDownload } from "react-icons/md";
-import axios from "axios";
+import api from "@/lib/api-interceptor";
 import { API_BASE_URL } from "@/config/constant";
 import useAuthStore from "@/store/useAuthStore";
 
@@ -79,7 +79,7 @@ const RecentIncedientsLogged = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const incidentsResponse = await axios.get(
+        const incidentsResponse = await api.get(
           `${API_BASE_URL}/api/v1/incidents/reports?odsCode=${pharmacy?.odsCode}`
         );
         setIncidentReports(incidentsResponse.data.data);

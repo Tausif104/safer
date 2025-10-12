@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { GoArrowLeft } from "react-icons/go";
 import { FaCircleCheck } from "react-icons/fa6";
 import useAuthStore from "../../store/useAuthStore";
-import axios from "axios";
+import api from "@/lib/api-interceptor";
 import { API_BASE_URL } from "@/config/constant";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
@@ -30,7 +30,7 @@ const ConfigurationStep1Content = () => {
       }
 
       try {
-        const { data } = await axios.post(
+        const { data } = await api.post(
           `${API_BASE_URL}/api/v1/auth/verify-token`,
           { token }
         );
@@ -75,7 +75,7 @@ const ConfigurationStep1Content = () => {
     };
 
     try {
-      const res = await axios.put(
+      const res = await api.put(
         `${API_BASE_URL}/api/v1/pharmacies/${pharmacy.id}`,
         pharmacyData,
         {
