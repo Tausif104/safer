@@ -45,6 +45,11 @@ const PremisesLoginForm = () => {
         formData
       );
       console.log("data", response.data);
+      if (!response.data?.data?.pharmacy) {
+        toast.error("You don't have access to a premises account");
+        setIsSubmitting(false);
+        return;
+      }
       setUser(response.data?.data?.user);
       setPharmacy(response.data?.data?.pharmacy);
       setSubscription(response.data?.data?.subscription);
