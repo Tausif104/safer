@@ -136,7 +136,10 @@ const PremisesLoginForm = () => {
             />{" "}
             Remember Me
           </label>
-          <Link href="#" className="text-[#3B82F6] text-[16px] sm:text-[18px]">
+          <Link
+            href="/forgot-password?returnTo=login-premises"
+            className="text-[#3B82F6] text-[16px] sm:text-[18px]"
+          >
             Forget Password?
           </Link>
         </div>
