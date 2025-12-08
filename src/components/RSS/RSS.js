@@ -1,11 +1,18 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Warning from "@/assets/images/warning.svg";
 import toast from "react-hot-toast";
 import useAuthStore from "@/store/useAuthStore";
 import api from "@/lib/api-interceptor";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const RSS = () => {
   const [loading, setLoading] = useState(true);
@@ -13,6 +20,7 @@ const RSS = () => {
   const [pageTitle, setPageTitle] = useState("");
   const [responses, setResponses] = useState({});
   const [submittedResponses, setSubmittedResponses] = useState({});
+  const [selectedMonthFilter, setSelectedMonthFilter] = useState("all");
   const { user, pharmacy, _hasHydrated } = useAuthStore();
 
   useEffect(() => {
@@ -71,6 +79,48 @@ const RSS = () => {
       year: "numeric",
     });
   };
+
+  // Get unique month/year combinations from RSS feed
+  const availableMonths = useMemo(() => {
+    const monthMap = new Map();
+    rssFeed.forEach((item) => {
+      const dateString = item.pubDate || item.isoDate;
+      if (dateString) {
+        const date = new Date(dateString);
+        const monthYear = date.toLocaleDateString("en-GB", {
+          month: "long",
+          year: "numeric",
+        });
+        const key = `${date.getFullYear()}-${date.getMonth()}`;
+        if (!monthMap.has(key)) {
+          monthMap.set(key, monthYear);
+        }
+      }
+    });
+    return Array.from(monthMap.entries())
+      .sort((a, b) => {
+        const [yearA, monthA] = a[0].split("-").map(Number);
+        const [yearB, monthB] = b[0].split("-").map(Number);
+        if (yearA !== yearB) return yearB - yearA;
+        return monthB - monthA;
+      })
+      .map(([key, label]) => ({ key, label }));
+  }, [rssFeed]);
+
+  // Filter RSS feed based on selected month
+  const filteredRSSFeed = useMemo(() => {
+    if (selectedMonthFilter === "all") {
+      return rssFeed;
+    }
+
+    const [year, month] = selectedMonthFilter.split("-").map(Number);
+    return rssFeed.filter((item) => {
+      const dateString = item.pubDate || item.isoDate;
+      if (!dateString) return false;
+      const date = new Date(dateString);
+      return date.getFullYear() === year && date.getMonth() === month;
+    });
+  }, [rssFeed, selectedMonthFilter]);
 
   const getAlertType = (title) => {
     if (title?.toLowerCase().includes("safety roundup")) {
@@ -157,17 +207,43 @@ const RSS = () => {
   return (
     <section className="bg-white rounded-[16px] px-0 p-[20px] sm:p-[30px] pt-0 sm:pt-[30px] mt-[30px]">
       <div>
-        <h1 className="text-[20px] sm:text-[28px] font-semibold text-[#262262] mb-6">
-          {pageTitle}
-        </h1>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <h1 className="text-[20px] sm:text-[28px] font-semibold text-[#262262]">
+            {pageTitle}
+          </h1>
+          {rssFeed.length > 0 && (
+            <div className="flex items-center gap-2">
+              <label className="text-[13px] sm:text-[14px] font-medium text-[#262262] whitespace-nowrap">
+                Filter by month:
+              </label>
+              <Select value={selectedMonthFilter} onValueChange={setSelectedMonthFilter}>
+                <SelectTrigger className="w-[180px] sm:w-[200px] h-9 text-[13px]">
+                  <SelectValue placeholder="Select month" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Months</SelectItem>
+                  {availableMonths.map(({ key, label }) => (
+                    <SelectItem key={key} value={key}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
 
         <div className="space-y-4">
-          {rssFeed.length === 0 ? (
+          {filteredRSSFeed.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-[#707B8A]">No RSS feed items available</p>
+              <p className="text-[#707B8A]">
+                {rssFeed.length === 0
+                  ? "No RSS feed items available"
+                  : "No alerts found for the selected month"}
+              </p>
             </div>
           ) : (
-            rssFeed.map((item, index) => (
+            filteredRSSFeed.map((item, index) => (
               <div
                 key={item.id || index}
                 className="border border-[#DAECFF] rounded-[8px] p-4 hover:shadow-sm transition-shadow"

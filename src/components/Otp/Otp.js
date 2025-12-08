@@ -153,7 +153,7 @@ const Otp = () => {
 
       <form onSubmit={handleSubmit}>
         {/* OTP Inputs */}
-        <div className="flex justify-center gap-3 mb-[20px]">
+        <div className="flex justify-center gap-2 sm:gap-3 mb-[20px]">
           {otp.map((digit, index) => (
             <input
               key={index}
@@ -164,7 +164,7 @@ const Otp = () => {
               value={digit}
               onChange={(e) => handleChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
-              className="h-[52px] sm:h-[56px] w-[45px] sm:w-[50px] text-center border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none text-lg font-semibold"
+              className="h-[48px] sm:h-[52px] md:h-[56px] w-[40px] sm:w-[45px] md:w-[50px] text-center border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none text-base sm:text-lg font-semibold"
             />
           ))}
         </div>
