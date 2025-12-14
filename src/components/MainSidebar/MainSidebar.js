@@ -237,7 +237,7 @@ const RoleBasedMenu = ({ userRole, isLocked, onLockedClick }) => {
         show: true,
       },
       {
-        href: "/",
+        href: "/new-features",
         icon: Pricing,
         label: (
           <span>
