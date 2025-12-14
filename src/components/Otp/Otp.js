@@ -41,6 +41,28 @@ const Otp = () => {
     return () => clearTimeout(timer);
   }, [resendCountdown]);
 
+  useEffect(() => {
+    // Set responsive line-height for OTP inputs to prevent text cropping on mobile Safari
+    const updateLineHeight = () => {
+      inputRefs.current.forEach((input) => {
+        if (input) {
+          const width = window.innerWidth;
+          if (width >= 768) {
+            input.style.lineHeight = '60px';
+          } else if (width >= 640) {
+            input.style.lineHeight = '56px';
+          } else {
+            input.style.lineHeight = '52px';
+          }
+        }
+      });
+    };
+
+    updateLineHeight();
+    window.addEventListener('resize', updateLineHeight);
+    return () => window.removeEventListener('resize', updateLineHeight);
+  }, []);
+
   const sendOtpEmail = async () => {
     if (!user?.email) {
       toast.error("No email address found. Please try again.");
@@ -164,7 +186,15 @@ const Otp = () => {
               value={digit}
               onChange={(e) => handleChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
-              className="h-[48px] sm:h-[52px] md:h-[56px] w-[40px] sm:w-[45px] md:w-[50px] text-center border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none text-base sm:text-lg font-semibold"
+              className="h-[52px] sm:h-[56px] md:h-[60px] w-[52px] sm:w-[56px] md:w-[60px] text-center border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none font-semibold appearance-none [-webkit-appearance:none]"
+              style={{
+                fontSize: '18px',
+                lineHeight: '52px',
+                padding: '0',
+                WebkitAppearance: 'none',
+                appearance: 'none',
+                letterSpacing: '0',
+              }}
             />
           ))}
         </div>
