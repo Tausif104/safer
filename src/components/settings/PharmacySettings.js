@@ -31,14 +31,18 @@ const PharmacySettings = () => {
   useEffect(() => {
     if (!pharmacy?.logo) {
       setImagePreview(null);
-    } else if (pharmacy?.logo.startsWith("http")) {
-      setImagePreview(pharmacy?.logo);
+      setShowUploadBox(true);
     } else {
-      setImagePreview(
-        pharmacy?.logo.startsWith("http")
-          ? pharmacy?.logo
-          : `${API_BASE_URL}/public/img/${pharmacy?.logo}`
-      );
+      setShowUploadBox(false);
+      if (pharmacy?.logo.startsWith("http")) {
+        setImagePreview(pharmacy?.logo);
+      } else {
+        setImagePreview(
+          pharmacy?.logo.startsWith("http")
+            ? pharmacy?.logo
+            : `${API_BASE_URL}/public/img/${pharmacy?.logo}`
+        );
+      }
     }
   }, [pharmacy?.logo]);
 
@@ -88,6 +92,7 @@ const PharmacySettings = () => {
     handleSubmit,
     formState: { errors, dirtyFields },
     setValue,
+    getValues,
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -110,6 +115,12 @@ const PharmacySettings = () => {
         acc[key] = data[key];
         return acc;
       }, {});
+
+      // Check if logo has been updated (even if not in dirtyFields)
+      const currentLogo = getValues("logo");
+      if (currentLogo && currentLogo !== pharmacy?.logo) {
+        updatedData.logo = currentLogo;
+      }
 
       if (Object.keys(updatedData).length === 0) {
         toast.error("No changes to save");
