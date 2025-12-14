@@ -164,7 +164,7 @@ const PharmacistSwitchOption = () => {
           </button>
         </PopoverTrigger>
         <PopoverContent
-          className="rounded-[10px] p-[20px]"
+          className="rounded-[10px] p-[20px] max-h-[80vh] overflow-y-auto"
           side="top"
           align="end"
         >
