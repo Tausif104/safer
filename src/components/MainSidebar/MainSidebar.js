@@ -185,6 +185,12 @@ const RoleBasedMenu = ({ userRole, isLocked, onLockedClick }) => {
         show: true,
       },
       {
+        href: "/drugs",
+        icon: AdminMenuIcon6,
+        label: "Drugs",
+        show: true,
+      },
+      {
         href: "/revenue",
         icon: AdminMenuIcon4,
         label: "Revenue Report",
