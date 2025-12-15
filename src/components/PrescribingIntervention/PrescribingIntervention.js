@@ -115,6 +115,7 @@ const PrescribingIntervention = () => {
     formState: { errors },
     setValue,
     watch,
+    getValues,
     reset,
   } = useForm({
     resolver: yupResolver(schema),
@@ -145,6 +146,33 @@ const PrescribingIntervention = () => {
   const [showPharmacistModal, setShowPharmacistModal] = useState(false);
   const [refetchedAt, setRefetchedAt] = useState(null);
 
+  // Default “Checked by” to the logged-in user but allow overriding
+  useEffect(() => {
+    if (user?.id) {
+      setValue("checkedBy", String(user.id));
+      setValue("checkedByName", user?.name || "");
+    }
+  }, [user, setValue]);
+
+  // Ensure checked-by defaults once users are loaded (match by id or email)
+  useEffect(() => {
+    if (!user || !users.length) return;
+    const current = getValues("checkedBy");
+    const hasCurrentOption = users.some((u) => String(u.id) === String(current));
+    if (current && hasCurrentOption) return; // respect manual override
+    const match = users.find(
+      (u) =>
+        String(u.id) === String(user.id) ||
+        (!!u.email &&
+          !!user.email &&
+          u.email.toLowerCase() === user.email.toLowerCase())
+    );
+    if (match) {
+      setValue("checkedBy", String(match.id));
+      setValue("checkedByName", match.name || user?.name || "");
+    }
+  }, [users, user, getValues, setValue]);
+
   const handleRefetch = (value) => {
     setRefetchedAt(value);
   };
@@ -170,6 +198,8 @@ const PrescribingIntervention = () => {
       const payload = {
         type: "prescribing-intervention",
         ...data,
+        dispensedBy: data.dispensedBy ? Number(data.dispensedBy) : null,
+        checkedBy: data.checkedBy ? Number(data.checkedBy) : null,
         isDraft: false,
         createdBy: user?.id,
         ownerOdsCode: pharmacy?.odsCode,
@@ -187,6 +217,10 @@ const PrescribingIntervention = () => {
         setShowSuccessModal(true);
         setImagePreview(null);
         reset();
+        if (user?.id) {
+          setValue("checkedBy", String(user.id));
+          setValue("checkedByName", user?.name || "");
+        }
       } else {
         alert(`Error: ${response.data.message || "Failed to submit form"}`);
       }
@@ -588,9 +622,13 @@ const PrescribingIntervention = () => {
               </h5>
               <hr className="bg-[#DAECFF] my-[16px]" />
               <Select
+                value={watch("dispensedBy") || ""}
                 onValueChange={(value) => {
-                  setValue("dispensedBy", Number(value.split(";;")[0]));
-                  setValue("dispensedByName", value.split(";;")[1]);
+                  const selectedUser = users.find(
+                    (usr) => String(usr.id) === value
+                  );
+                  setValue("dispensedBy", value);
+                  setValue("dispensedByName", selectedUser?.name || null);
                 }}
               >
                 <SelectTrigger className="w-full bg-[#F8F9FB] p-[16px] !h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
@@ -600,7 +638,7 @@ const PrescribingIntervention = () => {
                   {users.map((user) => (
                     <SelectItem
                       key={user.id}
-                      value={`${user.id};;${user.name}`}
+                      value={`${user.id}`}
                     >
                       {user.name}
                     </SelectItem>
@@ -632,9 +670,13 @@ const PrescribingIntervention = () => {
               </h5>
               <hr className="bg-[#DAECFF] my-[16px]" />
               <Select
+                value={watch("checkedBy") || ""}
                 onValueChange={(value) => {
-                  setValue("checkedBy", value.split(";;")[0]);
-                  setValue("checkedByName", value.split(";;")[1]);
+                  const selectedUser = users.find(
+                    (usr) => String(usr.id) === value
+                  );
+                  setValue("checkedBy", value);
+                  setValue("checkedByName", selectedUser?.name || null);
                 }}
               >
                 <SelectTrigger className="w-full bg-[#F8F9FB] p-[16px] !h-[56px] border rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
@@ -644,7 +686,7 @@ const PrescribingIntervention = () => {
                   {users.map((user) => (
                     <SelectItem
                       key={user.id}
-                      value={`${user.id};;${user.name}`}
+                      value={`${user.id}`}
                     >
                       {user.name}
                     </SelectItem>

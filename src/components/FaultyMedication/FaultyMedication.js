@@ -206,12 +206,21 @@ const FaultyMedication = () => {
   const [incidentReference, setIncidentReference] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Default “Received by” (checked by equivalent here is “receivedBy”) to logged-in user but allow overriding
+  useEffect(() => {
+    if (user?.id) {
+      setValue("receivedBy", String(user.id));
+      setValue("receivedByName", user?.name || "");
+    }
+  }, [user, setValue]);
+
   const onSubmit = async (data) => {
     try {
       setIsSubmitting(true);
       const payload = {
         type: "faulty-medication",
         ...data,
+        receivedBy: data.receivedBy ? Number(data.receivedBy) : null,
         isDraft: false,
         isDeleted: false,
         createdBy: user?.id,
@@ -230,6 +239,10 @@ const FaultyMedication = () => {
         setShowSuccessModal(true);
         setImagePreview(null);
         reset();
+        if (user?.id) {
+          setValue("receivedBy", String(user.id));
+          setValue("receivedByName", user?.name || "");
+        }
       } else {
         alert(`Error: ${response.data.message || "Failed to submit form"}`);
       }
