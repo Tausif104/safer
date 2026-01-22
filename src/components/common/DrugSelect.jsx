@@ -63,7 +63,9 @@ const DrugSelect = ({
   const handleSearchChange = (e) => {
     const term = e.target.value;
     setSearchTerm(term);
+    setSelectedOption(null); // Reset selection when typing
     debouncedSearch(term);
+    // Don't call onChange here - wait for selection, Enter, or blur
   };
 
   const handleOptionSelect = (option) => {
@@ -75,6 +77,30 @@ const DrugSelect = ({
     setTimeout(() => {
       inputRef.current?.blur();
     }, 100);
+  };
+
+  const handleUseCustomText = () => {
+    if (searchTerm.trim().length > 0) {
+      setSelectedOption(null);
+      onChange(searchTerm.trim());
+      setIsOpen(false);
+      setTimeout(() => {
+        inputRef.current?.blur();
+      }, 100);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    // Allow Enter key to accept custom text when no option is selected
+    if (e.key === "Enter" && !selectedOption && searchTerm.trim().length > 0) {
+      e.preventDefault();
+      handleUseCustomText();
+    }
+    // Allow Escape to close dropdown
+    if (e.key === "Escape") {
+      setIsOpen(false);
+      inputRef.current?.blur();
+    }
   };
 
   const handleClear = () => {
@@ -102,6 +128,10 @@ const DrugSelect = ({
     setTimeout(() => {
       // Double check that we're not in the middle of a touch interaction
       if (!touchStartRef.current && !isScrollingRef.current) {
+        // If user typed something but didn't select an option, accept the custom text
+        if (searchTerm.trim().length > 0 && !selectedOption) {
+          onChange(searchTerm.trim());
+        }
         setIsOpen(false);
       }
     }, 200);
@@ -141,10 +171,20 @@ const DrugSelect = ({
   }, []);
 
   useEffect(() => {
-    if (value && !selectedOption) {
-      setSearchTerm(value);
+    // Sync value with searchTerm when value changes externally
+    // This handles both selected drugs and custom text
+    if (value !== undefined) {
+      // If value matches selected option, keep it
+      if (selectedOption && selectedOption.drugName === value) {
+        if (searchTerm !== value) {
+          setSearchTerm(value);
+        }
+      } else if (value !== searchTerm) {
+        // If value doesn't match searchTerm, update it (handles custom text)
+        setSearchTerm(value);
+      }
     }
-  }, [value, selectedOption]);
+  }, [value]); // Only depend on value to avoid loops
 
   // Reset touch state when dropdown closes
   useEffect(() => {
@@ -167,6 +207,7 @@ const DrugSelect = ({
           onChange={handleSearchChange}
           onFocus={handleFocus}
           onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
           placeholder={placeholder}
           className={cn(
             "w-full pl-10 pr-10 py-3 border rounded-md text-sm",
@@ -304,12 +345,28 @@ const DrugSelect = ({
               </button>
             ))
           ) : searchTerm.length >= minSearchLength ? (
-            <div className="px-3 py-2 text-sm text-gray-500">
-              No drugs found for "{searchTerm}"
+            <div className="px-3 py-2">
+              <div className="text-sm text-gray-500 mb-2">
+                No drugs found for "{searchTerm}"
+              </div>
+              <button
+                type="button"
+                onClick={handleUseCustomText}
+                onTouchEnd={(e) => {
+                  e.preventDefault();
+                  handleUseCustomText();
+                }}
+                className="w-full px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded border border-blue-200 hover:border-blue-300 transition-colors active:bg-blue-100"
+                style={{
+                  touchAction: "manipulation",
+                }}
+              >
+                Use "{searchTerm}" as custom drug name
+              </button>
             </div>
           ) : (
             <div className="px-3 py-2 text-sm text-gray-500">
-              Type at least {minSearchLength} characters to search
+              Type at least {minSearchLength} characters to search, or enter a custom drug name
             </div>
           )}
         </div>
