@@ -26,6 +26,8 @@ const DrugSelect = ({
   const inputRef = useRef(null);
   const dropdownRef = useRef(null);
   const debounceRef = useRef(null);
+  const touchStartRef = useRef(null);
+  const isScrollingRef = useRef(false);
 
   const debouncedSearch = useCallback(
     (term) => {
@@ -96,9 +98,13 @@ const DrugSelect = ({
       return;
     }
     // Add delay for mobile devices to allow touch events to complete
+    // Longer delay for iOS Safari to handle touch events properly
     setTimeout(() => {
-      setIsOpen(false);
-    }, 150);
+      // Double check that we're not in the middle of a touch interaction
+      if (!touchStartRef.current && !isScrollingRef.current) {
+        setIsOpen(false);
+      }
+    }, 200);
   };
 
   useEffect(() => {
@@ -113,6 +119,10 @@ const DrugSelect = ({
     };
 
     const handleTouchOutside = (event) => {
+      // Don't close if we're in the middle of a touch interaction
+      if (touchStartRef.current || isScrollingRef.current) {
+        return;
+      }
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target) &&
@@ -135,6 +145,14 @@ const DrugSelect = ({
       setSearchTerm(value);
     }
   }, [value, selectedOption]);
+
+  // Reset touch state when dropdown closes
+  useEffect(() => {
+    if (!isOpen) {
+      touchStartRef.current = null;
+      isScrollingRef.current = false;
+    }
+  }, [isOpen]);
 
   return (
     <div className="relative">
@@ -201,7 +219,15 @@ const DrugSelect = ({
           className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto"
           style={{
             WebkitOverflowScrolling: "touch",
-            touchAction: "manipulation",
+            touchAction: "pan-y",
+          }}
+          onTouchStart={(e) => {
+            // Reset scrolling state when starting a new touch
+            isScrollingRef.current = false;
+          }}
+          onTouchMove={(e) => {
+            // Mark as scrolling if user moves finger
+            isScrollingRef.current = true;
           }}
         >
           {loading ? (
@@ -216,19 +242,60 @@ const DrugSelect = ({
                 type="button"
                 onClick={() => handleOptionSelect(option)}
                 onTouchStart={(e) => {
-                  // Prevent default to avoid double-tap zoom on iOS
-                  e.preventDefault();
+                  // Store touch start position and time
+                  const touch = e.touches[0];
+                  touchStartRef.current = {
+                    y: touch.clientY,
+                    time: Date.now(),
+                    option: option,
+                    target: e.currentTarget,
+                  };
+                  isScrollingRef.current = false;
+                }}
+                onTouchMove={(e) => {
+                  // If user moves finger, it's a scroll, not a tap
+                  if (touchStartRef.current) {
+                    const touch = e.touches[0];
+                    const deltaY = Math.abs(
+                      touch.clientY - touchStartRef.current.y
+                    );
+                    if (deltaY > 5) {
+                      // More than 5px movement = scrolling
+                      isScrollingRef.current = true;
+                    }
+                  }
                 }}
                 onTouchEnd={(e) => {
-                  // Handle touch selection
-                  e.preventDefault();
-                  handleOptionSelect(option);
+                  // Only select if it was a tap (not a scroll)
+                  if (touchStartRef.current && touchStartRef.current.option === option) {
+                    const touchEndTime = Date.now();
+                    const timeDiff = touchEndTime - touchStartRef.current.time;
+                    const touchEndY = e.changedTouches[0].clientY;
+                    const deltaY = Math.abs(
+                      touchEndY - touchStartRef.current.y
+                    );
+
+                    // Only select if:
+                    // 1. Not scrolling (deltaY < 10px)
+                    // 2. Quick tap (timeDiff < 300ms)
+                    // 3. Not marked as scrolling
+                    if (
+                      deltaY < 10 &&
+                      timeDiff < 300 &&
+                      !isScrollingRef.current
+                    ) {
+                      e.preventDefault();
+                      handleOptionSelect(option);
+                    }
+                    touchStartRef.current = null;
+                  }
                 }}
-                className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 focus:bg-gray-100 focus:outline-none touch-manipulation"
+                className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
                 style={{
                   WebkitTouchCallout: "none",
                   WebkitUserSelect: "none",
                   userSelect: "none",
+                  touchAction: "pan-y",
                 }}
               >
                 <div className="font-medium text-gray-900">

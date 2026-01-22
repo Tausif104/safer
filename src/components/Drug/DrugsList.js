@@ -354,3 +354,5 @@ const DrugsList = () => {
 
 export default DrugsList;
 
+
+

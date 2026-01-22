@@ -118,7 +118,6 @@ const NearMiss = () => {
     formState: { errors },
     setValue,
     watch,
-    getValues,
     reset,
   } = useForm({
     resolver: yupResolver(schema),
@@ -139,33 +138,6 @@ const NearMiss = () => {
     },
   });
 
-  // Default “Checked by” to the logged-in user but allow overriding
-  useEffect(() => {
-    if (user?.id) {
-      setValue("checkedBy", String(user.id));
-      setValue("checkedByName", user?.name || "");
-    }
-  }, [user, setValue]);
-
-  // Ensure checked-by defaults once users are loaded (matches by id or email)
-  useEffect(() => {
-    if (!user || !users.length) return;
-    const current = getValues("checkedBy");
-    const hasCurrentOption = users.some((u) => String(u.id) === String(current));
-    if (current && hasCurrentOption) return; // respect manual choice
-    const match = users.find(
-      (u) =>
-        String(u.id) === String(user.id) ||
-        (!!u.email &&
-          !!user.email &&
-          u.email.toLowerCase() === user.email.toLowerCase())
-    );
-    if (match) {
-      setValue("checkedBy", String(match.id));
-      setValue("checkedByName", match.name || user?.name || "");
-    }
-  }, [users, user, getValues, setValue]);
-
   const handleErrorTypeChange = (id) => {
     setSelectedErrorTypes((prev) => {
       if (prev.includes(id)) {
@@ -184,8 +156,6 @@ const NearMiss = () => {
       const payload = {
         type: "near-miss",
         ...data,
-        dispensedBy: data.dispensedBy ? Number(data.dispensedBy) : null,
-        checkedBy: data.checkedBy ? Number(data.checkedBy) : null,
         isDraft: false,
         createdBy: user?.id,
         ownerOdsCode: pharmacy?.odsCode,
@@ -203,11 +173,6 @@ const NearMiss = () => {
         setShowSuccessModal(true);
         setImagePreview(null);
         reset();
-        // Re-apply defaults that rely on logged-in user
-        if (user?.id) {
-          setValue("checkedBy", String(user.id));
-          setValue("checkedByName", user?.name || "");
-        }
         setSelectedErrorTypes([]);
       } else {
         alert(`Error: ${response.data.message || "Failed to submit form"}`);
@@ -422,14 +387,11 @@ const NearMiss = () => {
                 </h5>
                 <hr className="bg-[#DAECFF] my-[16px]" />
                 <Select
-                  value={watch("dispensedBy") || ""}
                   onValueChange={(value) => {
-                    const selectedUser = users.find(
-                      (usr) => String(usr.id) === value
-                    );
-                    setValue("dispensedBy", value);
-                    setValue("dispensedByName", selectedUser?.name || null);
+                    setValue("dispensedBy", Number(value.split(";;")[0]));
+                    setValue("dispensedByName", value.split(";;")[1]);
                   }}
+                  className=""
                 >
                   <SelectTrigger className="w-full  bg-[#F8F9FB] p-[16px] !h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
                     <SelectValue placeholder="Select One" />
@@ -438,7 +400,7 @@ const NearMiss = () => {
                     {users.map((user) => (
                       <SelectItem
                         key={user.id}
-                        value={`${user.id}`}
+                        value={`${user.id};;${user.name}`}
                       >
                         {user.name}
                       </SelectItem>
@@ -473,14 +435,11 @@ const NearMiss = () => {
                 </h5>
                 <hr className="bg-[#DAECFF] my-[16px]" />
                 <Select
-                  value={watch("checkedBy") || ""}
                   onValueChange={(value) => {
-                    const selectedUser = users.find(
-                      (usr) => String(usr.id) === value
-                    );
-                    setValue("checkedBy", value);
-                    setValue("checkedByName", selectedUser?.name || null);
+                    setValue("checkedBy", Number(value.split(";;")[0]));
+                    setValue("checkedByName", value.split(";;")[1]);
                   }}
+                  className=""
                 >
                   <SelectTrigger className="w-full  bg-[#F8F9FB] p-[16px] !h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
                     <SelectValue placeholder="Select One" />
@@ -489,7 +448,7 @@ const NearMiss = () => {
                     {users.map((user) => (
                       <SelectItem
                         key={user.id}
-                        value={`${user.id}`}
+                        value={`${user.id};;${user.name}`}
                       >
                         {user.name}
                       </SelectItem>

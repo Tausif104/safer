@@ -200,3 +200,5 @@ const DrugModal = ({
 
 export default DrugModal;
 
+
+

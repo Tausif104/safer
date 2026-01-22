@@ -13,3 +13,5 @@ const DrugsPage = () => {
 
 export default DrugsPage;
 
+
+

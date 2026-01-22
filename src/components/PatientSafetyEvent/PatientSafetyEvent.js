@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -237,21 +237,12 @@ const PatientSafetyEvent = () => {
   const [incidentReference, setIncidentReference] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Default “Recorded by” (checked by equivalent) to the logged-in user but allow overriding
-  useEffect(() => {
-    if (user?.id) {
-      setValue("recordedBy", String(user.id));
-      setValue("recordedByName", user?.name || "");
-    }
-  }, [user, setValue]);
-
   const onSubmit = async (data) => {
     try {
       setIsSubmitting(true);
       const payload = {
         type: "patient-safety-event",
         ...data,
-        recordedBy: data.recordedBy ? Number(data.recordedBy) : null,
         isDraft: false,
         createdBy: user?.id,
         ownerOdsCode: pharmacy?.odsCode,
@@ -269,10 +260,6 @@ const PatientSafetyEvent = () => {
         setShowSuccessModal(true);
         setImagePreview(null);
         reset();
-        if (user?.id) {
-          setValue("recordedBy", String(user.id));
-          setValue("recordedByName", user?.name || "");
-        }
         setSelectedAccidentLocations([]);
         setSelectedInjurySeverities([]);
       } else {
