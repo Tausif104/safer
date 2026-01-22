@@ -238,12 +238,34 @@ const NearMiss = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       const response = await api.get(
-        `${API_BASE_URL}/api/v1/users?pharmacyId=${pharmacy.id}`
+        `${API_BASE_URL}/api/v1/users?pharmacyId=${pharmacy.id}&page=1&limit=1000`
       );
-      setUsers(response.data.data);
+      const fetchedUsers = response.data.data;
+      setUsers(fetchedUsers);
+      
+      // Set default values to logged-in user if available and not already set
+      if (user?.id && fetchedUsers.length > 0) {
+        const loggedInUser = fetchedUsers.find((u) => u.id === user.id);
+        if (loggedInUser) {
+          // Set default for Dispensed By (only if not already set)
+          const currentDispensedBy = watch("dispensedBy");
+          if (!currentDispensedBy) {
+            setValue("dispensedBy", loggedInUser.id);
+            setValue("dispensedByName", loggedInUser.name);
+          }
+          
+          // Set default for Checked By (only if not already set)
+          const currentCheckedBy = watch("checkedBy");
+          if (!currentCheckedBy) {
+            setValue("checkedBy", loggedInUser.id);
+            setValue("checkedByName", loggedInUser.name);
+          }
+        }
+      }
     };
     fetchUsers();
-  }, [pharmacy, refetchedAt]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pharmacy, refetchedAt, user?.id]);
 
   return (
     <section className="mb-[50px] lg:mb-0">
@@ -387,6 +409,11 @@ const NearMiss = () => {
                 </h5>
                 <hr className="bg-[#DAECFF] my-[16px]" />
                 <Select
+                  value={
+                    watch("dispensedBy") && watch("dispensedByName")
+                      ? `${watch("dispensedBy")};;${watch("dispensedByName")}`
+                      : undefined
+                  }
                   onValueChange={(value) => {
                     setValue("dispensedBy", Number(value.split(";;")[0]));
                     setValue("dispensedByName", value.split(";;")[1]);
@@ -397,9 +424,9 @@ const NearMiss = () => {
                     <SelectValue placeholder="Select One" />
                   </SelectTrigger>
                   <SelectContent>
-                    {users.map((user) => (
+                    {users.map((user, i) => (
                       <SelectItem
-                        key={user.id}
+                        key={`dispensed-${user.id}-${i}`}
                         value={`${user.id};;${user.name}`}
                       >
                         {user.name}
@@ -435,6 +462,11 @@ const NearMiss = () => {
                 </h5>
                 <hr className="bg-[#DAECFF] my-[16px]" />
                 <Select
+                  value={
+                    watch("checkedBy") && watch("checkedByName")
+                      ? `${watch("checkedBy")};;${watch("checkedByName")}`
+                      : undefined
+                  }
                   onValueChange={(value) => {
                     setValue("checkedBy", Number(value.split(";;")[0]));
                     setValue("checkedByName", value.split(";;")[1]);
@@ -445,9 +477,9 @@ const NearMiss = () => {
                     <SelectValue placeholder="Select One" />
                   </SelectTrigger>
                   <SelectContent>
-                    {users.map((user) => (
+                    {users.map((user, i) => (
                       <SelectItem
-                        key={user.id}
+                        key={`checked-${user.id}-${i}`}
                         value={`${user.id};;${user.name}`}
                       >
                         {user.name}
