@@ -237,35 +237,112 @@ const NearMiss = () => {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const response = await api.get(
-        `${API_BASE_URL}/api/v1/users?pharmacyId=${pharmacy.id}&page=1&limit=1000`
-      );
-      const fetchedUsers = response.data.data;
-      setUsers(fetchedUsers);
-      
-      // Set default values to logged-in user if available and not already set
-      if (user?.id && fetchedUsers.length > 0) {
-        const loggedInUser = fetchedUsers.find((u) => u.id === user.id);
-        if (loggedInUser) {
-          // Set default for Dispensed By (only if not already set)
-          const currentDispensedBy = watch("dispensedBy");
-          if (!currentDispensedBy) {
-            setValue("dispensedBy", loggedInUser.id);
-            setValue("dispensedByName", loggedInUser.name);
-          }
+      // Guard: Ensure pharmacy and pharmacy.id exist
+      if (!pharmacy?.id) {
+        console.warn("Pharmacy ID not available");
+        return;
+      }
+
+      try {
+        const response = await api.get(
+          `${API_BASE_URL}/api/v1/users?pharmacyId=${pharmacy.id}&page=1&limit=1000`
+        );
+        const fetchedUsers = response.data.data || [];
+        setUsers(fetchedUsers);
+        
+        // Set default values to logged-in user if available and not already set
+        if (user?.id && fetchedUsers.length > 0) {
+          // Use type coercion for ID comparison (handles string/number mismatch)
+          const loggedInUser = fetchedUsers.find(
+            (u) => Number(u.id) === Number(user.id)
+          );
           
-          // Set default for Checked By (only if not already set)
-          const currentCheckedBy = watch("checkedBy");
-          if (!currentCheckedBy) {
-            setValue("checkedBy", loggedInUser.id);
-            setValue("checkedByName", loggedInUser.name);
+          if (loggedInUser) {
+            // Use setTimeout to ensure form is fully initialized
+            setTimeout(() => {
+              // Set default for Dispensed By (only if not already set)
+              const currentDispensedBy = watch("dispensedBy");
+              if (!currentDispensedBy) {
+                setValue("dispensedBy", Number(loggedInUser.id), {
+                  shouldValidate: false,
+                });
+                setValue("dispensedByName", loggedInUser.name || "", {
+                  shouldValidate: false,
+                });
+              }
+              
+              // Set default for Checked By (only if not already set)
+              const currentCheckedBy = watch("checkedBy");
+              if (!currentCheckedBy) {
+                setValue("checkedBy", Number(loggedInUser.id), {
+                  shouldValidate: false,
+                });
+                setValue("checkedByName", loggedInUser.name || "", {
+                  shouldValidate: false,
+                });
+              }
+            }, 100);
+          } else {
+            // Fallback: If logged-in user is not in the fetched list,
+            // still try to set defaults using the user from auth store
+            // This handles cases where the user exists but isn't in PharmacyUser table
+            setTimeout(() => {
+              const currentDispensedBy = watch("dispensedBy");
+              const currentCheckedBy = watch("checkedBy");
+              
+              if (!currentDispensedBy && user?.id && user?.name) {
+                setValue("dispensedBy", Number(user.id), {
+                  shouldValidate: false,
+                });
+                setValue("dispensedByName", user.name, {
+                  shouldValidate: false,
+                });
+              }
+              
+              if (!currentCheckedBy && user?.id && user?.name) {
+                setValue("checkedBy", Number(user.id), {
+                  shouldValidate: false,
+                });
+                setValue("checkedByName", user.name, {
+                  shouldValidate: false,
+                });
+              }
+            }, 100);
           }
+        }
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        // Even if API fails, try to set defaults from auth store user
+        if (user?.id && user?.name) {
+          setTimeout(() => {
+            const currentDispensedBy = watch("dispensedBy");
+            const currentCheckedBy = watch("checkedBy");
+            
+            if (!currentDispensedBy) {
+              setValue("dispensedBy", Number(user.id), {
+                shouldValidate: false,
+              });
+              setValue("dispensedByName", user.name, {
+                shouldValidate: false,
+              });
+            }
+            
+            if (!currentCheckedBy) {
+              setValue("checkedBy", Number(user.id), {
+                shouldValidate: false,
+              });
+              setValue("checkedByName", user.name, {
+                shouldValidate: false,
+              });
+            }
+          }, 100);
         }
       }
     };
+    
     fetchUsers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pharmacy, refetchedAt, user?.id]);
+  }, [pharmacy?.id, refetchedAt, user?.id]);
 
   return (
     <section className="mb-[50px] lg:mb-0">
@@ -423,7 +500,16 @@ const NearMiss = () => {
                   <SelectTrigger className="w-full  bg-[#F8F9FB] p-[16px] !h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
                     <SelectValue placeholder="Select One" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent
+                    position="popper"
+                    sideOffset={8}
+                    className="max-h-[50vh] sm:max-h-[300px] overflow-y-auto"
+                    style={{
+                      WebkitOverflowScrolling: "touch",
+                      touchAction: "pan-y",
+                      overscrollBehavior: "contain",
+                    }}
+                  >
                     {users.map((user, i) => (
                       <SelectItem
                         key={`dispensed-${user.id}-${i}`}
@@ -476,7 +562,16 @@ const NearMiss = () => {
                   <SelectTrigger className="w-full  bg-[#F8F9FB] p-[16px] !h-[56px] border  rounded-[6px] flex items-center gap-[10px] text-[16px] font-normal leading-[160%] text-[#374151] placeholder:text-[#707B8A] placeholder:font-normal placeholder:text-[16px]">
                     <SelectValue placeholder="Select One" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent
+                    position="popper"
+                    sideOffset={8}
+                    className="max-h-[50vh] sm:max-h-[300px] overflow-y-auto"
+                    style={{
+                      WebkitOverflowScrolling: "touch",
+                      touchAction: "pan-y",
+                      overscrollBehavior: "contain",
+                    }}
+                  >
                     {users.map((user, i) => (
                       <SelectItem
                         key={`checked-${user.id}-${i}`}
